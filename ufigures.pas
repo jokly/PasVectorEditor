@@ -83,9 +83,11 @@ procedure TPen.Draw(PaintBox: TPaintBox);
 var
   point: TPoint;
 begin
-  PaintBox.Canvas.MoveTo(FPoints[0]);
-  for point in FPoints do
-      PaintBox.Canvas.LineTo(point);
+  with PaintBox.Canvas do begin
+    MoveTo(FPoints[0]);
+    for point in FPoints do
+        LineTo(point);
+  end;
 end;
 
 procedure TLine.Draw(PaintBox: TPaintBox);
@@ -120,16 +122,26 @@ end;
 
 procedure TRectangle.Draw(PaintBox: TPaintBox);
 begin
-  PaintBox.Canvas.Brush.Style:= bsClear;
-  with PaintBox.Canvas do
+  with PaintBox.Canvas do begin
+    Brush.Style:= bsClear;
     Rectangle(startP.x, startP.y, endP.x, endP.y);
+  end;
 end;
 
 procedure TRoundRectangle.Draw(PaintBox: TPaintBox);
 begin
-  PaintBox.Canvas.Brush.Style:= bsClear;
-  with PaintBox.Canvas do
+  with PaintBox.Canvas do begin
+    Brush.Style:= bsClear;
     RoundRect(startP.x, startP.y, endP.x, endP.y, 10, 10);
+  end;
+end;
+
+procedure TEllipse.Draw(PaintBox: TPaintBox);
+begin
+  with PaintBox.Canvas do begin
+    Brush.Style:= bsClear;
+    Ellipse(startP.x, startP.y, endP.x, endP.y);
+  end;
 end;
 
 end.

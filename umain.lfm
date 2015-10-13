@@ -1,7 +1,7 @@
 object mainForm: TmainForm
-  Left = 435
+  Left = 680
   Height = 295
-  Top = 132
+  Top = 163
   Width = 362
   Caption = 'pasVectorEditor'
   ClientHeight = 275

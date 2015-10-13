@@ -77,6 +77,16 @@ type
   Shift: TShiftState; X, Y: Integer); override;
   end;
 
+  TTEllipse = Class(TTool)
+    public
+      procedure onMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer); override;
+      procedure onMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer); override;
+      procedure onMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer); override;
+  end;
+
 var
   point: TPoint;
 
@@ -239,11 +249,41 @@ begin
   (TFigure.getLastFigure() as TRoundRectangle).endP:= point;
 end;
 
+procedure TTEllipse.onMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  TFigure.addFigure(TEllipse.Create);
+  point.x:= X;
+  point.y:= Y;
+  (TFigure.getLastFigure() as TEllipse).startP:= point;
+end;
+
+procedure TTEllipse.onMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  if not (ssLeft in Shift) then
+    Exit;
+  point.x:= X;
+  point.y:= Y;
+  (TFigure.getLastFigure() as TEllipse).endP:= point;
+  (Sender as TPaintBox).Invalidate;
+end;
+
+procedure TTEllipse.onMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  point.x:= X;
+  point.y:= Y;
+  (TFigure.getLastFigure() as TEllipse).endP:= point;
+end;
+
 initialization
 TTool.addTool(TTPen.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\pen.bmp'));
 TTool.addTool(TTLine.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\line.bmp'));
 TTool.addTool(TTPolyline.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\polyline.bmp'));
 TTool.addTool(TTRectangle.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\rectangle.bmp'));
 TTool.addTool(TTRoundRectangle.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\roundRect.bmp'));
+TTool.addTool(TTEllipse.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\ellipse.bmp'));
+
 end.
 

@@ -29,8 +29,8 @@ type
   states = (Pen, Line);
 
 const
-  spaceBetweenButtons = 7;
-  sizeOfButton = 35;
+  spaceBetweenButtons = 10;
+  sizeOfButton = 50;
 
 var
   mainForm: TMainForm;
@@ -47,6 +47,7 @@ var
 begin
   addLeft:= 0;
   addTop:= 0;
+  ToolsPanel.Width:= 3 * spaceBetweenButtons + 2 * sizeOfButton;
   for i:=0 to High(TTool.Tools) do begin
     TTool.Tools[i].ButtonOnForm:= TBitBtn.Create(Self);
     with TTool.Tools[i].ButtonOnForm do begin
@@ -67,6 +68,7 @@ begin
       Tag:= i;
     end;
   end;
+  TTool.Tools[0].ButtonOnForm.Click;
 end;
 
 procedure TMainForm.MAboutClick(Sender: TObject);
