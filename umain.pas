@@ -6,21 +6,18 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, Menus, Buttons, UAbout, UTools, UFigures;
+  Menus, Buttons, UAbout, UTools, UFigures;
 
 type
 
   { TMainForm }
 
   TMainForm = class(TForm)
-    Pen: TBitBtn;
-    Line: TBitBtn;
     MainMenu: TMainMenu;
     MFile: TMenuItem;
     MAbout: TMenuItem;
     MExit: TMenuItem;
     PaintBox: TPaintBox;
-    Polyline: TBitBtn;
     ToolsPanel: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure MAboutClick(Sender: TObject);
@@ -31,9 +28,12 @@ type
 
   states = (Pen, Line);
 
+const
+  spaceBetweenButtons = 7;
+  sizeOfButton = 35;
+
 var
   mainForm: TMainForm;
-  toolPen, toolLine: TTool;
 
 implementation
 
@@ -42,9 +42,31 @@ implementation
 { TMainForm }
 
 procedure TMainForm.FormCreate(Sender: TObject);
+var
+  i, addLeft, addTop: integer;
 begin
-  toolPen:= TTPen.Create;
-  toolLine:= TTLine.Create;
+  addLeft:= 0;
+  addTop:= 0;
+  for i:=0 to High(TTool.Tools) do begin
+    TTool.Tools[i].ButtonOnForm:= TBitBtn.Create(Self);
+    with TTool.Tools[i].ButtonOnForm do begin
+      Name:= TTool.Tools[i].ToString + IntToStr(i);
+      Caption:= '';
+      Parent:= Self;
+      Width:= sizeOfButton;
+      Height:= sizeOfButton;
+      Glyph:= TTool.Tools[i].ImageOfButton;
+      addTop:= (i div 2) * (spaceBetweenButtons + sizeOfButton);
+      Left:= spaceBetweenButtons + addLeft;
+      Top:= spaceBetweenButtons + addTop;
+      if addLeft = 0 then
+         addLeft:= spaceBetweenButtons + sizeOfButton
+      else
+         addLeft:= 0;
+      OnClick:= @mainForm.ToolClick;
+      Tag:= i;
+    end;
+  end;
 end;
 
 procedure TMainForm.MAboutClick(Sender: TObject);
@@ -61,24 +83,15 @@ procedure TMainForm.PaintBoxPaint(Sender: TObject);
 var
   figure: TFigure;
 begin
-  for figure in TFigure.figures do
+  for figure in TFigure.FFigures do
       figure.Draw(PaintBox);
 end;
 
 procedure TMainForm.ToolClick(Sender: TObject);
 begin
-  case TButton(Sender).Name of
-       'Pen': begin
-         mainForm.PaintBox.OnMouseDown:= @toolPen.onMouseDown;
-         mainForm.PaintBox.OnMouseMove:= @toolPen.onMouseMove;
-         mainForm.PaintBox.OnMouseUp:= @toolPen.onMouseUp;
-       end;
-       'Line': begin
-         mainForm.PaintBox.OnMouseDown:= @toolLine.onMouseDown;
-         mainForm.PaintBox.OnMouseMove:= @toolLine.onMouseMove;
-         mainForm.PaintBox.OnMouseUp:= @toolLine.onMouseUp;
-       end;
-  end;
+  mainForm.PaintBox.OnMouseDown:= @TTool.Tools[(Sender as TBitBtn).Tag].onMouseDown;
+  mainForm.PaintBox.OnMouseMove:= @TTool.Tools[(Sender as TBitBtn).Tag].OnMouseMove;
+  mainForm.PaintBox.OnMouseUp:= @TTool.Tools[(Sender as TBitBtn).Tag].OnMouseUp;
 end;
 
 end.
