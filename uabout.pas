@@ -1,4 +1,4 @@
-unit about;
+unit UAbout;
 
 {$mode objfpc}{$H+}
 
@@ -13,7 +13,6 @@ type
 
   TaboutForm = class(TForm)
     Memo: TMemo;
-    procedure FormCreate(Sender: TObject);
   private
     { private declarations }
   public
@@ -29,10 +28,6 @@ implementation
 
 { TaboutForm }
 
-procedure TaboutForm.FormCreate(Sender: TObject);
-begin
-
-end;
 
 end.
 

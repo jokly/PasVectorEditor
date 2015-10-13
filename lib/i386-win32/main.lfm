@@ -1,7 +1,7 @@
 object mainForm: TmainForm
-  Left = 789
+  Left = 923
   Height = 365
-  Top = 161
+  Top = 118
   Width = 394
   Caption = 'pasVectorEditor'
   ClientHeight = 345
@@ -12,6 +12,7 @@ object mainForm: TmainForm
   Menu = MainMenu
   OnClose = FormClose
   OnCreate = FormCreate
+  Position = poDesktopCenter
   LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
     Left = 0
