@@ -6,31 +6,36 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, UAbout, UTools, UFigures;
+  Menus, Buttons, ColorBox, ValEdit, Grids, StdCtrls, UAbout, UTools, UFigures;
 
 type
 
   { TMainForm }
 
   TMainForm = class(TForm)
+    PenWidthBox: TComboBox;
+    PenColorBox: TColorBox;
     MainMenu: TMainMenu;
     MFile: TMenuItem;
     MAbout: TMenuItem;
     MExit: TMenuItem;
     PaintBox: TPaintBox;
+    AdditionalPanel: TPanel;
     ToolsPanel: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure MAboutClick(Sender: TObject);
     procedure MExitClick(Sender: TObject);
     procedure PaintBoxPaint(Sender: TObject);
+    procedure PenColorBoxChange(Sender: TObject);
+    procedure PenWidthBoxChange(Sender: TObject);
     procedure ToolClick(Sender: TObject);
   end;
 
   states = (Pen, Line);
 
 const
-  spaceBetweenButtons = 10;
-  sizeOfButton = 50;
+  spaceBetweenButtons = 7;
+  sizeOfButton = 35;
 
 var
   mainForm: TMainForm;
@@ -87,6 +92,16 @@ var
 begin
   for figure in TFigure.FFigures do
       figure.Draw(PaintBox);
+end;
+
+procedure TMainForm.PenColorBoxChange(Sender: TObject);
+begin
+  TTool.setPenColor(PenColorBox.Selected);
+end;
+
+procedure TMainForm.PenWidthBoxChange(Sender: TObject);
+begin
+  TTool.setPenWidth(StrToInt(PenWidthBox.Text));
 end;
 
 procedure TMainForm.ToolClick(Sender: TObject);

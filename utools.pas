@@ -12,12 +12,17 @@ uses
 type
 
   TTool = Class(TObject)
+    protected
+      FPenColor: TColor; static;
+      FPenWidth: Integer; static;
     public
       Tools: array of TTool; static;
       ButtonOnForm: TBitBtn;
       ImageOfButton: TBitmap;
       constructor Create(pathToFile: String); overload;
       class procedure addTool(tool: TTool); static;
+      class procedure setPenColor(color: TColor); static;
+      class procedure setPenWidth(width: Integer); static;
       procedure onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer); virtual; abstract;
       procedure onMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -104,10 +109,20 @@ begin
   Tools[High(Tools)]:= tool;
 end;
 
+class procedure TTool.setPenColor(color: TColor);
+begin
+  FPenColor:= color;
+end;
+
+class procedure TTool.setPenWidth(width: Integer);
+begin
+  FPenWidth:= width;
+end;
+
 procedure TTPen.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  TFigure.addFigure(TPen.Create);
+  TFigure.addFigure(TPen.Create(FPenColor, FPenWidth));
 end;
 
 procedure TTPen.onMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -130,7 +145,7 @@ end;
 procedure TTLine.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  TFigure.addFigure(TLine.Create);
+  TFigure.addFigure(TLine.Create(FPenColor, FPenWidth));
   point.x:= X;
   point.y:= Y;
   (TFigure.getLastFigure() as TLine).startP:= point;
@@ -171,7 +186,7 @@ begin
   end
   else
      isMouseWasDown:= true;
-  TFigure.addFigure(TPolyline.Create);
+  TFigure.addFigure(TPolyline.Create(FPenColor, FPenWidth));
   (TFigure.getLastFigure() as TPolyline).addLine;
   (TFigure.getLastFigure() as TPolyline).getLastLine().startP:= point;
 end;
@@ -196,7 +211,7 @@ end;
 procedure TTRectangle.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  TFigure.addFigure(TRectangle.Create);
+  TFigure.addFigure(TRectangle.Create(FPenColor, FPenWidth));
   point.x:= X;
   point.y:= Y;
   (TFigure.getLastFigure() as TRectangle).startP:= point;
@@ -224,7 +239,7 @@ end;
 procedure TTRoundRectangle.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  TFigure.addFigure(TRoundRectangle.Create);
+  TFigure.addFigure(TRoundRectangle.Create(FPenColor, FPenWidth));
   point.x:= X;
   point.y:= Y;
   (TFigure.getLastFigure() as TRoundRectangle).startP:= point;
@@ -252,7 +267,7 @@ end;
 procedure TTEllipse.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  TFigure.addFigure(TEllipse.Create);
+  TFigure.addFigure(TEllipse.Create(FPenColor, FPenWidth));
   point.x:= X;
   point.y:= Y;
   (TFigure.getLastFigure() as TEllipse).startP:= point;
