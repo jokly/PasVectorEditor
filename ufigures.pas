@@ -5,7 +5,6 @@ unit UFigures;
 interface
 
 uses
-  //Classes, SysUtils, ExtCtrls;
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, Menus, Buttons;
 
@@ -19,6 +18,7 @@ type
       constructor Create(PenColor: TColor; PenWidth: Integer);
       class procedure addFigure(figure: TFigure); static;
       class function getLastFigure(): TFigure; static;
+      class procedure deleteLastFigure(); static;
       procedure Draw(PaintBox: TPaintBox); virtual; abstract;
   end;
 
@@ -79,7 +79,16 @@ end;
 
 class function TFigure.getLastFigure(): TFigure;
 begin
-  result:= FFigures[High(FFigures)];
+  if Length(FFigures) > 0 then
+    result:= FFigures[High(FFigures)]
+  else
+    result:= nil;
+end;
+
+class procedure TFigure.deleteLastFigure();
+begin
+  if Length(FFigures) > 0 then
+    SetLength(FFigures, Length(FFigures) - 1);
 end;
 
 procedure TPen.addPoint(point: TPoint);

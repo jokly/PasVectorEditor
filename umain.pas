@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, ColorBox, ValEdit, Grids, StdCtrls, UAbout, UTools, UFigures;
+  Menus, Buttons, ColorBox, StdCtrls, LCLtype, Windows, UAbout, UTools, UFigures;
 
 type
 
@@ -23,6 +23,7 @@ type
     AdditionalPanel: TPanel;
     ToolsPanel: TPanel;
     procedure FormCreate(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MAboutClick(Sender: TObject);
     procedure MExitClick(Sender: TObject);
     procedure PaintBoxPaint(Sender: TObject);
@@ -74,6 +75,19 @@ begin
     end;
   end;
   TTool.Tools[0].ButtonOnForm.Click;
+end;
+
+procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if GetKeyState(VK_LBUTTON) < 0 then Exit;
+  if (Key = VK_Z) and (Shift = [ssCtrl]) then
+     TFigure.deleteLastFigure();
+  PaintBox.Invalidate;
+  if (Key = VK_C) and (Shift = [ssCtrl]) then begin
+    while TFigure.getLastFigure() <> nil do
+      TFigure.deleteLastFigure();
+  end;
 end;
 
 procedure TMainForm.MAboutClick(Sender: TObject);

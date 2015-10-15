@@ -9,8 +9,10 @@ object mainForm: TmainForm
   Color = clWhite
   Constraints.MinHeight = 200
   Constraints.MinWidth = 200
+  KeyPreview = True
   Menu = MainMenu
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
   Position = poDesktopCenter
   LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
