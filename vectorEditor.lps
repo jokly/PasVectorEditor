@@ -9,7 +9,7 @@
         <Filename Value="vectorEditor.lpr"/>
         <IsPartOfProject Value="True"/>
         <CursorPos X="23" Y="10"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="58"/>
       </Unit0>
       <Unit1>
         <Filename Value="umain.pas"/>
@@ -20,10 +20,9 @@
         <UnitName Value="UMain"/>
         <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="120"/>
-        <CursorPos X="34" Y="134"/>
-        <FoldState Value=" T3j00B^"/>
-        <UsageCount Value="57"/>
+        <TopLine Value="125"/>
+        <CursorPos X="31" Y="135"/>
+        <UsageCount Value="58"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -36,15 +35,16 @@
         <UnitName Value="UAbout"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
-        <CursorPos X="14" Y="3"/>
-        <UsageCount Value="49"/>
+        <TopLine Value="5"/>
+        <CursorPos X="4" Y="23"/>
+        <UsageCount Value="50"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="tfigures.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TFigures"/>
-        <UsageCount Value="48"/>
+        <UsageCount Value="49"/>
       </Unit3>
       <Unit4>
         <Filename Value="ufigures.pas"/>
@@ -52,9 +52,9 @@
         <UnitName Value="UFigures"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="49"/>
-        <CursorPos X="37" Y="63"/>
-        <UsageCount Value="48"/>
+        <TopLine Value="156"/>
+        <CursorPos X="91" Y="169"/>
+        <UsageCount Value="49"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
@@ -63,9 +63,9 @@
         <UnitName Value="UTools"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="175"/>
-        <CursorPos X="20" Y="134"/>
-        <UsageCount Value="48"/>
+        <TopLine Value="236"/>
+        <CursorPos X="45" Y="171"/>
+        <UsageCount Value="49"/>
         <Loaded Value="True"/>
       </Unit5>
       <Unit6>

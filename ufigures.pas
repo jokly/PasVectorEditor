@@ -16,9 +16,9 @@ type
       FPenWidth: Integer;
     public
       constructor Create(PenColor: TColor; PenWidth: Integer);
-      class procedure addFigure(figure: TFigure); static;
-      class function getLastFigure(): TFigure; static;
-      class procedure deleteLastFigure(); static;
+      class procedure AddFigure(Figure: TFigure); static;
+      class function GetLastFigure(): TFigure; static;
+      class procedure DeleteLastFigure(); static;
       procedure Draw(Canvas: TCanvas); virtual; abstract;
   end;
 
@@ -26,13 +26,13 @@ type
     private
       FPoints: array of TPoint;
     public
-      procedure addPoint(point: TPoint);
+      procedure AddPoint(Point: TPoint);
       procedure Draw(Canvas: TCanvas); override;
   end;
 
   TLine = Class(TFigure)
     public
-      startP, endP: TPoint;
+      StartP, EndP: TPoint;
       procedure Draw(Canvas: TCanvas); override;
   end;
 
@@ -41,29 +41,31 @@ type
       FLines: array of TLine;
     public
       procedure Draw(Canvas: TCanvas); override;
-      procedure addLine();
-      function getLastLine(): TLine;
+      procedure AddLine();
+      function GetLastLine(): TLine;
   end;
 
   TRectangle = Class(TFigure)
     public
-      startP, endP: TPoint;
+      StartP, EndP: TPoint;
       procedure Draw(Canvas: TCanvas); override;
   end;
 
   TRoundRectangle = Class(TFigure)
     public
-      startP, endP: TPoint;
+      StartP, EndP: TPoint;
       procedure Draw(Canvas: TCanvas); override;
   end;
 
   TEllipse = Class(TFigure)
     public
-      startP, endP: TPoint;
+      StartP, EndP: TPoint;
       procedure Draw(Canvas: TCanvas); override;
   end;
 
 implementation
+const
+  RoundingOfRoundRect = 20;
 
 constructor TFigure.Create(PenColor: TColor; PenWidth: Integer);
 begin
@@ -71,42 +73,42 @@ begin
   FPenWidth:= PenWidth;
 end;
 
-class procedure TFigure.addFigure(figure: TFigure);
+class procedure TFigure.AddFigure(Figure: TFigure);
 begin
   SetLength(TFigure.FFigures, Length(TFigure.FFigures) + 1);
-  TFigure.FFigures[High(TFigure.FFigures)]:= figure;
+  TFigure.FFigures[High(TFigure.FFigures)]:= Figure;
 end;
 
-class function TFigure.getLastFigure(): TFigure;
+class function TFigure.GetLastFigure(): TFigure;
 begin
   if Length(FFigures) > 0 then
     Result:= FFigures[High(FFigures)]
   else
-    Result:= nil;
+    Result:= Nil;
 end;
 
-class procedure TFigure.deleteLastFigure();
+class procedure TFigure.DeleteLastFigure();
 begin
   if Length(FFigures) > 0 then
     SetLength(FFigures, Length(FFigures) - 1);
 end;
 
-procedure TPen.addPoint(point: TPoint);
+procedure TPen.AddPoint(Point: TPoint);
 begin
   SetLength(FPoints, Length(FPoints) + 1);
-  FPoints[High(FPoints)]:= point;
+  FPoints[High(FPoints)]:= Point;
 end;
 
 procedure TPen.Draw(Canvas: TCanvas);
 var
-  point: TPoint;
+  Point: TPoint;
 begin
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     MoveTo(FPoints[0]);
-    for point in FPoints do
-      LineTo(point);
+    for Point in FPoints do
+      LineTo(Point);
   end;
 end;
 
@@ -115,8 +117,8 @@ begin
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
-    MoveTo(startP);
-    LineTo(endP);
+    MoveTo(StartP);
+    LineTo(EndP);
   end;
 end;
 
@@ -128,24 +130,24 @@ begin
   Canvas.Pen.Width:= FPenWidth;
   for _line in FLines do
     with Canvas do begin
-      MoveTo(_line.startP);
-      LineTo(_line.endP);
+      MoveTo(_line.StartP);
+      LineTo(_line.EndP);
     end;
 end;
 
-procedure TPolyline.addLine();
+procedure TPolyline.AddLine();
 begin
   SetLength(FLines, Length(FLines) + 1);
   FLines[High(FLines)]:= TLine.Create(FPenColor, FPenWidth);
 end;
 
-function TPolyline.getLastLine(): TLine;
+function TPolyline.GetLastLine(): TLine;
 begin
-  if FLines = nil then Exit;
+  if FLines = Nil then Exit;
   if (Length(FLines) > 0) then
     Result:= FLines[High(FLines)]
   else
-    Result:= nil;
+    Result:= Nil;
 end;
 
 procedure TRectangle.Draw(Canvas: TCanvas);
@@ -154,7 +156,7 @@ begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
-    Rectangle(startP.x, startP.y, endP.x, endP.y);
+    Rectangle(StartP.x, StartP.y, EndP.x, EndP.y);
   end;
 end;
 
@@ -164,7 +166,7 @@ begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
-    RoundRect(startP.x, startP.y, endP.x, endP.y, 10, 10);
+    RoundRect(StartP.x, StartP.y, EndP.x, EndP.y, RoundingOfRoundRect, RoundingOfRoundRect);
   end;
 end;
 
@@ -174,7 +176,7 @@ begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
-    Ellipse(startP.x, startP.y, endP.x, endP.y);
+    Ellipse(StartP.x, StartP.y, EndP.x, EndP.y);
   end;
 end;
 

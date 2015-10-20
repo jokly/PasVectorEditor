@@ -39,13 +39,13 @@ type
   end;
 
 var
-  mainForm: TMainForm;
+  MainForm: TMainForm;
 
 implementation
 
 const
-  spaceBetweenButtons = 7;
-  sizeOfButton = 35;
+  SpaceBetweenButtons = 7;
+  SizeOfButton = 35;
 
 var
   IndexOfBtn: Integer;
@@ -56,28 +56,28 @@ var
 
 procedure TMainForm.FormCreate(Sender: TObject);
 var
-  i, addLeft, addTop: Integer;
+  i, AddLeft, AddTop: Integer;
 begin
-  addLeft:= 0;
-  addTop:= 0;
-  ToolsPanel.Width:= 3 * spaceBetweenButtons + 2 * sizeOfButton;
+  AddLeft:= 0;
+  AddTop:= 0;
+  ToolsPanel.Width:= 3 * SpaceBetweenButtons + 2 * SizeOfButton;
   for i:=0 to High(TTool.Tools) do begin
     TTool.Tools[i].ButtonOnForm:= TBitBtn.Create(Self);
     with TTool.Tools[i].ButtonOnForm do begin
       Name:= TTool.Tools[i].ToString + IntToStr(i);
       Caption:= '';
       Parent:= Self;
-      Width:= sizeOfButton;
-      Height:= sizeOfButton;
+      Width:= SizeOfButton;
+      Height:= SizeOfButton;
       Glyph:= TTool.Tools[i].ImageOfButton;
-      addTop:= (i div 2) * (spaceBetweenButtons + sizeOfButton);
-      Left:= spaceBetweenButtons + addLeft;
-      Top:= spaceBetweenButtons + addTop;
-      if addLeft = 0 then
-         addLeft:= spaceBetweenButtons + sizeOfButton
+      AddTop:= (i div 2) * (SpaceBetweenButtons + SizeOfButton);
+      Left:= SpaceBetweenButtons + AddLeft;
+      Top:= SpaceBetweenButtons + AddTop;
+      if AddLeft = 0 then
+         AddLeft:= SpaceBetweenButtons + SizeOfButton
       else
-         addLeft:= 0;
-      OnClick:= @mainForm.ToolClick;
+         AddLeft:= 0;
+      OnClick:= @MainForm.ToolClick;
       Tag:= i;
     end;
   end;
@@ -89,59 +89,59 @@ procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   if GetKeyState(VK_LBUTTON) < 0 then Exit;
   if (Key = VK_Z) and (Shift = [ssCtrl]) then
-     TFigure.deleteLastFigure();
+     TFigure.DeleteLastFigure();
   PaintBox.Invalidate;
   if (Key = VK_C) and (Shift = [ssCtrl]) then begin
-    while TFigure.getLastFigure() <> nil do
-      TFigure.deleteLastFigure();
+    while TFigure.GetLastFigure() <> nil do
+      TFigure.DeleteLastFigure();
   end;
 end;
 
 procedure TMainForm.MAboutClick(Sender: TObject);
 begin
-  aboutForm.Show;
+  AboutForm.Show;
 end;
 
 procedure TMainForm.MExitClick(Sender: TObject);
 begin
-  mainForm.Close;
+  MainForm.Close;
 end;
 
 procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  TTool.Tools[IndexOfBtn].onMouseDown(Sender, Button, Shift, X, Y);
+  TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, X, Y);
 end;
 
 procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  TTool.Tools[IndexOfBtn].onMouseMove(Sender, Shift, X, Y);
+  TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, X, Y);
   PaintBox.Invalidate;
 end;
 
 procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  TTool.Tools[IndexOfBtn].onMouseUp(Sender, Button, Shift, X, Y);
+  TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, X, Y);
 end;
 
 procedure TMainForm.PaintBoxPaint(Sender: TObject);
 var
-  figure: TFigure;
+  Figure: TFigure;
 begin
-  for figure in TFigure.FFigures do
-      figure.Draw(PaintBox.Canvas);
+  for Figure in TFigure.FFigures do
+      Figure.Draw(PaintBox.Canvas);
 end;
 
 procedure TMainForm.PenColorBoxChange(Sender: TObject);
 begin
-  TTool.setPenColor(PenColorBox.Selected);
+  TTool.SetPenColor(PenColorBox.Selected);
 end;
 
 procedure TMainForm.PenWidthBoxChange(Sender: TObject);
 begin
-  TTool.setPenWidth(StrToInt(PenWidthBox.Text));
+  TTool.SetPenWidth(StrToInt(PenWidthBox.Text));
 end;
 
 procedure TMainForm.ToolClick(Sender: TObject);

@@ -20,7 +20,7 @@ type
   end;
 
 var
-  aboutForm: TaboutForm;
+  AboutForm: TaboutForm;
 
 implementation
 
