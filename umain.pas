@@ -131,7 +131,7 @@ var
   figure: TFigure;
 begin
   for figure in TFigure.FFigures do
-      figure.Draw(PaintBox);
+      figure.Draw(PaintBox.Canvas);
 end;
 
 procedure TMainForm.PenColorBoxChange(Sender: TObject);

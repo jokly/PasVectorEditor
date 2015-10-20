@@ -19,7 +19,7 @@ type
       class procedure addFigure(figure: TFigure); static;
       class function getLastFigure(): TFigure; static;
       class procedure deleteLastFigure(); static;
-      procedure Draw(PaintBox: TPaintBox); virtual; abstract;
+      procedure Draw(Canvas: TCanvas); virtual; abstract;
   end;
 
   TPen = Class(TFigure)
@@ -27,20 +27,20 @@ type
       FPoints: array of TPoint;
     public
       procedure addPoint(point: TPoint);
-      procedure Draw(PaintBox: TPaintBox); override;
+      procedure Draw(Canvas: TCanvas); override;
   end;
 
   TLine = Class(TFigure)
     public
       startP, endP: TPoint;
-      procedure Draw(PaintBox: TPaintBox); override;
+      procedure Draw(Canvas: TCanvas); override;
   end;
 
   TPolyline = Class(TFigure)
     private
       FLines: array of TLine;
     public
-      procedure Draw(PaintBox: TPaintBox); override;
+      procedure Draw(Canvas: TCanvas); override;
       procedure addLine();
       function getLastLine(): TLine;
   end;
@@ -48,19 +48,19 @@ type
   TRectangle = Class(TFigure)
     public
       startP, endP: TPoint;
-      procedure Draw(PaintBox: TPaintBox); override;
+      procedure Draw(Canvas: TCanvas); override;
   end;
 
   TRoundRectangle = Class(TFigure)
     public
       startP, endP: TPoint;
-      procedure Draw(PaintBox: TPaintBox); override;
+      procedure Draw(Canvas: TCanvas); override;
   end;
 
   TEllipse = Class(TFigure)
     public
       startP, endP: TPoint;
-      procedure Draw(PaintBox: TPaintBox); override;
+      procedure Draw(Canvas: TCanvas); override;
   end;
 
 implementation
@@ -97,11 +97,11 @@ begin
   FPoints[High(FPoints)]:= point;
 end;
 
-procedure TPen.Draw(PaintBox: TPaintBox);
+procedure TPen.Draw(Canvas: TCanvas);
 var
   point: TPoint;
 begin
-  with PaintBox.Canvas do begin
+  with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     MoveTo(FPoints[0]);
@@ -110,9 +110,9 @@ begin
   end;
 end;
 
-procedure TLine.Draw(PaintBox: TPaintBox);
+procedure TLine.Draw(Canvas: TCanvas);
 begin
-  with PaintBox.Canvas do begin
+  with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     MoveTo(startP);
@@ -120,14 +120,14 @@ begin
   end;
 end;
 
-procedure TPolyline.Draw(PaintBox: TPaintBox);
+procedure TPolyline.Draw(Canvas: TCanvas);
 var
   _line: TLine;
 begin
-  PaintBox.Canvas.Pen.Color:= FPenColor;
-  PaintBox.Canvas.Pen.Width:= FPenWidth;
+  Canvas.Pen.Color:= FPenColor;
+  Canvas.Pen.Width:= FPenWidth;
   for _line in FLines do
-    with PaintBox.Canvas do begin
+    with Canvas do begin
       MoveTo(_line.startP);
       LineTo(_line.endP);
     end;
@@ -148,9 +148,9 @@ begin
     Result:= nil;
 end;
 
-procedure TRectangle.Draw(PaintBox: TPaintBox);
+procedure TRectangle.Draw(Canvas: TCanvas);
 begin
-  with PaintBox.Canvas do begin
+  with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
@@ -158,9 +158,9 @@ begin
   end;
 end;
 
-procedure TRoundRectangle.Draw(PaintBox: TPaintBox);
+procedure TRoundRectangle.Draw(Canvas: TCanvas);
 begin
-  with PaintBox.Canvas do begin
+  with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
@@ -168,9 +168,9 @@ begin
   end;
 end;
 
-procedure TEllipse.Draw(PaintBox: TPaintBox);
+procedure TEllipse.Draw(Canvas: TCanvas);
 begin
-  with PaintBox.Canvas do begin
+  with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
