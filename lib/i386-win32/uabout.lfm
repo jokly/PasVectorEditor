@@ -1,7 +1,7 @@
 object aboutForm: TaboutForm
-  Left = 1015
+  Left = 1514
   Height = 150
-  Top = 135
+  Top = 129
   Width = 280
   Caption = 'О программе'
   ClientHeight = 150
@@ -11,7 +11,7 @@ object aboutForm: TaboutForm
   Constraints.MinHeight = 150
   Constraints.MinWidth = 280
   Position = poMainFormCenter
-  LCLVersion = '1.4.2.0'
+  LCLVersion = '1.2.6.0'
   object Memo: TMemo
     Left = 32
     Height = 115

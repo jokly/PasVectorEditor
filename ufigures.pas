@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, Menus, Buttons;
+  Menus, Buttons;
 
 type
   TFigure = Class(TObject)
@@ -80,9 +80,9 @@ end;
 class function TFigure.getLastFigure(): TFigure;
 begin
   if Length(FFigures) > 0 then
-    result:= FFigures[High(FFigures)]
+    Result:= FFigures[High(FFigures)]
   else
-    result:= nil;
+    Result:= nil;
 end;
 
 class procedure TFigure.deleteLastFigure();
@@ -106,7 +106,7 @@ begin
     Pen.Width:= FPenWidth;
     MoveTo(FPoints[0]);
     for point in FPoints do
-        LineTo(point);
+      LineTo(point);
   end;
 end;
 
@@ -141,7 +141,11 @@ end;
 
 function TPolyline.getLastLine(): TLine;
 begin
-  Result:= FLines[High(FLines)];
+  if FLines = nil then Exit;
+  if (Length(FLines) > 0) then
+    Result:= FLines[High(FLines)]
+  else
+    Result:= nil;
 end;
 
 procedure TRectangle.Draw(PaintBox: TPaintBox);

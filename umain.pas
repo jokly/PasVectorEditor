@@ -26,22 +26,29 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MAboutClick(Sender: TObject);
     procedure MExitClick(Sender: TObject);
+    procedure PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure PaintBoxPaint(Sender: TObject);
     procedure PenColorBoxChange(Sender: TObject);
     procedure PenWidthBoxChange(Sender: TObject);
     procedure ToolClick(Sender: TObject);
   end;
 
-  states = (Pen, Line);
+var
+  mainForm: TMainForm;
+
+implementation
 
 const
   spaceBetweenButtons = 7;
   sizeOfButton = 35;
 
 var
-  mainForm: TMainForm;
-
-implementation
+  IndexOfBtn: Integer;
 
 {$R *.lfm}
 
@@ -49,7 +56,7 @@ implementation
 
 procedure TMainForm.FormCreate(Sender: TObject);
 var
-  i, addLeft, addTop: integer;
+  i, addLeft, addTop: Integer;
 begin
   addLeft:= 0;
   addTop:= 0;
@@ -100,6 +107,25 @@ begin
   mainForm.Close;
 end;
 
+procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  TTool.Tools[IndexOfBtn].onMouseDown(Sender, Button, Shift, X, Y);
+end;
+
+procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  TTool.Tools[IndexOfBtn].onMouseMove(Sender, Shift, X, Y);
+  PaintBox.Invalidate;
+end;
+
+procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  TTool.Tools[IndexOfBtn].onMouseUp(Sender, Button, Shift, X, Y);
+end;
+
 procedure TMainForm.PaintBoxPaint(Sender: TObject);
 var
   figure: TFigure;
@@ -120,9 +146,7 @@ end;
 
 procedure TMainForm.ToolClick(Sender: TObject);
 begin
-  mainForm.PaintBox.OnMouseDown:= @TTool.Tools[(Sender as TBitBtn).Tag].onMouseDown;
-  mainForm.PaintBox.OnMouseMove:= @TTool.Tools[(Sender as TBitBtn).Tag].OnMouseMove;
-  mainForm.PaintBox.OnMouseUp:= @TTool.Tools[(Sender as TBitBtn).Tag].OnMouseUp;
+  IndexOfBtn:= (Sender as TBitBtn).Tag;
 end;
 
 end.

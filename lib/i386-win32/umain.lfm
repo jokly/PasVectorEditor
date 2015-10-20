@@ -1,11 +1,11 @@
 object mainForm: TmainForm
-  Left = 477
-  Height = 471
-  Top = 172
-  Width = 808
+  Left = 810
+  Height = 381
+  Top = 109
+  Width = 542
   Caption = 'pasVectorEditor'
-  ClientHeight = 451
-  ClientWidth = 808
+  ClientHeight = 361
+  ClientWidth = 542
   Color = clWhite
   Constraints.MinHeight = 200
   Constraints.MinWidth = 200
@@ -17,17 +17,20 @@ object mainForm: TmainForm
   LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
     Left = 91
-    Height = 401
+    Height = 311
     Top = 50
-    Width = 717
+    Width = 451
     Align = alClient
     Color = clWhite
     ParentColor = False
+    OnMouseDown = PaintBoxMouseDown
+    OnMouseMove = PaintBoxMouseMove
+    OnMouseUp = PaintBoxMouseUp
     OnPaint = PaintBoxPaint
   end
   object ToolsPanel: TPanel
     Left = 0
-    Height = 401
+    Height = 311
     Top = 50
     Width = 91
     Align = alLeft
@@ -40,11 +43,11 @@ object mainForm: TmainForm
     Left = 0
     Height = 50
     Top = 0
-    Width = 808
+    Width = 542
     Align = alTop
     BevelOuter = bvNone
     ClientHeight = 50
-    ClientWidth = 808
+    ClientWidth = 542
     Color = clSilver
     ParentColor = False
     TabOrder = 1
@@ -105,7 +108,7 @@ object mainForm: TmainForm
     end
   end
   object MainMenu: TMainMenu
-    left = 752
+    left = 760
     top = 8
     object MFile: TMenuItem
       Caption = 'Файл'

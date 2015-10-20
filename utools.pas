@@ -24,78 +24,77 @@ type
       class procedure setPenColor(color: TColor); static;
       class procedure setPenWidth(width: Integer); static;
       procedure onMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); virtual; abstract;
+        Shift: TShiftState; X, Y: Integer); virtual; abstract;
       procedure onMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer); virtual; abstract;
+        Y: Integer); virtual; abstract;
       procedure onMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); virtual; abstract;
+        Shift: TShiftState; X, Y: Integer); virtual; abstract;
   end;
 
   TTPen = Class(TTool)
     public
       procedure onMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
       procedure onMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer); override;
+        Y: Integer); override;
       procedure onMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
   end;
 
   TTLine = Class(TTool)
     public
       procedure onMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
       procedure onMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer); override;
+        Y: Integer); override;
       procedure onMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
   end;
 
   TTPolyline = Class(TTool)
     public
-      isMouseWasDown: boolean;
       procedure onMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
       procedure onMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer); override;
+        Y: Integer); override;
       procedure onMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
   end;
 
   TTRectangle = Class(TTool)
     public
       procedure onMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
       procedure onMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer); override;
+        Y: Integer); override;
       procedure onMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
   end;
 
   TTRoundRectangle = Class(TTool)
     public
       procedure onMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
       procedure onMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer); override;
+        Y: Integer); override;
       procedure onMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
   end;
 
   TTEllipse = Class(TTool)
     public
       procedure onMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
       procedure onMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer); override;
+        Y: Integer); override;
       procedure onMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer); override;
+        Shift: TShiftState; X, Y: Integer); override;
   end;
 
-var
-  point: TPoint;
-
 implementation
+
+var
+  isMouseWasDown: Boolean;
 
 constructor TTool.Create(pathToFile: String);
 begin
@@ -128,12 +127,8 @@ end;
 procedure TTPen.onMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not (ssLeft in Shift) then
-    Exit;
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TPen).addPoint(point);
-  (Sender as TPaintBox).Invalidate;
+  if not(ssLeft in Shift) and not(ssRight in Shift) then Exit;
+  (TFigure.getLastFigure() as TPen).addPoint(Point(X, Y));
 end;
 
 procedure TTPen.onMouseUp(Sender: TObject; Button: TMouseButton;
@@ -146,60 +141,47 @@ procedure TTLine.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   TFigure.addFigure(TLine.Create(FPenColor, FPenWidth));
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TLine).startP:= point;
+  (TFigure.getLastFigure() as TLine).startP:= Point(X, Y);
 end;
 
 procedure TTLine.onMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not (ssLeft in Shift) then
+  if not(ssLeft in Shift) and not(ssRight in Shift) then
     Exit;
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TLine).endP:= point;
-  (Sender as TPaintBox).Invalidate;
+  (TFigure.getLastFigure() as TLine).endP:= Point(X, Y);
 end;
 
 procedure TTLine.onMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TLine).endP:= point;
-  (Sender as TPaintBox).Invalidate;
+  (TFigure.getLastFigure() as TLine).endP:= Point(X, Y);
 end;
 
 procedure TTPolyline.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  point.x:= X;
-  point.y:= Y;
   if Button = mbRight then begin
-    (TFigure.getLastFigure() as TPolyline).getLastLine().endP:= point;
+    (TFigure.getLastFigure() as TPolyline).getLastLine().endP:= Point(X, Y);
     isMouseWasDown:= false;
     Exit;
   end;
   if isMouseWasDown then  begin
-    (TFigure.getLastFigure() as TPolyline).getLastLine().endP:= point;
+    (TFigure.getLastFigure() as TPolyline).getLastLine().endP:= Point(X, Y);
   end
   else
      isMouseWasDown:= true;
   TFigure.addFigure(TPolyline.Create(FPenColor, FPenWidth));
   (TFigure.getLastFigure() as TPolyline).addLine;
-  (TFigure.getLastFigure() as TPolyline).getLastLine().startP:= point;
+  (TFigure.getLastFigure() as TPolyline).getLastLine().startP:= Point(X, Y);
 end;
 
 procedure TTPolyline.onMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not(isMouseWasDown) then
+  if not(isMouseWasDown) and not(ssRight in Shift)  then
     Exit;
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TPolyline).getLastLine().endP:= point;
-  (Sender as TPaintBox).Invalidate;
+  (TFigure.getLastFigure() as TPolyline).getLastLine().endP:= Point(X, Y);
 end;
 
 procedure TTPolyline.onMouseUp(Sender: TObject; Button: TMouseButton;
@@ -212,93 +194,72 @@ procedure TTRectangle.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   TFigure.addFigure(TRectangle.Create(FPenColor, FPenWidth));
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TRectangle).startP:= point;
+  (TFigure.getLastFigure() as TRectangle).startP:= Point(X, Y);
 end;
 
 procedure TTRectangle.onMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not (ssLeft in Shift) then
+  if not (ssLeft in Shift) and not(ssRight in Shift)  then
     Exit;
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TRectangle).endP:= point;
-  (Sender as TPaintBox).Invalidate;
+  (TFigure.getLastFigure() as TRectangle).endP:= Point(X, Y);
 end;
 
 procedure TTRectangle.onMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TRectangle).endP:= point;
+  (TFigure.getLastFigure() as TRectangle).endP:= Point(X, Y);
 end;
 
 procedure TTRoundRectangle.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   TFigure.addFigure(TRoundRectangle.Create(FPenColor, FPenWidth));
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TRoundRectangle).startP:= point;
+  (TFigure.getLastFigure() as TRoundRectangle).startP:= Point(X, Y);
 end;
 
 procedure TTRoundRectangle.onMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not (ssLeft in Shift) then
+  if not (ssLeft in Shift) and not(ssRight in Shift)  then
     Exit;
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TRoundRectangle).endP:= point;
-  (Sender as TPaintBox).Invalidate;
+  (TFigure.getLastFigure() as TRoundRectangle).endP:= Point(X, Y);
 end;
 
 procedure TTRoundRectangle.onMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TRoundRectangle).endP:= point;
+  (TFigure.getLastFigure() as TRoundRectangle).endP:= Point(X, Y);
 end;
 
 procedure TTEllipse.onMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   TFigure.addFigure(TEllipse.Create(FPenColor, FPenWidth));
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TEllipse).startP:= point;
+  (TFigure.getLastFigure() as TEllipse).startP:= Point(X, Y);
 end;
 
 procedure TTEllipse.onMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not (ssLeft in Shift) then
+  if not (ssLeft in Shift) and not(ssRight in Shift)  then
     Exit;
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TEllipse).endP:= point;
-  (Sender as TPaintBox).Invalidate;
+  (TFigure.getLastFigure() as TEllipse).endP:= Point(X, Y);
 end;
 
 procedure TTEllipse.onMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  point.x:= X;
-  point.y:= Y;
-  (TFigure.getLastFigure() as TEllipse).endP:= point;
+  (TFigure.getLastFigure() as TEllipse).endP:= Point(X, Y);
 end;
 
 initialization
-TTool.addTool(TTPen.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\pen.bmp'));
-TTool.addTool(TTLine.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\line.bmp'));
-TTool.addTool(TTPolyline.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\polyline.bmp'));
-TTool.addTool(TTRectangle.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\rectangle.bmp'));
-TTool.addTool(TTRoundRectangle.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\roundRect.bmp'));
-TTool.addTool(TTEllipse.Create('C:\Users\slast\Documents\FreePascal\pasVectorEditor\img\ellipse.bmp'));
+TTool.addTool(TTPen.Create('img\pen.bmp'));
+TTool.addTool(TTLine.Create('img\line.bmp'));
+TTool.addTool(TTPolyline.Create('img\polyline.bmp'));
+TTool.addTool(TTRectangle.Create('img\rectangle.bmp'));
+TTool.addTool(TTRoundRectangle.Create('img\roundRect.bmp'));
+TTool.addTool(TTEllipse.Create('img\ellipse.bmp'));
 
 end.
 
