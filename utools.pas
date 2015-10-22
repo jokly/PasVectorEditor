@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, Menus, Buttons, UFigures;
+  Menus, Buttons, UFigures;
 
 type
 
@@ -15,6 +15,7 @@ type
       FPenColor: TColor; static;
       FPenWidth: Integer; static;
     public
+      IsMouseDown: Boolean; static;
       Tools: array of TTool; static;
       ButtonOnForm: TBitBtn;
       ImageOfButton: TBitmap;
@@ -126,7 +127,6 @@ end;
 procedure TTPen.OnMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not(ssLeft in Shift) and not(ssRight in Shift) then Exit;
   (TFigure.GetLastFigure() as TPen).AddPoint(Point(X, Y));
 end;
 
@@ -146,8 +146,6 @@ end;
 procedure TTLine.OnMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not(ssLeft in Shift) and not(ssRight in Shift) then
-    Exit;
   (TFigure.GetLastFigure() as TLine).EndP:= Point(X, Y);
 end;
 
@@ -165,9 +163,8 @@ begin
     IsMouseWasDown:= False;
     Exit;
   end;
-  if IsMouseWasDown then  begin
-    (TFigure.GetLastFigure() as TPolyline).GetLastLine().EndP:= Point(X, Y);
-  end
+  if IsMouseWasDown then
+    (TFigure.GetLastFigure() as TPolyline).GetLastLine().EndP:= Point(X, Y)
   else
      IsMouseWasDown:= True;
   TFigure.AddFigure(TPolyline.Create(FPenColor, FPenWidth));
@@ -178,15 +175,13 @@ end;
 procedure TTPolyline.OnMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not(IsMouseWasDown) and not(ssRight in Shift)  then
-    Exit;
   (TFigure.GetLastFigure() as TPolyline).GetLastLine().EndP:= Point(X, Y);
 end;
 
 procedure TTPolyline.OnMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-
+  if IsMouseWasDown then TTool.IsMouseDown:= True;
 end;
 
 procedure TTRectangle.OnMouseDown(Sender: TObject; Button: TMouseButton;
@@ -199,8 +194,6 @@ end;
 procedure TTRectangle.OnMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not (ssLeft in Shift) and not(ssRight in Shift)  then
-    Exit;
   (TFigure.GetLastFigure() as TRectangle).EndP:= Point(X, Y);
 end;
 
@@ -220,8 +213,6 @@ end;
 procedure TTRoundRectangle.OnMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not (ssLeft in Shift) and not(ssRight in Shift)  then
-    Exit;
   (TFigure.GetLastFigure() as TRoundRectangle).EndP:= Point(X, Y);
 end;
 
@@ -241,8 +232,6 @@ end;
 procedure TTEllipse.OnMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not (ssLeft in Shift) and not(ssRight in Shift)  then
-    Exit;
   (TFigure.GetLastFigure() as TEllipse).EndP:= Point(X, Y);
 end;
 
