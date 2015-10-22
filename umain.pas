@@ -61,6 +61,8 @@ begin
   AddLeft:= 0;
   AddTop:= 0;
   ToolsPanel.Width:= 3 * SpaceBetweenButtons + 2 * SizeOfButton;
+  PenWidthBox.Left:= ToolsPanel.Width;
+  PenColorBox.Left:= PenWidthBox.Left + PenWidthBox.Width + SpaceBetweenButtons;
   for i:=0 to High(TTool.Tools) do begin
     TTool.Tools[i].ButtonOnForm:= TBitBtn.Create(Self);
     with TTool.Tools[i].ButtonOnForm do begin
