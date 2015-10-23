@@ -106,7 +106,8 @@ begin
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
-    MoveTo(FPoints[0]);
+    if Length(FPoints) > 0 then
+      MoveTo(FPoints[0]);
     for Point in FPoints do
       LineTo(Point);
   end;
