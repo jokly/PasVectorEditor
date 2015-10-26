@@ -11,7 +11,6 @@ uses
 type
   TFigure = Class(TObject)
     private
-      FFigures: array of TFigure; static;
       FPenColor: TColor;
       FPenWidth: Integer;
     public
@@ -63,6 +62,9 @@ type
       procedure Draw(Canvas: TCanvas); override;
   end;
 
+  var
+    FFigures: array of TFigure;
+
 implementation
 const
   RoundingOfRoundRect = 20;
@@ -75,8 +77,8 @@ end;
 
 class procedure TFigure.AddFigure(Figure: TFigure);
 begin
-  SetLength(TFigure.FFigures, Length(TFigure.FFigures) + 1);
-  TFigure.FFigures[High(TFigure.FFigures)]:= Figure;
+  SetLength(FFigures, Length(FFigures) + 1);
+  FFigures[High(FFigures)]:= Figure;
 end;
 
 class function TFigure.GetLastFigure(): TFigure;

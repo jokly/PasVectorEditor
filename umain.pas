@@ -135,7 +135,7 @@ procedure TMainForm.PaintBoxPaint(Sender: TObject);
 var
   Figure: TFigure;
 begin
-  for Figure in TFigure.FFigures do
+  for Figure in FFigures do
       Figure.Draw(PaintBox.Canvas);
 end;
 
