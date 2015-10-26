@@ -15,7 +15,6 @@ type
       FPenColor: TColor; static;
       FPenWidth: Integer; static;
     public
-      IsMouseDown: Boolean; static;
       Tools: array of TTool; static;
       ButtonOnForm: TBitBtn;
       ImageOfButton: TBitmap;
@@ -90,6 +89,9 @@ type
       procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; X, Y: Integer); override;
   end;
+
+  var
+    IsMouseDown: Boolean;
 
 implementation
 
@@ -181,7 +183,7 @@ end;
 procedure TTPolyline.OnMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  if IsMouseWasDown then TTool.IsMouseDown:= True;
+  if IsMouseWasDown then IsMouseDown:= True;
 end;
 
 procedure TTRectangle.OnMouseDown(Sender: TObject; Button: TMouseButton;

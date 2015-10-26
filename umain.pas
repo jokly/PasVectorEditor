@@ -112,14 +112,14 @@ end;
 procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  TTool.IsMouseDown:= True;
+  IsMouseDown:= True;
   TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, X, Y);
 end;
 
 procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if TTool.IsMouseDown then
+  if IsMouseDown then
     TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, X, Y);
   PaintBox.Invalidate;
 end;
@@ -127,7 +127,7 @@ end;
 procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  TTool.IsMouseDown:= False;
+  IsMouseDown:= False;
   TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, X, Y);
 end;
 
