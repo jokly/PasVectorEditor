@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, ColorBox, StdCtrls, LCLtype, Windows, UAbout, UTools, UFigures;
+  Menus, Buttons, ColorBox, StdCtrls, LCLtype, ComCtrls, Windows, UAbout,
+  UTools, UFigures;
 
 type
 
@@ -20,8 +21,9 @@ type
     MAbout: TMenuItem;
     MExit: TMenuItem;
     PaintBox: TPaintBox;
-    AdditionalPanel: TPanel;
     ToolsPanel: TPanel;
+    PropertiesPanel: TPanel;
+    TrackBarZoom: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MAboutClick(Sender: TObject);
@@ -56,13 +58,9 @@ var
 
 procedure TMainForm.FormCreate(Sender: TObject);
 var
-  i, AddLeft, AddTop: Integer;
+  i: Integer;
 begin
-  AddLeft:= 0;
-  AddTop:= 0;
-  ToolsPanel.Width:= 3 * SpaceBetweenButtons + 2 * SizeOfButton;
-  PenWidthBox.Left:= ToolsPanel.Width;
-  PenColorBox.Left:= PenWidthBox.Left + PenWidthBox.Width + SpaceBetweenButtons;
+  ToolsPanel.Height:= SizeOfButton + 2 * SpaceBetweenButtons;
   for i:=0 to High(TTool.Tools) do begin
     TTool.Tools[i].ButtonOnForm:= TBitBtn.Create(Self);
     with TTool.Tools[i].ButtonOnForm do begin
@@ -72,13 +70,8 @@ begin
       Width:= SizeOfButton;
       Height:= SizeOfButton;
       Glyph:= TTool.Tools[i].ImageOfButton;
-      AddTop:= (i div 2) * (SpaceBetweenButtons + SizeOfButton);
-      Left:= SpaceBetweenButtons + AddLeft;
-      Top:= SpaceBetweenButtons + AddTop;
-      if AddLeft = 0 then
-         AddLeft:= SpaceBetweenButtons + SizeOfButton
-      else
-         AddLeft:= 0;
+      Left:= (i+1) * SpaceBetweenButtons + i * SizeOfButton;
+      Top:= SpaceBetweenButtons;
       OnClick:= @MainForm.ToolClick;
       Tag:= i;
     end;
