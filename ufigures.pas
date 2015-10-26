@@ -9,6 +9,7 @@ uses
   Menus, Buttons;
 
 type
+
   TFigure = Class(TObject)
     private
       FPenColor: TColor;

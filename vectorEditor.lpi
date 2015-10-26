@@ -55,19 +55,19 @@
         <UnitName Value="UAbout"/>
       </Unit2>
       <Unit3>
-        <Filename Value="tfigures.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TFigures"/>
-      </Unit3>
-      <Unit4>
         <Filename Value="ufigures.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UFigures"/>
-      </Unit4>
-      <Unit5>
+      </Unit3>
+      <Unit4>
         <Filename Value="utools.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UTools"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="ucoordinatesystem.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UCoordinateSystem"/>
       </Unit5>
     </Units>
   </ProjectOptions>
