@@ -90,6 +90,10 @@ type
         Shift: TShiftState; X, Y: Integer); override;
   end;
 
+  const
+    SpaceBetweenButtons = 7;
+    SizeOfButton = 35;
+
   var
     IsMouseDown: Boolean;
 
@@ -102,6 +106,8 @@ var
 constructor TTool.Create(PathToFile: String);
 begin
   ImageOfButton:= TBitmap.Create;
+  ImageOfButton.Height:= SizeOfButton;
+  ImageOfButton.Width:= SizeOfButton;
   ImageOfButton.LoadFromFile(PathToFile);
 end;
 

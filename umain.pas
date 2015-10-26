@@ -45,10 +45,6 @@ var
 
 implementation
 
-const
-  SpaceBetweenButtons = 7;
-  SizeOfButton = 35;
-
 var
   IndexOfBtn: Integer;
 
