@@ -7,13 +7,14 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, Buttons, ColorBox, StdCtrls, LCLtype, ComCtrls, Windows, UAbout,
-  UTools, UFigures;
+  UTools, UFigures, UCoordinateSystem;
 
 type
 
   { TMainForm }
 
   TMainForm = class(TForm)
+    Label1: TLabel;
     PenWidthBox: TComboBox;
     PenColorBox: TColorBox;
     MainMenu: TMainMenu;
@@ -21,11 +22,14 @@ type
     MAbout: TMenuItem;
     MExit: TMenuItem;
     PaintBox: TPaintBox;
+    ScrollBarVertical: TScrollBar;
+    ScrollBarHorizontal: TScrollBar;
     ToolsPanel: TPanel;
     PropertiesPanel: TPanel;
     TrackBarZoom: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormResize(Sender: TObject);
     procedure MAboutClick(Sender: TObject);
     procedure MExitClick(Sender: TObject);
     procedure PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
@@ -37,13 +41,22 @@ type
     procedure PaintBoxPaint(Sender: TObject);
     procedure PenColorBoxChange(Sender: TObject);
     procedure PenWidthBoxChange(Sender: TObject);
+    procedure ScrollBarHorizontalScroll(Sender: TObject;
+      ScrollCode: TScrollCode; var ScrollPos: Integer);
+    procedure ScrollBarVerticalScroll(Sender: TObject; ScrollCode: TScrollCode;
+      var ScrollPos: Integer);
     procedure ToolClick(Sender: TObject);
+    procedure TrackBarZoomChange(Sender: TObject);
   end;
 
 var
   MainForm: TMainForm;
 
 implementation
+
+const
+  Bound = 60;
+  Addition = 3;
 
 var
   IndexOfBtn: Integer;
@@ -66,12 +79,15 @@ begin
       Width:= SizeOfButton;
       Height:= SizeOfButton;
       Glyph:= TTool.Tools[i].ImageOfButton;
+      BorderStyle:= bsNone;
       Left:= (i+1) * SpaceBetweenButtons + i * SizeOfButton;
       Top:= SpaceBetweenButtons;
       OnClick:= @MainForm.ToolClick;
       Tag:= i;
     end;
   end;
+  PaintBox.Canvas.Brush.Color:= clGreen;
+  PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);
   TTool.Tools[0].ButtonOnForm.Click;
 end;
 
@@ -86,6 +102,13 @@ begin
     while TFigure.GetLastFigure() <> nil do
       TFigure.DeleteLastFigure();
   end;
+end;
+
+procedure TMainForm.FormResize(Sender: TObject);
+begin
+  if PaintBox.Width < MainForm.Width then PaintBox.Width:= MainForm.Width;
+  if PaintBox.Height < MainForm.Height then PaintBox.Height:= MainForm.Height;
+  Invalidate;
 end;
 
 procedure TMainForm.MAboutClick(Sender: TObject);
@@ -108,8 +131,21 @@ end;
 procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if IsMouseDown then
+  if IsMouseDown then begin
+    if X > (PaintBox.Width - Bound) then begin
+      PaintBox.Width:= PaintBox.Width + Addition;
+      PaintBox.Left:= PaintBox.Left - Addition;
+      ScrollBarHorizontal.SetParams(-PaintBox.Left, 0, -PaintBox.Left);
+    end;
+    if Y > (PaintBox.Height - Bound) then begin
+      PaintBox.Height:= PaintBox.Height + Addition;
+      PaintBox.Top:= PaintBox.Top - Addition;
+      ScrollBarVertical.SetParams(-PaintBox.Top, 0, -PaintBox.Top);
+    end;
     TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, X, Y);
+    Label1.Caption:= IntToStr(PaintBox.Width) + ' : ' + IntToStr(PaintBox.Height) + ' Y:' + IntToStr(Y);
+  end;
+
   PaintBox.Invalidate;
 end;
 
@@ -138,9 +174,27 @@ begin
   TTool.SetPenWidth(StrToInt(PenWidthBox.Text));
 end;
 
+procedure TMainForm.ScrollBarHorizontalScroll(Sender: TObject;
+  ScrollCode: TScrollCode; var ScrollPos: Integer);
+begin
+  PaintBox.Left:= -ScrollPos;
+end;
+
+procedure TMainForm.ScrollBarVerticalScroll(Sender: TObject;
+  ScrollCode: TScrollCode; var ScrollPos: Integer);
+begin
+  PaintBox.Top:= -ScrollPos;
+end;
+
 procedure TMainForm.ToolClick(Sender: TObject);
 begin
   IndexOfBtn:= (Sender as TBitBtn).Tag;
+end;
+
+procedure TMainForm.TrackBarZoomChange(Sender: TObject);
+begin
+  Zoom:= TrackBarZoom.Position;
+  Invalidate;
 end;
 
 end.

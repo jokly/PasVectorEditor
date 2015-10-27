@@ -1,11 +1,11 @@
-object mainForm: TmainForm
-  Left = 553
-  Height = 381
+object MainForm: TMainForm
+  Left = 456
+  Height = 421
   Top = 199
-  Width = 567
+  Width = 602
   Caption = 'pasVectorEditor'
-  ClientHeight = 361
-  ClientWidth = 567
+  ClientHeight = 401
+  ClientWidth = 602
   Color = clWhite
   Constraints.MinHeight = 200
   Constraints.MinWidth = 200
@@ -13,14 +13,14 @@ object mainForm: TmainForm
   Menu = MainMenu
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
+  OnResize = FormResize
   Position = poDesktopCenter
   LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
-    Left = 91
-    Height = 312
-    Top = 49
-    Width = 476
-    Align = alClient
+    Left = 0
+    Height = 387
+    Top = 0
+    Width = 592
     Color = clWhite
     ParentColor = False
     OnMouseDown = PaintBoxMouseDown
@@ -30,12 +30,12 @@ object mainForm: TmainForm
   end
   object PropertiesPanel: TPanel
     Left = 0
-    Height = 312
+    Height = 337
     Top = 49
     Width = 91
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 312
+    ClientHeight = 337
     ClientWidth = 91
     Color = clSilver
     ParentColor = False
@@ -85,7 +85,10 @@ object mainForm: TmainForm
       Height = 22
       Top = 64
       Width = 73
-      Position = 0
+      Max = 100
+      Min = 1
+      OnChange = TrackBarZoomChange
+      Position = 1
       TabOrder = 1
     end
     object PenColorBox: TColorBox
@@ -103,17 +106,48 @@ object mainForm: TmainForm
       ParentFont = False
       TabOrder = 2
     end
+    object Label1: TLabel
+      Left = 8
+      Height = 15
+      Top = 136
+      Width = 34
+      Caption = 'Label1'
+      ParentColor = False
+    end
   end
   object ToolsPanel: TPanel
     Left = 0
     Height = 49
     Top = 0
-    Width = 567
+    Width = 602
     Align = alTop
     BevelOuter = bvNone
     Color = clSilver
     ParentColor = False
     TabOrder = 1
+  end
+  object ScrollBarHorizontal: TScrollBar
+    Left = 0
+    Height = 15
+    Top = 386
+    Width = 602
+    Align = alBottom
+    Max = 0
+    PageSize = 0
+    TabOrder = 2
+    OnScroll = ScrollBarHorizontalScroll
+  end
+  object ScrollBarVertical: TScrollBar
+    Left = 587
+    Height = 337
+    Top = 49
+    Width = 15
+    Align = alRight
+    Kind = sbVertical
+    Max = 0
+    PageSize = 0
+    TabOrder = 3
+    OnScroll = ScrollBarVerticalScroll
   end
   object MainMenu: TMainMenu
     left = 760
