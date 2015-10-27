@@ -85,10 +85,10 @@ object MainForm: TMainForm
       Height = 22
       Top = 64
       Width = 73
-      Max = 100
-      Min = 1
+      Max = 800
+      Min = 100
       OnChange = TrackBarZoomChange
-      Position = 1
+      Position = 100
       TabOrder = 1
     end
     object PenColorBox: TColorBox

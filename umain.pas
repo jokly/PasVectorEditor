@@ -125,7 +125,7 @@ procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= True;
-  TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, X, Y);
+  TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, TWorldPoint.WorldPoint(X, Y));
 end;
 
 procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -142,10 +142,9 @@ begin
       PaintBox.Top:= PaintBox.Top - Addition;
       ScrollBarVertical.SetParams(-PaintBox.Top, 0, -PaintBox.Top);
     end;
-    TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, X, Y);
-    Label1.Caption:= IntToStr(PaintBox.Width) + ' : ' + IntToStr(PaintBox.Height) + ' Y:' + IntToStr(Y);
+    TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, TWorldPoint.WorldPoint(X, Y));
   end;
-
+  Label1.Caption:= IntToStr(X) + ' ' + IntToStr(Y);
   PaintBox.Invalidate;
 end;
 
@@ -153,7 +152,7 @@ procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= False;
-  TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, X, Y);
+  TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, TWorldPoint.WorldPoint(X, Y));
 end;
 
 procedure TMainForm.PaintBoxPaint(Sender: TObject);

@@ -24,15 +24,15 @@ type
 
   TPen = Class(TFigure)
     private
-      FPoints: array of TWordPoint;
+      FPoints: array of TWorldPoint;
     public
-      procedure AddPoint(Point: TPoint);
+      procedure AddPoint(Point: TWorldPoint);
       procedure Draw(Canvas: TCanvas); override;
   end;
 
   TLine = Class(TFigure)
     public
-      StartP, EndP: TWordPoint;
+      StartP, EndP: TWorldPoint;
       procedure Draw(Canvas: TCanvas); override;
   end;
 
@@ -47,19 +47,19 @@ type
 
   TRectangle = Class(TFigure)
     public
-      StartP, EndP: TWordPoint;
+      StartP, EndP: TWorldPoint;
       procedure Draw(Canvas: TCanvas); override;
   end;
 
   TRoundRectangle = Class(TFigure)
     public
-      StartP, EndP: TWordPoint;
+      StartP, EndP: TWorldPoint;
       procedure Draw(Canvas: TCanvas); override;
   end;
 
   TEllipse = Class(TFigure)
     public
-      StartP, EndP: TWordPoint;
+      StartP, EndP: TWorldPoint;
       procedure Draw(Canvas: TCanvas); override;
   end;
 
@@ -96,37 +96,34 @@ begin
     SetLength(FFigures, Length(FFigures) - 1);
 end;
 
-procedure TPen.AddPoint(Point: TPoint);
+procedure TPen.AddPoint(Point: TWorldPoint);
 begin
   SetLength(FPoints, Length(FPoints) + 1);
-  FPoints[High(FPoints)]:= TWordPoint.ToWordPoint(Point);
+  FPoints[High(FPoints)]:= Point;
 end;
 
 procedure TPen.Draw(Canvas: TCanvas);
 var
-  Point: TWordPoint;
+  Point: TWorldPoint;
 begin
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     if Length(FPoints) > 0 then
-      //MoveTo(TWordPoint.ToTPoint(FPoints[0]));
-      MoveTo(TWordPoint.ToTPoint(FPoints[0]).x + Round(TWordPoint.ToTPoint(FPoints[0]).x / 100) * Round(Zoom),
-      TWordPoint.ToTPoint(FPoints[0]).y + Round(TWordPoint.ToTPoint(FPoints[0]).y / 100) * Round(Zoom));
+      MoveTo(TWorldPoint.ToScreenPoint(FPoints[0]));
     for Point in FPoints do
-      //LineTo(TWordPoint.ToTPoint(Point));
-      LineTo(TWordPoint.ToTPoint(Point).x + Round(TWordPoint.ToTPoint(Point).x / 100) * Round(Zoom),
-      TWordPoint.ToTPoint(Point).y + Round(TWordPoint.ToTPoint(Point).y / 100) * Round(Zoom));
+      LineTo(TWorldPoint.ToScreenPoint(Point));
   end;
 end;
 
 procedure TLine.Draw(Canvas: TCanvas);
 begin
+  if (StartP = Nil) or (EndP = Nil) then Exit;
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
-    MoveTo(TWordPoint.ToTPoint(StartP));
-    LineTo(TWordPoint.ToTPoint(EndP));
+    MoveTo(TWorldPoint.ToScreenPoint(StartP));
+    LineTo(TWorldPoint.ToScreenPoint(EndP));
   end;
 end;
 
@@ -137,10 +134,7 @@ begin
   Canvas.Pen.Color:= FPenColor;
   Canvas.Pen.Width:= FPenWidth;
   for _line in FLines do
-    with Canvas do begin
-      MoveTo(TWordPoint.ToTPoint(_line.StartP));
-      LineTo(TWordPoint.ToTPoint(_line.EndP));
-    end;
+    _line.Draw(Canvas);
 end;
 
 procedure TPolyline.AddLine();
@@ -160,32 +154,38 @@ end;
 
 procedure TRectangle.Draw(Canvas: TCanvas);
 begin
+  if (StartP = Nil) or (EndP = Nil) then Exit;
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
-    Rectangle(Round(StartP.x), Round(StartP.y), Round(EndP.x), Round(EndP.y));
+    Rectangle(TWorldPoint.ToScreenPoint(StartP).x, TWorldPoint.ToScreenPoint(StartP).y,
+              TWorldPoint.ToScreenPoint(EndP).x, TWorldPoint.ToScreenPoint(EndP).y);
   end;
 end;
 
 procedure TRoundRectangle.Draw(Canvas: TCanvas);
 begin
+  if (StartP = Nil) or (EndP = Nil) then Exit;
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
-    RoundRect(Round(StartP.x), Round(StartP.y), Round(EndP.x), Round(EndP.y),
+    RoundRect(TWorldPoint.ToScreenPoint(StartP).x, TWorldPoint.ToScreenPoint(StartP).y,
+              TWorldPoint.ToScreenPoint(EndP).x, TWorldPoint.ToScreenPoint(EndP).y,
               RoundingOfRoundRect, RoundingOfRoundRect);
   end;
 end;
 
 procedure TEllipse.Draw(Canvas: TCanvas);
 begin
+  if (StartP = Nil) or (EndP = Nil) then Exit;
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
-    Ellipse(Round(StartP.x), Round(StartP.y), Round(EndP.x), Round(EndP.y));
+    Ellipse(TWorldPoint.ToScreenPoint(StartP).x, TWorldPoint.ToScreenPoint(StartP).y,
+              TWorldPoint.ToScreenPoint(EndP).x, TWorldPoint.ToScreenPoint(EndP).y);
   end;
 end;
 

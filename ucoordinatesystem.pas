@@ -9,12 +9,12 @@ uses
 
 type
 
-  TWordPoint = Class(TObject)
+  TWorldPoint = Class(TObject)
     public
       X, Y: Extended;
-      class function WordPoint(_X, _Y: Extended): TWordPoint; static;
-      class function ToTPoint(_WordPoint: TWordPoint): TPoint; static;
-      class function ToWordPoint(_Point: TPoint): TWordPoint; static;
+      class function WorldPoint(_X, _Y: Extended): TWorldPoint; static;
+      class function ToScreenPoint(_WordPoint: TWorldPoint): TPoint; static;
+      class function ToWorldPoint(_Point: TPoint): TWorldPoint; static;
   end;
 
   var
@@ -22,33 +22,33 @@ type
 
 implementation
 
-class function TWordPoint.WordPoint(_X, _Y: Extended): TWordPoint;
+class function TWorldPoint.WorldPoint(_X, _Y: Extended): TWorldPoint;
 var
-  WPoint: TWordPoint;
+  WPoint: TWorldPoint;
 begin
-  WPoint:= (newinstance as TWordPoint);
-  WPoint.X:= _X;
-  WPoint.Y:= _Y;
+  WPoint:= (newinstance as TWorldPoint);
+  WPoint.X:= _X * 100 / Zoom;
+  WPoint.Y:= _Y * 100 / Zoom;
   Result:= WPoint;
 end;
 
-class function TWordPoint.ToTPoint(_WordPoint: TWordPoint): TPoint;
+class function TWorldPoint.ToScreenPoint(_WordPoint: TWorldPoint): TPoint;
 begin
-  Result:= Point(Round(_WordPoint.X), Round(_WordPoint.Y));
+  Result:= Point(Round(_WordPoint.X * Zoom / 100), Round(_WordPoint.Y * Zoom / 100));
 end;
 
-class function TWordPoint.ToWordPoint(_Point: TPoint): TWordPoint;
+class function TWorldPoint.ToWorldPoint(_Point: TPoint): TWorldPoint;
 var
-  WPoint: TWordPoint;
+  WPoint: TWorldPoint;
 begin
-  WPoint:= (newinstance as TWordPoint);
-  WPoint.X:= _Point.X + Dx;
-  WPoint.Y:= _Point.Y + Dy;
+  WPoint:= (newinstance as TWorldPoint);
+  WPoint.X:= _Point.X * 100 / Zoom;
+  WPoint.Y:= _Point.Y * 100 / Zoom;
   Result:= WPoint;
 end;
 
 initialization
-Zoom:= 1;
+Zoom:= 100;
 Dx:= 0;
 Dy:= 0;
 
