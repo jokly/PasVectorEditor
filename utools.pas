@@ -129,6 +129,8 @@ type
   const
     SpaceBetweenButtons = 7;
     SizeOfButton = 35;
+    MinZoom = 20;
+    MaxZoom = 2000;
 
   var
     IsMouseDown: Boolean;
@@ -137,8 +139,6 @@ implementation
 
 const
   ZoomOfLoupe = 20;
-  MinZoom = 100;
-  MaxZoom = 800;
 
 var
   IsMouseWasDown: Boolean;
@@ -328,7 +328,8 @@ begin
     if Zoom - ZoomOfLoupe > 0 then
       Zoom-= ZoomOfLoupe;
   end;
-  WindowPos:= WPoint;
+  Dx:= (WPoint.X - WidthOfWindow / 2) * Zoom / 100;
+  Dy:= (WPoint.Y - HeightOfWindow / 2) * Zoom / 100;
 end;
 procedure TTLoupe.OnMouseMove(Sender: TObject; Shift: TShiftState;
         WPoint: TWorldPoint);

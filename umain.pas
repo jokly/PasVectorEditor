@@ -103,6 +103,8 @@ begin
   ScrollBarVertical.SetParams(Round(WindowPos.Y), Round(TopOfCanvas), Round(BottomOfCanvas));
   WidthOfWindow:= PaintBox.Width;
   HeightOfWindow:= PaintBox.Height;
+  TrackBarZoom.Min:= MinZoom;
+  TrackBarZoom.Max:= MaxZoom;
 end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
