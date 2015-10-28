@@ -8,6 +8,8 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, Buttons, ColorBox, StdCtrls, LCLtype, ComCtrls, Windows, UAbout,
   UTools, UFigures, UCoordinateSystem;
+//Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
+//  Menus, Buttons, UFigures, UCoordinateSystem;
 
 type
 
@@ -86,8 +88,12 @@ begin
     end;
   end;
   TTool.Tools[0].ButtonOnForm.Click;
-  ScrollBarHorizontal.SetParams(0, 0, PaintBox.Width);
-  ScrollBarVertical.SetParams(0, 0, PaintBox.Height);
+  TopOfCanvas:= PaintBox.Height div 2;
+  LeftOfCanvas:= PaintBox.Width div 2;
+  RightOfCanvas:= PaintBox.Width div 2;
+  BottomOfCanvas:= PaintBox.Height div 2;
+  ScrollBarHorizontal.SetParams(Round(LeftOfCanvas), Round(LeftOfCanvas), Round(RightOfCanvas));
+  ScrollBarVertical.SetParams(Round(TopOfCanvas), Round(TopOfCanvas), Round(BottomOfCanvas));
 end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
@@ -124,15 +130,24 @@ procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   if IsMouseDown then begin
-    if X > (PaintBox.Width - Bound) then
-      Dx+= Addition
-    else if X < Bound then
+    if X > (PaintBox.Width - Bound) then begin
+      Dx+= Addition;
+      RightOfCanvas+= Addition;
+    end
+    else if X < Bound then begin
       Dx-= Addition;
-    if Y > (PaintBox.Height - Bound) then
-      Dy+= Addition
-    else if Y < Bound then
+      LeftOfCanvas-= Addition;
+    end;
+    ScrollBarHorizontal.SetParams(Round(TWorldPoint.WorldPoint(PaintBox.Width div 2, PaintBox.Height div 2).X), Round(LeftOfCanvas), Round(RightOfCanvas));
+    if Y > (PaintBox.Height - Bound) then begin
+      Dy+= Addition;
+      BottomOfCanvas+= Addition;
+    end
+    else if Y < Bound then begin
       Dy-= Addition;
-    //ScrollBarHorizontal.SetParams(TWorldPoint.ToWorldPoint(X), );
+      TopOfCanvas-= Addition;
+    end;
+    ScrollBarVertical.SetParams(Round(TWorldPoint.WorldPoint(PaintBox.Width div 2, PaintBox.Height div 2).Y), Round(TopOfCanvas), Round(BottomOfCanvas));
     TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, TWorldPoint.WorldPoint(X, Y));
   end;
   Label1.Caption:= IntToStr(X) + ' ' + IntToStr(Y);
@@ -167,14 +182,14 @@ end;
 procedure TMainForm.ScrollBarHorizontalScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-  PaintBox.Left:= Round(-ScrollPos * Zoom / 100);
+  Dx:= ScrollPos;
   PaintBox.Invalidate;
 end;
 
 procedure TMainForm.ScrollBarVerticalScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-  PaintBox.Top:= Round(-ScrollPos * Zoom / 100);
+  Dy:= ScrollPos;
   PaintBox.Invalidate;
 end;
 

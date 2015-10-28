@@ -19,6 +19,7 @@ type
 
   var
     Zoom, Dx, Dy: Extended;
+    LeftOfCanvas, RightOfCanvas, TopOfCanvas, BottomOfCanvas: Extended;
 
 implementation
 
