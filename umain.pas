@@ -17,6 +17,9 @@ type
 
   TMainForm = class(TForm)
     Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
     PenWidthBox: TComboBox;
     PenColorBox: TColorBox;
     MainMenu: TMainMenu;
@@ -88,10 +91,10 @@ begin
     end;
   end;
   TTool.Tools[0].ButtonOnForm.Click;
-  TopOfCanvas:= PaintBox.Height div 2;
-  LeftOfCanvas:= PaintBox.Width div 2;
-  RightOfCanvas:= PaintBox.Width div 2;
-  BottomOfCanvas:= PaintBox.Height div 2;
+  TopOfCanvas:= 0;
+  LeftOfCanvas:= 0;
+  RightOfCanvas:= PaintBox.Width;
+  BottomOfCanvas:= PaintBox.Height;
   ScrollBarHorizontal.SetParams(Round(LeftOfCanvas), Round(LeftOfCanvas), Round(RightOfCanvas));
   ScrollBarVertical.SetParams(Round(TopOfCanvas), Round(TopOfCanvas), Round(BottomOfCanvas));
 end;
@@ -138,7 +141,8 @@ begin
       Dx-= Addition;
       LeftOfCanvas-= Addition;
     end;
-    ScrollBarHorizontal.SetParams(Round(TWorldPoint.WorldPoint(PaintBox.Width div 2, PaintBox.Height div 2).X), Round(LeftOfCanvas), Round(RightOfCanvas));
+    ScrollBarHorizontal.SetParams(Round(TWorldPoint.WorldPoint(0, 0).X),
+                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
     if Y > (PaintBox.Height - Bound) then begin
       Dy+= Addition;
       BottomOfCanvas+= Addition;
@@ -147,10 +151,14 @@ begin
       Dy-= Addition;
       TopOfCanvas-= Addition;
     end;
-    ScrollBarVertical.SetParams(Round(TWorldPoint.WorldPoint(PaintBox.Width div 2, PaintBox.Height div 2).Y), Round(TopOfCanvas), Round(BottomOfCanvas));
+    ScrollBarVertical.SetParams(Round(TWorldPoint.WorldPoint(0, 0).Y),
+                                Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
     TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, TWorldPoint.WorldPoint(X, Y));
   end;
-  Label1.Caption:= IntToStr(X) + ' ' + IntToStr(Y);
+  Label1.Caption:= 'SH ' + IntToStr(ScrollBarHorizontal.Min) + ' ' + IntToStr(ScrollBarHorizontal.Max);
+  Label4.Caption:= 'SV ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
+  Label2.Caption:= 'WP ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).X)) + ' ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).Y));
+  Label3.Caption:= 'SP ' + IntToStr(X) + ' ' + IntToStr(Y);
   PaintBox.Invalidate;
 end;
 
@@ -201,6 +209,10 @@ end;
 procedure TMainForm.TrackBarZoomChange(Sender: TObject);
 begin
   Zoom:= TrackBarZoom.Position;
+  ScrollBarHorizontal.SetParams(Round(TWorldPoint.WorldPoint(0, 0).X),
+                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
+  ScrollBarVertical.SetParams(Round(TWorldPoint.WorldPoint(0, 0).Y),
+                                Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
   PaintBox.Invalidate;
 end;
 

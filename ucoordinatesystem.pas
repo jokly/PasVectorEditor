@@ -35,7 +35,7 @@ end;
 
 class function TWorldPoint.ToScreenPoint(_WordPoint: TWorldPoint): TPoint;
 begin
-  Result:= Point(Round((_WordPoint.X - Dx) * Zoom / 100), Round((_WordPoint.Y - Dy) * Zoom / 100));
+  Result:= Point(Round(_WordPoint.X * Zoom / 100 - Dx), Round((_WordPoint.Y) * Zoom / 100 - Dy));
 end;
 
 class function TWorldPoint.ToWorldPoint(_Point: TPoint): TWorldPoint;
