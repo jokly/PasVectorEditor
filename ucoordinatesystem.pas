@@ -20,6 +20,7 @@ type
   var
     Zoom, Dx, Dy: Extended;
     LeftOfCanvas, RightOfCanvas, TopOfCanvas, BottomOfCanvas: Extended;
+    WindowPos: TWorldPoint;
 
 implementation
 

@@ -11,17 +11,12 @@ uses
 type
 
   TTool = Class(TObject)
-    protected
-      FPenColor: TColor; static;
-      FPenWidth: Integer; static;
     public
       Tools: array of TTool; static;
       ButtonOnForm: TBitBtn;
       ImageOfButton: TBitmap;
-      constructor Create(PathToFile: String); overload;
       class procedure AddTool(Tool: TTool); static;
-      class procedure SetPenColor(Color: TColor); static;
-      class procedure SetPenWidth(Width: Integer); static;
+      constructor Create(PathToFile: String); overload;
       procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint); virtual; abstract;
       procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
@@ -30,7 +25,16 @@ type
         Shift: TShiftState; WPoint: TWorldPoint); virtual; abstract;
   end;
 
-  TTPen = Class(TTool)
+  TTPaint = Class(TTool)
+    protected
+      FPenColor: TColor; static;
+      FPenWidth: Integer; static;
+    public
+      class procedure SetPenColor(Color: TColor); static;
+      class procedure SetPenWidth(Width: Integer); static;
+  end;
+
+  TTPen = Class(TTPaint)
     public
       procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -40,7 +44,7 @@ type
         Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTLine = Class(TTool)
+  TTLine = Class(TTPaint)
     public
       procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -50,7 +54,7 @@ type
         Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTPolyline = Class(TTool)
+  TTPolyline = Class(TTPaint)
     public
       procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -60,7 +64,7 @@ type
         Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTRectangle = Class(TTool)
+  TTRectangle = Class(TTPaint)
     public
       procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -70,7 +74,7 @@ type
         Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTRoundRectangle = Class(TTool)
+  TTRoundRectangle = Class(TTPaint)
     public
       procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -80,7 +84,29 @@ type
         Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTEllipse = Class(TTool)
+  TTEllipse = Class(TTPaint)
+    public
+      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
+        WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint); override;
+  end;
+
+  TTLoupe = Class(TTool)
+    public
+      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
+        WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint); override;
+  end;
+
+  TTHand = Class(TTool)
+    private
+      StartPos: TWorldPoint; static;
     public
       procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -98,6 +124,9 @@ type
     IsMouseDown: Boolean;
 
 implementation
+
+const
+  ZoomOfLoupe = 20;
 
 var
   IsMouseWasDown: Boolean;
@@ -117,12 +146,12 @@ begin
   Tools[High(Tools)]:= Tool;
 end;
 
-class procedure TTool.SetPenColor(Color: TColor);
+class procedure TTPaint.SetPenColor(Color: TColor);
 begin
   FPenColor:= Color;
 end;
 
-class procedure TTool.SetPenWidth(Width: Integer);
+class procedure TTPaint.SetPenWidth(Width: Integer);
 begin
   FPenWidth:= Width;
 end;
@@ -278,6 +307,49 @@ begin
   (TFigure.GetLastFigure() as TEllipse).EndP:= WPoint;
 end;
 
+procedure TTLoupe.OnMouseDown(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint);
+begin
+  if Button = mbLeft then
+    Zoom+= ZoomOfLoupe
+  else if Button = mbRight then begin
+    if Zoom - ZoomOfLoupe > 0 then
+      Zoom-= ZoomOfLoupe;
+  end;
+  WindowPos:= WPoint;
+end;
+procedure TTLoupe.OnMouseMove(Sender: TObject; Shift: TShiftState;
+        WPoint: TWorldPoint);
+begin
+
+end;
+
+procedure TTLoupe.OnMouseUp(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint);
+begin
+
+end;
+
+procedure TTHand.OnMouseDown(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint);
+begin
+  StartPos:= WPoint;
+end;
+procedure TTHand.OnMouseMove(Sender: TObject; Shift: TShiftState;
+        WPoint: TWorldPoint);
+begin
+  Dx+= StartPos.X - WPoint.X;
+  Dy+= StartPos.Y - WPoint.Y;
+  WindowPos.X+= StartPos.X - WPoint.X;
+  WindowPos.Y+= StartPos.Y - WPoint.Y;
+end;
+
+procedure TTHand.OnMouseUp(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint);
+begin
+
+end;
+
 initialization
 TTool.AddTool(TTPen.Create('img\pen.bmp'));
 TTool.AddTool(TTLine.Create('img\line.bmp'));
@@ -285,6 +357,8 @@ TTool.AddTool(TTPolyline.Create('img\polyline.bmp'));
 TTool.AddTool(TTRectangle.Create('img\rectangle.bmp'));
 TTool.AddTool(TTRoundRectangle.Create('img\roundRect.bmp'));
 TTool.AddTool(TTEllipse.Create('img\ellipse.bmp'));
+TTool.AddTool(TTLoupe.Create('img\loupe.bmp'));
+TTool.AddTool(TTHand.Create('img\hand.bmp'));
 
 end.
 

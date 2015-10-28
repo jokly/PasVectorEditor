@@ -20,6 +20,8 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    Label5: TLabel;
+    ValueOfZoom: TLabel;
     PenWidthBox: TComboBox;
     PenColorBox: TColorBox;
     MainMenu: TMainMenu;
@@ -95,8 +97,9 @@ begin
   LeftOfCanvas:= 0;
   RightOfCanvas:= PaintBox.Width;
   BottomOfCanvas:= PaintBox.Height;
-  ScrollBarHorizontal.SetParams(Round(LeftOfCanvas), Round(LeftOfCanvas), Round(RightOfCanvas));
-  ScrollBarVertical.SetParams(Round(TopOfCanvas), Round(TopOfCanvas), Round(BottomOfCanvas));
+  WindowPos:= TWorldPoint.WorldPoint(0, 0);
+  ScrollBarHorizontal.SetParams(Round(WindowPos.X), Round(LeftOfCanvas), Round(RightOfCanvas));
+  ScrollBarVertical.SetParams(Round(WindowPos.Y), Round(TopOfCanvas), Round(BottomOfCanvas));
 end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
@@ -127,38 +130,50 @@ procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   IsMouseDown:= True;
   TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, TWorldPoint.WorldPoint(X, Y));
+  ScrollBarHorizontal.Position:= Round(WindowPos.X);
+  ScrollBarVertical.Position:= Round(WindowPos.Y);
+  TrackBarZoom.Position:= Round(Zoom);
+  PaintBox.Invalidate;
 end;
 
 procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   if IsMouseDown then begin
+    TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, TWorldPoint.WorldPoint(X, Y));
+    ScrollBarHorizontal.Position:= Round(WindowPos.X);
+    ScrollBarVertical.Position:= Round(WindowPos.Y);
+    TrackBarZoom.Position:= Round(Zoom);
     if X > (PaintBox.Width - Bound) then begin
       Dx+= Addition;
       RightOfCanvas+= Addition;
+      WindowPos.X+= Addition;
     end
     else if X < Bound then begin
       Dx-= Addition;
       LeftOfCanvas-= Addition;
+      WindowPos.X-= Addition;
     end;
-    ScrollBarHorizontal.SetParams(Round(TWorldPoint.WorldPoint(0, 0).X),
-                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
     if Y > (PaintBox.Height - Bound) then begin
       Dy+= Addition;
       BottomOfCanvas+= Addition;
+      WindowPos.Y+= Addition;
     end
     else if Y < Bound then begin
       Dy-= Addition;
       TopOfCanvas-= Addition;
+      WindowPos.Y-= Addition;
     end;
-    ScrollBarVertical.SetParams(Round(TWorldPoint.WorldPoint(0, 0).Y),
+    ScrollBarHorizontal.SetParams(Round(WindowPos.X),
+                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
+    ScrollBarVertical.SetParams(Round(WindowPos.Y),
                                 Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
-    TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, TWorldPoint.WorldPoint(X, Y));
   end;
-  Label1.Caption:= 'SH ' + IntToStr(ScrollBarHorizontal.Min) + ' ' + IntToStr(ScrollBarHorizontal.Max);
-  Label4.Caption:= 'SV ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
-  Label2.Caption:= 'WP ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).X)) + ' ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).Y));
-  Label3.Caption:= 'SP ' + IntToStr(X) + ' ' + IntToStr(Y);
+  Label1.Caption:= 'SHo ' + IntToStr(ScrollBarHorizontal.Min) + ' ' + IntToStr(ScrollBarHorizontal.Max);
+  Label4.Caption:= 'SVe ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
+  Label2.Caption:= 'WoP ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).X)) + ' ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).Y));
+  Label3.Caption:= 'ScP ' + IntToStr(X) + ' ' + IntToStr(Y);
+  Label5.Caption:= 'WinP ' + FloatToStr(WindowPos.X) + ' ' + FloatToStr(WindowPos.Y);
   PaintBox.Invalidate;
 end;
 
@@ -167,24 +182,26 @@ procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   IsMouseDown:= False;
   TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, TWorldPoint.WorldPoint(X, Y));
+  PaintBox.Invalidate;
 end;
 
 procedure TMainForm.PaintBoxPaint(Sender: TObject);
 var
   Figure: TFigure;
 begin
+  ValueOfZoom.Caption:= FloatToStr(Zoom) + '%';
   for Figure in FFigures do
       Figure.Draw(PaintBox.Canvas);
 end;
 
 procedure TMainForm.PenColorBoxChange(Sender: TObject);
 begin
-  TTool.SetPenColor(PenColorBox.Selected);
+  TTPaint.SetPenColor(PenColorBox.Selected);
 end;
 
 procedure TMainForm.PenWidthBoxChange(Sender: TObject);
 begin
-  TTool.SetPenWidth(StrToInt(PenWidthBox.Text));
+  TTPaint.SetPenWidth(StrToInt(PenWidthBox.Text));
 end;
 
 procedure TMainForm.ScrollBarHorizontalScroll(Sender: TObject;
@@ -209,9 +226,9 @@ end;
 procedure TMainForm.TrackBarZoomChange(Sender: TObject);
 begin
   Zoom:= TrackBarZoom.Position;
-  ScrollBarHorizontal.SetParams(Round(TWorldPoint.WorldPoint(0, 0).X),
+  ScrollBarHorizontal.SetParams(Round(WindowPos.X),
                                   Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
-  ScrollBarVertical.SetParams(Round(TWorldPoint.WorldPoint(0, 0).Y),
+  ScrollBarVertical.SetParams(Round(WindowPos.Y),
                                 Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
   PaintBox.Invalidate;
 end;
