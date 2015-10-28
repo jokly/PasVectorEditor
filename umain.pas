@@ -29,7 +29,6 @@ type
     TrackBarZoom: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure FormResize(Sender: TObject);
     procedure MAboutClick(Sender: TObject);
     procedure MExitClick(Sender: TObject);
     procedure PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
@@ -86,9 +85,9 @@ begin
       Tag:= i;
     end;
   end;
-  PaintBox.Canvas.Brush.Color:= clGreen;
-  PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);
   TTool.Tools[0].ButtonOnForm.Click;
+  ScrollBarHorizontal.SetParams(0, 0, PaintBox.Width);
+  ScrollBarVertical.SetParams(0, 0, PaintBox.Height);
 end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
@@ -102,13 +101,6 @@ begin
     while TFigure.GetLastFigure() <> nil do
       TFigure.DeleteLastFigure();
   end;
-end;
-
-procedure TMainForm.FormResize(Sender: TObject);
-begin
-  if PaintBox.Width < MainForm.Width then PaintBox.Width:= MainForm.Width;
-  if PaintBox.Height < MainForm.Height then PaintBox.Height:= MainForm.Height;
-  Invalidate;
 end;
 
 procedure TMainForm.MAboutClick(Sender: TObject);
@@ -132,16 +124,15 @@ procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   if IsMouseDown then begin
-    if X > (PaintBox.Width - Bound) then begin
-      PaintBox.Width:= PaintBox.Width + Addition;
-      PaintBox.Left:= PaintBox.Left - Addition;
-      ScrollBarHorizontal.SetParams(-PaintBox.Left, 0, -PaintBox.Left);
-    end;
-    if Y > (PaintBox.Height - Bound) then begin
-      PaintBox.Height:= PaintBox.Height + Addition;
-      PaintBox.Top:= PaintBox.Top - Addition;
-      ScrollBarVertical.SetParams(-PaintBox.Top, 0, -PaintBox.Top);
-    end;
+    if X > (PaintBox.Width - Bound) then
+      Dx+= Addition
+    else if X < Bound then
+      Dx-= Addition;
+    if Y > (PaintBox.Height - Bound) then
+      Dy+= Addition
+    else if Y < Bound then
+      Dy-= Addition;
+    //ScrollBarHorizontal.SetParams(TWorldPoint.ToWorldPoint(X), );
     TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, TWorldPoint.WorldPoint(X, Y));
   end;
   Label1.Caption:= IntToStr(X) + ' ' + IntToStr(Y);
@@ -176,13 +167,15 @@ end;
 procedure TMainForm.ScrollBarHorizontalScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-  PaintBox.Left:= -ScrollPos;
+  PaintBox.Left:= Round(-ScrollPos * Zoom / 100);
+  PaintBox.Invalidate;
 end;
 
 procedure TMainForm.ScrollBarVerticalScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-  PaintBox.Top:= -ScrollPos;
+  PaintBox.Top:= Round(-ScrollPos * Zoom / 100);
+  PaintBox.Invalidate;
 end;
 
 procedure TMainForm.ToolClick(Sender: TObject);
@@ -193,7 +186,7 @@ end;
 procedure TMainForm.TrackBarZoomChange(Sender: TObject);
 begin
   Zoom:= TrackBarZoom.Position;
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 end.

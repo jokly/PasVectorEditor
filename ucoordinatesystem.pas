@@ -27,14 +27,14 @@ var
   WPoint: TWorldPoint;
 begin
   WPoint:= (newinstance as TWorldPoint);
-  WPoint.X:= _X * 100 / Zoom;
-  WPoint.Y:= _Y * 100 / Zoom;
+  WPoint.X:= (_X + Dx) * 100 / Zoom;
+  WPoint.Y:= (_Y + Dy) * 100 / Zoom;
   Result:= WPoint;
 end;
 
 class function TWorldPoint.ToScreenPoint(_WordPoint: TWorldPoint): TPoint;
 begin
-  Result:= Point(Round(_WordPoint.X * Zoom / 100), Round(_WordPoint.Y * Zoom / 100));
+  Result:= Point(Round((_WordPoint.X - Dx) * Zoom / 100), Round((_WordPoint.Y - Dy) * Zoom / 100));
 end;
 
 class function TWorldPoint.ToWorldPoint(_Point: TPoint): TWorldPoint;
@@ -42,8 +42,8 @@ var
   WPoint: TWorldPoint;
 begin
   WPoint:= (newinstance as TWorldPoint);
-  WPoint.X:= _Point.X * 100 / Zoom;
-  WPoint.Y:= _Point.Y * 100 / Zoom;
+  WPoint.X:= (_Point.X + Dx) * 100 / Zoom;
+  WPoint.Y:= (_Point.Y + Dy) * 100 / Zoom;
   Result:= WPoint;
 end;
 

@@ -13,14 +13,14 @@ object MainForm: TMainForm
   Menu = MainMenu
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  OnResize = FormResize
   Position = poDesktopCenter
   LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
-    Left = 0
-    Height = 387
-    Top = 0
-    Width = 592
+    Left = 91
+    Height = 337
+    Top = 49
+    Width = 496
+    Align = alClient
     Color = clWhite
     ParentColor = False
     OnMouseDown = PaintBoxMouseDown
