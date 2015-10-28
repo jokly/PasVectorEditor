@@ -13,6 +13,7 @@ object MainForm: TMainForm
   Menu = MainMenu
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
+  OnResize = FormResize
   Position = poDesktopCenter
   LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox

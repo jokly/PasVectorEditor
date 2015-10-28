@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, UFigures, UCoordinateSystem;
+  Menus, Buttons, Math, UFigures, UCoordinateSystem;
 
 type
 
@@ -116,6 +116,16 @@ type
         Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
+  TTRectangleLoupe = Class(TTool)
+    public
+      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
+        WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint); override;
+  end;
+
   const
     SpaceBetweenButtons = 7;
     SizeOfButton = 35;
@@ -127,6 +137,8 @@ implementation
 
 const
   ZoomOfLoupe = 20;
+  MinZoom = 100;
+  MaxZoom = 800;
 
 var
   IsMouseWasDown: Boolean;
@@ -350,6 +362,40 @@ begin
 
 end;
 
+procedure TTRectangleLoupe.OnMouseDown(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint);
+begin
+  if Button = mbRight then begin
+    ButtonWasDown:= mbRight;
+    TFigure.DeleteLastFigure();
+    Exit;
+  end
+  else ButtonWasDown:= mbLeft;
+  TFigure.AddFigure(TRectangle.Create(clBlack, 1));
+  (TFigure.GetLastFigure() as TRectangle).StartP:= WPoint;
+end;
+procedure TTRectangleLoupe.OnMouseMove(Sender: TObject; Shift: TShiftState;
+        WPoint: TWorldPoint);
+begin
+  if ButtonWasDown = mbRight then Exit;
+  (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
+end;
+
+procedure TTRectangleLoupe.OnMouseUp(Sender: TObject; Button: TMouseButton;
+        Shift: TShiftState; WPoint: TWorldPoint);
+begin
+  if ButtonWasDown = mbRight then Exit;
+  if Min(WidthOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.X - (TFigure.GetLastFigure() as TRectangle).EndP.X),
+             HeightOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.Y - (TFigure.GetLastFigure() as TRectangle).EndP.Y)) * 100 < MaxZoom then
+    Zoom:= Min(WidthOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.X - (TFigure.GetLastFigure() as TRectangle).EndP.X),
+               HeightOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.Y - (TFigure.GetLastFigure() as TRectangle).EndP.Y)) * 100;
+  WindowPos:= TWorldPoint.Create(Min((TFigure.GetLastFigure() as TRectangle).StartP.X, (TFigure.GetLastFigure() as TRectangle).EndP.X),
+                                     Min((TFigure.GetLastFigure() as TRectangle).StartP.Y, (TFigure.GetLastFigure() as TRectangle).EndP.Y));
+  Dx:= WindowPos.X * Zoom / 100;
+  Dy:= WindowPos.Y * Zoom / 100;
+  TFigure.DeleteLastFigure();
+end;
+
 initialization
 TTool.AddTool(TTPen.Create('img\pen.bmp'));
 TTool.AddTool(TTLine.Create('img\line.bmp'));
@@ -359,6 +405,7 @@ TTool.AddTool(TTRoundRectangle.Create('img\roundRect.bmp'));
 TTool.AddTool(TTEllipse.Create('img\ellipse.bmp'));
 TTool.AddTool(TTLoupe.Create('img\loupe.bmp'));
 TTool.AddTool(TTHand.Create('img\hand.bmp'));
+TTool.AddTool(TTRectangleLoupe.Create('img\rectangle.bmp'));
 
 end.
 

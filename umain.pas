@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, ColorBox, StdCtrls, LCLtype, ComCtrls, Windows, UAbout,
+  Menus, Buttons, ColorBox, StdCtrls, LCLtype, ComCtrls, Windows, Math, UAbout,
   UTools, UFigures, UCoordinateSystem;
 //Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
 //  Menus, Buttons, UFigures, UCoordinateSystem;
@@ -36,6 +36,7 @@ type
     TrackBarZoom: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormResize(Sender: TObject);
     procedure MAboutClick(Sender: TObject);
     procedure MExitClick(Sender: TObject);
     procedure PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
@@ -100,6 +101,8 @@ begin
   WindowPos:= TWorldPoint.WorldPoint(0, 0);
   ScrollBarHorizontal.SetParams(Round(WindowPos.X), Round(LeftOfCanvas), Round(RightOfCanvas));
   ScrollBarVertical.SetParams(Round(WindowPos.Y), Round(TopOfCanvas), Round(BottomOfCanvas));
+  WidthOfWindow:= PaintBox.Width;
+  HeightOfWindow:= PaintBox.Height;
 end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
@@ -113,6 +116,12 @@ begin
     while TFigure.GetLastFigure() <> nil do
       TFigure.DeleteLastFigure();
   end;
+end;
+
+procedure TMainForm.FormResize(Sender: TObject);
+begin
+  WidthOfWindow:= PaintBox.Width;
+  HeightOfWindow:= PaintBox.Height;
 end;
 
 procedure TMainForm.MAboutClick(Sender: TObject);
@@ -130,8 +139,10 @@ procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   IsMouseDown:= True;
   TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, TWorldPoint.WorldPoint(X, Y));
-  ScrollBarHorizontal.Position:= Round(WindowPos.X);
-  ScrollBarVertical.Position:= Round(WindowPos.Y);
+  ScrollBarHorizontal.SetParams(Round(WindowPos.X),
+                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
+  ScrollBarVertical.SetParams(Round(WindowPos.Y),
+                                Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
   TrackBarZoom.Position:= Round(Zoom);
   PaintBox.Invalidate;
 end;
@@ -173,7 +184,7 @@ begin
   Label4.Caption:= 'SVe ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
   Label2.Caption:= 'WoP ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).X)) + ' ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).Y));
   Label3.Caption:= 'ScP ' + IntToStr(X) + ' ' + IntToStr(Y);
-  Label5.Caption:= 'WinP ' + FloatToStr(WindowPos.X) + ' ' + FloatToStr(WindowPos.Y);
+  Label5.Caption:= 'WinP ' + IntToStr(Round(WindowPos.X)) + ' ' + IntToStr(Round(WindowPos.Y));
   PaintBox.Invalidate;
 end;
 
@@ -182,6 +193,11 @@ procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   IsMouseDown:= False;
   TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, TWorldPoint.WorldPoint(X, Y));
+  ScrollBarHorizontal.SetParams(Round(WindowPos.X),
+                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
+  ScrollBarVertical.SetParams(Round(WindowPos.Y),
+                                Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
+  TrackBarZoom.Position:= Round(Zoom);
   PaintBox.Invalidate;
 end;
 
@@ -189,7 +205,7 @@ procedure TMainForm.PaintBoxPaint(Sender: TObject);
 var
   Figure: TFigure;
 begin
-  ValueOfZoom.Caption:= FloatToStr(Zoom) + '%';
+  ValueOfZoom.Caption:= FloatToStr(Round(Zoom)) + '%';
   for Figure in FFigures do
       Figure.Draw(PaintBox.Canvas);
 end;
@@ -227,9 +243,9 @@ procedure TMainForm.TrackBarZoomChange(Sender: TObject);
 begin
   Zoom:= TrackBarZoom.Position;
   ScrollBarHorizontal.SetParams(Round(WindowPos.X),
-                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
+                                  Round(Min(LeftOfCanvas, LeftOfCanvas * Zoom / 100)), Round(Max(RightOfCanvas, RightOfCanvas * Zoom / 100)));
   ScrollBarVertical.SetParams(Round(WindowPos.Y),
-                                Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
+                                Round(Min(TopOfCanvas, TopOfCanvas * Zoom / 100)), Round(Max(BottomOfCanvas, BottomOfCanvas * Zoom / 100)));
   PaintBox.Invalidate;
 end;
 
