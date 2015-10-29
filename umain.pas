@@ -83,8 +83,8 @@ begin
     Round(Delta.Y),
     Round(MinBounds.Y * Zoom),
     Round(MaxBounds.Y * Zoom));
-  TrackBarZoom.Position:= Round(Zoom);
-  ValueOfZoom.Caption:= FloatToStr(Round(Zoom * 100)) + '%';
+  TrackBarZoom.Position:= Round(Zoom * 100);
+  ValueOfZoom.Caption:= IntToStr(TrackBarZoom.Position) + '%';
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -109,8 +109,8 @@ begin
     end;
   end;
   TTool.Tools[0].ButtonOnForm.Click;
-  TrackBarZoom.Min:= MinZoom;
-  TrackBarZoom.Max:= MaxZoom;
+  TrackBarZoom.Min:= Round(MinZoom * 100);
+  TrackBarZoom.Max:= Round(MaxZoom * 100);
 end;
 
 procedure TMainForm.ButtonAllCanvasClick(Sender: TObject);
@@ -247,7 +247,7 @@ end;
 
 procedure TMainForm.TrackBarZoomChange(Sender: TObject);
 begin
-  Zoom:= TrackBarZoom.Position;
+  Zoom:= TrackBarZoom.Position / 100;
   UpdateScrollBarsAndZoom();
   Invalidate;
 end;

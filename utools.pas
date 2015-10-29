@@ -129,7 +129,7 @@ type
   const
     SpaceBetweenButtons = 7;
     SizeOfButton = 35;
-    MinZoom = 1;
+    MinZoom = 0.01;
     MaxZoom = 20;
 
   var
@@ -389,9 +389,9 @@ begin
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
   Rect:=(TFigure.GetLastFigure() as TRectangle);
   if Min(SizeOfWindow.X / Abs(Rect.StartP.X - Rect.EndP.X),
-         SizeOfWindow.Y / Abs(Rect.StartP.Y - Rect.EndP.Y)) * 100 < MaxZoom then
+         SizeOfWindow.Y / Abs(Rect.StartP.Y - Rect.EndP.Y)) < MaxZoom then
     Zoom:= Min(SizeOfWindow.X / Abs(Rect.StartP.X - Rect.EndP.X),
-               SizeOfWindow.Y / Abs(Rect.StartP.Y - Rect.EndP.Y)) * 100;
+               SizeOfWindow.Y / Abs(Rect.StartP.Y - Rect.EndP.Y));
   Delta.X:= Min(Rect.StartP.X, Rect.EndP.X) * Zoom;
   Delta.Y:= Min(Rect.StartP.Y, Rect.EndP.Y) * Zoom;
   TFigure.DeleteLastFigure();
