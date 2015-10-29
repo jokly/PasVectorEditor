@@ -158,7 +158,7 @@ procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= True;
-  TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, WorldPoint(X, Y));
+  TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, ToWorldPoint(X, Y));
   UpdateScrollBarsAndZoom();
   Invalidate;
 end;
@@ -167,15 +167,15 @@ procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   if IsMouseDown then begin
-    TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, WorldPoint(X, Y));
-    CalculateBounds(WorldPoint(X, Y));
+    TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, ToWorldPoint(X, Y));
+    CalculateBounds(ToWorldPoint(X, Y));
     UpdateScrollBarsAndZoom();
   end;
   Label1.Caption:= 'SHo ' + IntToStr(ScrollBarHorizontal.Min) + ' ' + IntToStr(ScrollBarHorizontal.Max);
   Label4.Caption:= 'SVe ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
-  Label2.Caption:= 'WoP ' + IntToStr(Round(WorldPoint(X, Y).X)) + ' ' + IntToStr(Round(WorldPoint(X, Y).Y));
+  Label2.Caption:= 'WoP ' + IntToStr(Round(ToWorldPoint(X, Y).X)) + ' ' + IntToStr(Round(ToWorldPoint(X, Y).Y));
   Label3.Caption:= 'ScP ' + IntToStr(X) + ' ' + IntToStr(Y);
-  Label5.Caption:= 'WinP ' + IntToStr(Round(Delta.X)) + ' ' + IntToStr(Round(Delta.Y));
+  Label5.Caption:= 'Del ' + IntToStr(Round(Delta.X)) + ' ' + IntToStr(Round(Delta.Y));
   Invalidate;
 end;
 
@@ -183,7 +183,7 @@ procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= False;
-  TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, WorldPoint(X, Y));
+  TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, ToWorldPoint(X, Y));
   UpdateScrollBarsAndZoom();
   Invalidate;
 end;

@@ -16,9 +16,9 @@ type
       FPenWidth: Integer;
     public
       constructor Create(PenColor: TColor; PenWidth: Integer);
-      class procedure AddFigure(Figure: TFigure); static;
-      class function GetLastFigure(): TFigure; static;
-      class procedure DeleteLastFigure(); static;
+      class procedure AddFigure(Figure: TFigure);
+      class function GetLastFigure(): TFigure;
+      class procedure DeleteLastFigure();
       procedure Draw(Canvas: TCanvas); virtual; abstract;
   end;
 

@@ -13,8 +13,8 @@ type
       X, Y: Double;
   end;
 
-function CreateWorldPoint(X, Y: Double): TWorldPoint;
 function WorldPoint(X, Y: Double): TWorldPoint;
+function ToWorldPoint(X, Y: Double): TWorldPoint;
 function WorldPoint(Point: TPoint): TWorldPoint;
 function ToScreenPoint(WordPoint: TWorldPoint): TPoint;
 procedure CalculateBounds(WPoint: TWorldPoint);
@@ -31,13 +31,13 @@ const
   Bound = 60;
   Addition = 200;
 
-function CreateWorldPoint(X, Y: Double): TWorldPoint;
+function WorldPoint(X, Y: Double): TWorldPoint;
 begin
   Result.X:= X;
   Result.Y:= Y;
 end;
 
-function WorldPoint(X, Y: Double): TWorldPoint;
+function ToWorldPoint(X, Y: Double): TWorldPoint;
 begin
   Result.X:= (X + Delta.X) * 1 / Zoom;
   Result.Y:= (Y + Delta.Y) * 1 / Zoom;
