@@ -76,14 +76,15 @@ var
 procedure TMainForm.UpdateScrollBarsAndZoom();
 begin
   ScrollBarHorizontal.SetParams(
-    Round(WindowPos.X),
+    Round(Delta.X),
     Round(MinBounds.X * Zoom),
     Round(MaxBounds.X * Zoom));
   ScrollBarVertical.SetParams(
-    Round(WindowPos.Y),
+    Round(Delta.Y),
     Round(MinBounds.Y * Zoom),
     Round(MaxBounds.Y * Zoom));
   TrackBarZoom.Position:= Round(Zoom);
+  ValueOfZoom.Caption:= FloatToStr(Round(Zoom * 100)) + '%';
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -110,7 +111,6 @@ begin
   TTool.Tools[0].ButtonOnForm.Click;
   TrackBarZoom.Min:= MinZoom;
   TrackBarZoom.Max:= MaxZoom;
-  WindowPos:= WorldPoint(0, 0);
 end;
 
 procedure TMainForm.ButtonAllCanvasClick(Sender: TObject);
@@ -172,28 +172,22 @@ procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
 begin
   if IsMouseDown then begin
     TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, WorldPoint(X, Y));
-    ScrollBarHorizontal.Position:= Round(WindowPos.X);
-    ScrollBarVertical.Position:= Round(WindowPos.Y);
-    TrackBarZoom.Position:= Round(Zoom);
+    UpdateScrollBarsAndZoom();
     if X > (PaintBox.Width - Bound) then begin
       Delta.X+= Addition;
       MaxBounds.X+= Addition;
-      WindowPos.X+= Addition;
     end
     else if X < Bound then begin
       Delta.X-= Addition;
       MinBounds.X-= Addition;
-      WindowPos.X-= Addition;
     end;
     if Y > (PaintBox.Height - Bound) then begin
       Delta.Y+= Addition;
       MaxBounds.Y+= Addition;
-      WindowPos.Y+= Addition;
     end
     else if Y < Bound then begin
       Delta.Y-= Addition;
       MinBounds.Y-= Addition;
-      WindowPos.Y-= Addition;
     end;
     UpdateScrollBarsAndZoom();
   end;
@@ -218,7 +212,6 @@ procedure TMainForm.PaintBoxPaint(Sender: TObject);
 var
   Figure: TFigure;
 begin
-  ValueOfZoom.Caption:= FloatToStr(Round(Zoom)) + '%';
   for Figure in FFigures do
       Figure.Draw(PaintBox.Canvas);
 end;
@@ -254,6 +247,7 @@ end;
 
 procedure TMainForm.TrackBarZoomChange(Sender: TObject);
 begin
+  Zoom:= TrackBarZoom.Position;
   UpdateScrollBarsAndZoom();
   Invalidate;
 end;

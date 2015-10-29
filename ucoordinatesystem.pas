@@ -22,7 +22,6 @@ var
   Zoom: Double;
   Delta: TWorldPoint;
   MinBounds, MaxBounds: TWorldPoint;
-  WindowPos: TWorldPoint;
   SizeOfWindow: TPoint;
 
 implementation

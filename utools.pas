@@ -129,8 +129,8 @@ type
   const
     SpaceBetweenButtons = 7;
     SizeOfButton = 35;
-    MinZoom = 20;
-    MaxZoom = 2000;
+    MinZoom = 1;
+    MaxZoom = 20;
 
   var
     IsMouseDown: Boolean;
@@ -138,7 +138,7 @@ type
 implementation
 
 const
-  ZoomOfLoupe = 20;
+  ZoomOfLoupe = 0.2;
 
 var
   IsMouseWasDown: Boolean;
@@ -352,9 +352,7 @@ procedure TTHand.OnMouseMove(Sender: TObject; Shift: TShiftState;
         WPoint: TWorldPoint);
 begin
   Delta.X+= StartPos.X - WPoint.X;
-  Delta.X+= StartPos.Y - WPoint.Y;
-  WindowPos.X:= StartPos.X - WPoint.X;
-  WindowPos.Y:= StartPos.Y - WPoint.Y;
+  Delta.Y+= StartPos.Y - WPoint.Y;
 end;
 
 procedure TTHand.OnMouseUp(Sender: TObject; Button: TMouseButton;
@@ -394,10 +392,8 @@ begin
          SizeOfWindow.Y / Abs(Rect.StartP.Y - Rect.EndP.Y)) * 100 < MaxZoom then
     Zoom:= Min(SizeOfWindow.X / Abs(Rect.StartP.X - Rect.EndP.X),
                SizeOfWindow.Y / Abs(Rect.StartP.Y - Rect.EndP.Y)) * 100;
-  WindowPos:= CreateWorldPoint(Min(Rect.StartP.X, Rect.EndP.X),
-                     Min(Rect.StartP.Y, Rect.EndP.Y));
-  Delta.X:= WindowPos.X * Zoom;
-  Delta.Y:= WindowPos.Y * Zoom;
+  Delta.X:= Min(Rect.StartP.X, Rect.EndP.X) * Zoom;
+  Delta.Y:= Min(Rect.StartP.Y, Rect.EndP.Y) * Zoom;
   TFigure.DeleteLastFigure();
 end;
 
