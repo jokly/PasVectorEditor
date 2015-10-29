@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 328
+  Left = 265
   Height = 421
-  Top = 137
+  Top = 125
   Width = 602
   Caption = 'pasVectorEditor'
   ClientHeight = 401
@@ -15,7 +15,7 @@ object MainForm: TMainForm
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   Position = poDesktopCenter
-  LCLVersion = '1.2.6.0'
+  LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
     Left = 91
     Height = 337
@@ -114,7 +114,6 @@ object MainForm: TMainForm
       Width = 34
       Caption = 'Label1'
       ParentColor = False
-      Visible = False
     end
     object Label2: TLabel
       Left = 8
@@ -123,7 +122,6 @@ object MainForm: TMainForm
       Width = 34
       Caption = 'Label2'
       ParentColor = False
-      Visible = False
     end
     object Label3: TLabel
       Left = 8
@@ -132,7 +130,6 @@ object MainForm: TMainForm
       Width = 34
       Caption = 'Label3'
       ParentColor = False
-      Visible = False
     end
     object Label4: TLabel
       Left = 8
@@ -141,7 +138,6 @@ object MainForm: TMainForm
       Width = 34
       Caption = 'Label4'
       ParentColor = False
-      Visible = False
     end
     object ValueOfZoom: TLabel
       Left = 32
@@ -158,7 +154,6 @@ object MainForm: TMainForm
       Width = 34
       Caption = 'Label5'
       ParentColor = False
-      Visible = False
     end
     object ButtonAllCanvas: TButton
       Left = 8

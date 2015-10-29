@@ -328,8 +328,6 @@ begin
     if Zoom - ZoomOfLoupe > 0 then
       Zoom-= ZoomOfLoupe;
   end;
-  //Dx:= (WPoint.X - WidthOfWindow / 2) * Zoom / 100;
-  //Dy:= (WPoint.Y - HeightOfWindow / 2) * Zoom / 100;
 end;
 procedure TTLoupe.OnMouseMove(Sender: TObject; Shift: TShiftState;
         WPoint: TWorldPoint);
@@ -346,13 +344,13 @@ end;
 procedure TTHand.OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  StartPos:= WPoint;
+  TTHand.StartPos:= WPoint;
 end;
 procedure TTHand.OnMouseMove(Sender: TObject; Shift: TShiftState;
         WPoint: TWorldPoint);
 begin
-  Delta.X+= StartPos.X - WPoint.X;
-  Delta.Y+= StartPos.Y - WPoint.Y;
+  Delta.X+= TTHand.StartPos.X - WPoint.X;
+  Delta.Y+= TTHand.StartPos.Y - WPoint.Y;
 end;
 
 procedure TTHand.OnMouseUp(Sender: TObject; Button: TMouseButton;

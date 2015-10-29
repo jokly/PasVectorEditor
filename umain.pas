@@ -62,10 +62,6 @@ var
 
 implementation
 
-const
-  Bound = 60;
-  Addition = 3;
-
 var
   IndexOfBtn: Integer;
 
@@ -77,12 +73,12 @@ procedure TMainForm.UpdateScrollBarsAndZoom();
 begin
   ScrollBarHorizontal.SetParams(
     Round(Delta.X),
-    Round(MinBounds.X * Zoom),
-    Round(MaxBounds.X * Zoom));
+    Round(Min(MinBounds.X * Zoom, Delta.X)),
+    Round(Max(MaxBounds.X * Zoom, Delta.X) - SizeOfWindow.X));
   ScrollBarVertical.SetParams(
     Round(Delta.Y),
-    Round(MinBounds.Y * Zoom),
-    Round(MaxBounds.Y * Zoom));
+    Round(Min(MinBounds.Y * Zoom, Delta.Y)),
+    Round(Max(MaxBounds.Y * Zoom, Delta.Y) - SizeOfWindow.Y));
   TrackBarZoom.Position:= Round(Zoom * 100);
   ValueOfZoom.Caption:= IntToStr(TrackBarZoom.Position) + '%';
 end;
@@ -131,7 +127,7 @@ begin
   if (Key = VK_Z) and (Shift = [ssCtrl]) then
      TFigure.DeleteLastFigure();
   if (Key = VK_C) and (Shift = [ssCtrl]) then begin
-    while TFigure.GetLastFigure() <> nil do
+    while TFigure.GetLastFigure() <> Nil do
       TFigure.DeleteLastFigure();
   end;
   Invalidate;
@@ -172,30 +168,14 @@ procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
 begin
   if IsMouseDown then begin
     TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, WorldPoint(X, Y));
-    UpdateScrollBarsAndZoom();
-    if X > (PaintBox.Width - Bound) then begin
-      Delta.X+= Addition;
-      MaxBounds.X+= Addition;
-    end
-    else if X < Bound then begin
-      Delta.X-= Addition;
-      MinBounds.X-= Addition;
-    end;
-    if Y > (PaintBox.Height - Bound) then begin
-      Delta.Y+= Addition;
-      MaxBounds.Y+= Addition;
-    end
-    else if Y < Bound then begin
-      Delta.Y-= Addition;
-      MinBounds.Y-= Addition;
-    end;
+    CalculateBounds(WorldPoint(X, Y));
     UpdateScrollBarsAndZoom();
   end;
-  //Label1.Caption:= 'SHo ' + IntToStr(ScrollBarHorizontal.Min) + ' ' + IntToStr(ScrollBarHorizontal.Max);
-  //Label4.Caption:= 'SVe ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
-  //Label2.Caption:= 'WoP ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).X)) + ' ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).Y));
-  //Label3.Caption:= 'ScP ' + IntToStr(X) + ' ' + IntToStr(Y);
-  //Label5.Caption:= 'WinP ' + IntToStr(Round(WindowPos.X)) + ' ' + IntToStr(Round(WindowPos.Y));
+  Label1.Caption:= 'SHo ' + IntToStr(ScrollBarHorizontal.Min) + ' ' + IntToStr(ScrollBarHorizontal.Max);
+  Label4.Caption:= 'SVe ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
+  Label2.Caption:= 'WoP ' + IntToStr(Round(WorldPoint(X, Y).X)) + ' ' + IntToStr(Round(WorldPoint(X, Y).Y));
+  Label3.Caption:= 'ScP ' + IntToStr(X) + ' ' + IntToStr(Y);
+  Label5.Caption:= 'WinP ' + IntToStr(Round(Delta.X)) + ' ' + IntToStr(Round(Delta.Y));
   Invalidate;
 end;
 
