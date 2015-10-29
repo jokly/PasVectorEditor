@@ -386,6 +386,7 @@ procedure TTRectangleLoupe.OnMouseUp(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint);
 begin
   if ButtonWasDown = mbRight then Exit;
+  (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
   if Min(WidthOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.X - (TFigure.GetLastFigure() as TRectangle).EndP.X),
              HeightOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.Y - (TFigure.GetLastFigure() as TRectangle).EndP.Y)) * 100 < MaxZoom then
     Zoom:= Min(WidthOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.X - (TFigure.GetLastFigure() as TRectangle).EndP.X),

@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 303
+  Left = 407
   Height = 421
-  Top = 106
+  Top = 162
   Width = 602
   Caption = 'pasVectorEditor'
-  ClientHeight = 401
-  ClientWidth = 602
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clWhite
   Constraints.MinHeight = 200
   Constraints.MinWidth = 200
@@ -17,10 +17,10 @@ object MainForm: TMainForm
   Position = poDesktopCenter
   LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
-    Left = 91
-    Height = 337
-    Top = 49
-    Width = 496
+    Left = 0
+    Height = 0
+    Top = 0
+    Width = 0
     Align = alClient
     Color = clWhite
     ParentColor = False
@@ -31,12 +31,12 @@ object MainForm: TMainForm
   end
   object PropertiesPanel: TPanel
     Left = 0
-    Height = 337
-    Top = 49
+    Height = 0
+    Top = 0
     Width = 91
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 337
+    ClientHeight = 0
     ClientWidth = 91
     Color = clSilver
     ParentColor = False
@@ -110,7 +110,7 @@ object MainForm: TMainForm
     object Label1: TLabel
       Left = 8
       Height = 15
-      Top = 136
+      Top = 175
       Width = 34
       Caption = 'Label1'
       ParentColor = False
@@ -118,7 +118,7 @@ object MainForm: TMainForm
     object Label2: TLabel
       Left = 8
       Height = 15
-      Top = 176
+      Top = 215
       Width = 34
       Caption = 'Label2'
       ParentColor = False
@@ -126,7 +126,7 @@ object MainForm: TMainForm
     object Label3: TLabel
       Left = 8
       Height = 15
-      Top = 199
+      Top = 238
       Width = 34
       Caption = 'Label3'
       ParentColor = False
@@ -134,7 +134,7 @@ object MainForm: TMainForm
     object Label4: TLabel
       Left = 8
       Height = 15
-      Top = 157
+      Top = 196
       Width = 34
       Caption = 'Label4'
       ParentColor = False
@@ -150,17 +150,26 @@ object MainForm: TMainForm
     object Label5: TLabel
       Left = 8
       Height = 15
-      Top = 219
+      Top = 258
       Width = 34
       Caption = 'Label5'
       ParentColor = False
+    end
+    object ButtonAllCanvas: TButton
+      Left = 8
+      Height = 21
+      Top = 112
+      Width = 73
+      Caption = 'Весь холст'
+      OnClick = ButtonAllCanvasClick
+      TabOrder = 3
     end
   end
   object ToolsPanel: TPanel
     Left = 0
     Height = 49
     Top = 0
-    Width = 602
+    Width = 0
     Align = alTop
     BevelOuter = bvNone
     Color = clSilver
@@ -170,8 +179,8 @@ object MainForm: TMainForm
   object ScrollBarHorizontal: TScrollBar
     Left = 0
     Height = 15
-    Top = 386
-    Width = 602
+    Top = -15
+    Width = 0
     Align = alBottom
     Max = 0
     PageSize = 0
@@ -179,9 +188,9 @@ object MainForm: TMainForm
     OnScroll = ScrollBarHorizontalScroll
   end
   object ScrollBarVertical: TScrollBar
-    Left = 587
-    Height = 337
-    Top = 49
+    Left = -15
+    Height = 0
+    Top = 0
     Width = 15
     Align = alRight
     Kind = sbVertical

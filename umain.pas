@@ -16,6 +16,7 @@ type
   { TMainForm }
 
   TMainForm = class(TForm)
+    ButtonAllCanvas: TButton;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -34,6 +35,7 @@ type
     ToolsPanel: TPanel;
     PropertiesPanel: TPanel;
     TrackBarZoom: TTrackBar;
+    procedure ButtonAllCanvasClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormResize(Sender: TObject);
@@ -94,17 +96,19 @@ begin
     end;
   end;
   TTool.Tools[0].ButtonOnForm.Click;
-  TopOfCanvas:= 0;
-  LeftOfCanvas:= 0;
-  RightOfCanvas:= PaintBox.Width;
-  BottomOfCanvas:= PaintBox.Height;
-  WindowPos:= TWorldPoint.WorldPoint(0, 0);
-  ScrollBarHorizontal.SetParams(Round(WindowPos.X), Round(LeftOfCanvas), Round(RightOfCanvas));
-  ScrollBarVertical.SetParams(Round(WindowPos.Y), Round(TopOfCanvas), Round(BottomOfCanvas));
-  WidthOfWindow:= PaintBox.Width;
-  HeightOfWindow:= PaintBox.Height;
   TrackBarZoom.Min:= MinZoom;
   TrackBarZoom.Max:= MaxZoom;
+  WindowPos:= TWorldPoint.WorldPoint(0, 0);
+end;
+
+procedure TMainForm.ButtonAllCanvasClick(Sender: TObject);
+var
+  RectLoupe: TTRectangleLoupe;
+  Shift: set of TShiftStateEnum;
+begin
+  RectLoupe:= (TTRectangleLoupe.newinstance as TTRectangleLoupe);
+  RectLoupe.OnMouseDown(Sender, mbLeft, Shift, TWorldPoint.WorldPoint(LeftOfCanvas, TopOfCanvas));
+  RectLoupe.OnMouseUp(Sender, mbLeft, Shift, TWorldPoint.WorldPoint(RightOfCanvas, BottomOfCanvas));
 end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
@@ -122,6 +126,12 @@ end;
 
 procedure TMainForm.FormResize(Sender: TObject);
 begin
+  TopOfCanvas:= Min(0, TopOfCanvas);
+  LeftOfCanvas:= Min(0, LeftOfCanvas);
+  RightOfCanvas:= Max(PaintBox.Width, RightOfCanvas);
+  BottomOfCanvas:= Max(PaintBox.Height, BottomOfCanvas);
+  ScrollBarHorizontal.SetParams(Round(WindowPos.X), Round(LeftOfCanvas), Round(RightOfCanvas));
+  ScrollBarVertical.SetParams(Round(WindowPos.Y), Round(TopOfCanvas), Round(BottomOfCanvas));
   WidthOfWindow:= PaintBox.Width;
   HeightOfWindow:= PaintBox.Height;
 end;
