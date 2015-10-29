@@ -9,61 +9,50 @@ uses
 
 type
 
-  TWorldPoint = Class(TObject)
-    public
-      X, Y: Extended;
-      class function Create(_X, _Y: Extended): TWorldPoint; overload;
-      class function WorldPoint(_X, _Y: Extended): TWorldPoint; static;
-      class function ToScreenPoint(_WordPoint: TWorldPoint): TPoint; static;
-      class function ToWorldPoint(_Point: TPoint): TWorldPoint; static;
+  TWorldPoint = record
+      X, Y: Double;
   end;
 
-  var
-    Zoom, Dx, Dy: Extended;
-    LeftOfCanvas, RightOfCanvas, TopOfCanvas, BottomOfCanvas: Extended;
-    WindowPos: TWorldPoint;
-    WidthOfWindow, HeightOfWindow: Integer;
+function CreateWorldPoint(X, Y: Extended): TWorldPoint;
+function WorldPoint(X, Y: Extended): TWorldPoint;
+function WorldPoint(Point: TPoint): TWorldPoint;
+function ToScreenPoint(WordPoint: TWorldPoint): TPoint;
+
+var
+  Zoom: Double;
+  Delta: TWorldPoint;
+  MinBounds, MaxBounds: TWorldPoint;
+  WindowPos: TWorldPoint;
+  SizeOfWindow: TPoint;
 
 implementation
 
-class function TWorldPoint.Create(_X, _Y: Extended): TWorldPoint;
-var
-  WPoint: TWorldPoint;
+function CreateWorldPoint(X, Y: Extended): TWorldPoint;
 begin
-  WPoint:= (newinstance as TWorldPoint);
-  WPoint.X:= _X;
-  WPoint.Y:= _Y;
-  Result:= WPoint;
+  Result.X:= X;
+  Result.Y:= Y;
 end;
 
-class function TWorldPoint.WorldPoint(_X, _Y: Extended): TWorldPoint;
-var
-  WPoint: TWorldPoint;
+function WorldPoint(X, Y: Extended): TWorldPoint;
 begin
-  WPoint:= (newinstance as TWorldPoint);
-  WPoint.X:= (_X + Dx) * 100 / Zoom;
-  WPoint.Y:= (_Y + Dy) * 100 / Zoom;
-  Result:= WPoint;
+  Result.X:= (X + Delta.X) * 1 / Zoom;
+  Result.Y:= (Y + Delta.Y) * 1 / Zoom;
 end;
 
-class function TWorldPoint.ToScreenPoint(_WordPoint: TWorldPoint): TPoint;
+function WorldPoint(Point: TPoint): TWorldPoint;
 begin
-  Result:= Point(Round(_WordPoint.X * Zoom / 100 - Dx), Round(_WordPoint.Y * Zoom / 100 - Dy));
+  Result.X:= (Point.X + Delta.X) * 1 / Zoom;
+  Result.Y:= (Point.Y + Delta.Y) * 1 / Zoom;
 end;
 
-class function TWorldPoint.ToWorldPoint(_Point: TPoint): TWorldPoint;
-var
-  WPoint: TWorldPoint;
+function ToScreenPoint(WordPoint: TWorldPoint): TPoint;
 begin
-  WPoint:= (newinstance as TWorldPoint);
-  WPoint.X:= (_Point.X + Dx) * 100 / Zoom;
-  WPoint.Y:= (_Point.Y + Dy) * 100 / Zoom;
-  Result:= WPoint;
+  Result:= Point(Round(WordPoint.X * Zoom - Delta.X), Round(WordPoint.Y * Zoom - Delta.Y));
 end;
 
 initialization
-Zoom:= 100;
-Dx:= 0;
-Dy:= 0;
+Zoom:= 1;
+Delta.X:= 0;
+Delta.Y:= 0;
 
 end.

@@ -8,8 +8,6 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, Buttons, ColorBox, StdCtrls, LCLtype, ComCtrls, Windows, Math, UAbout,
   UTools, UFigures, UCoordinateSystem;
-//Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-//  Menus, Buttons, UFigures, UCoordinateSystem;
 
 type
 
@@ -56,6 +54,7 @@ type
       var ScrollPos: Integer);
     procedure ToolClick(Sender: TObject);
     procedure TrackBarZoomChange(Sender: TObject);
+    procedure UpdateScrollBarsAndZoom();
   end;
 
 var
@@ -73,6 +72,19 @@ var
 {$R *.lfm}
 
 { TMainForm }
+
+procedure TMainForm.UpdateScrollBarsAndZoom();
+begin
+  ScrollBarHorizontal.SetParams(
+    Round(WindowPos.X),
+    Round(MinBounds.X * Zoom),
+    Round(MaxBounds.X * Zoom));
+  ScrollBarVertical.SetParams(
+    Round(WindowPos.Y),
+    Round(MinBounds.Y * Zoom),
+    Round(MaxBounds.Y * Zoom));
+  TrackBarZoom.Position:= Round(Zoom);
+end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 var
@@ -98,7 +110,7 @@ begin
   TTool.Tools[0].ButtonOnForm.Click;
   TrackBarZoom.Min:= MinZoom;
   TrackBarZoom.Max:= MaxZoom;
-  WindowPos:= TWorldPoint.WorldPoint(0, 0);
+  WindowPos:= WorldPoint(0, 0);
 end;
 
 procedure TMainForm.ButtonAllCanvasClick(Sender: TObject);
@@ -107,8 +119,9 @@ var
   Shift: set of TShiftStateEnum;
 begin
   RectLoupe:= (TTRectangleLoupe.newinstance as TTRectangleLoupe);
-  RectLoupe.OnMouseDown(Sender, mbLeft, Shift, TWorldPoint.WorldPoint(LeftOfCanvas, TopOfCanvas));
-  RectLoupe.OnMouseUp(Sender, mbLeft, Shift, TWorldPoint.WorldPoint(RightOfCanvas, BottomOfCanvas));
+  RectLoupe.OnMouseDown(Sender, mbLeft, Shift, WorldPoint(MinBounds.X, MinBounds.Y));
+  RectLoupe.OnMouseUp(Sender, mbLeft, Shift, WorldPoint(MaxBounds.X, MaxBounds.Y));
+  Invalidate;
 end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
@@ -117,23 +130,22 @@ begin
   if GetKeyState(VK_LBUTTON) < 0 then Exit;
   if (Key = VK_Z) and (Shift = [ssCtrl]) then
      TFigure.DeleteLastFigure();
-  PaintBox.Invalidate;
   if (Key = VK_C) and (Shift = [ssCtrl]) then begin
     while TFigure.GetLastFigure() <> nil do
       TFigure.DeleteLastFigure();
   end;
+  Invalidate;
 end;
 
 procedure TMainForm.FormResize(Sender: TObject);
 begin
-  TopOfCanvas:= Min(0, TopOfCanvas);
-  LeftOfCanvas:= Min(0, LeftOfCanvas);
-  RightOfCanvas:= Max(PaintBox.Width, RightOfCanvas);
-  BottomOfCanvas:= Max(PaintBox.Height, BottomOfCanvas);
-  ScrollBarHorizontal.SetParams(Round(WindowPos.X), Round(LeftOfCanvas), Round(RightOfCanvas));
-  ScrollBarVertical.SetParams(Round(WindowPos.Y), Round(TopOfCanvas), Round(BottomOfCanvas));
-  WidthOfWindow:= PaintBox.Width;
-  HeightOfWindow:= PaintBox.Height;
+  SizeOfWindow.X:= PaintBox.Width;
+  SizeOfWindow.Y:= PaintBox.Height;
+  MinBounds.X:= Min(0, MinBounds.X);
+  MinBounds.Y:= Min(0, MinBounds.Y);
+  MaxBounds.X:= Max(SizeOfWindow.X, MaxBounds.X);
+  MaxBounds.Y:= Max(SizeOfWindow.Y, MaxBounds.Y);
+  UpdateScrollBarsAndZoom();
 end;
 
 procedure TMainForm.MAboutClick(Sender: TObject);
@@ -150,67 +162,56 @@ procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= True;
-  TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, TWorldPoint.WorldPoint(X, Y));
-  ScrollBarHorizontal.SetParams(Round(WindowPos.X),
-                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
-  ScrollBarVertical.SetParams(Round(WindowPos.Y),
-                                Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
-  TrackBarZoom.Position:= Round(Zoom);
-  PaintBox.Invalidate;
+  TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, WorldPoint(X, Y));
+  UpdateScrollBarsAndZoom();
+  Invalidate;
 end;
 
 procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   if IsMouseDown then begin
-    TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, TWorldPoint.WorldPoint(X, Y));
+    TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, WorldPoint(X, Y));
     ScrollBarHorizontal.Position:= Round(WindowPos.X);
     ScrollBarVertical.Position:= Round(WindowPos.Y);
     TrackBarZoom.Position:= Round(Zoom);
     if X > (PaintBox.Width - Bound) then begin
-      Dx+= Addition;
-      RightOfCanvas+= Addition;
+      Delta.X+= Addition;
+      MaxBounds.X+= Addition;
       WindowPos.X+= Addition;
     end
     else if X < Bound then begin
-      Dx-= Addition;
-      LeftOfCanvas-= Addition;
+      Delta.X-= Addition;
+      MinBounds.X-= Addition;
       WindowPos.X-= Addition;
     end;
     if Y > (PaintBox.Height - Bound) then begin
-      Dy+= Addition;
-      BottomOfCanvas+= Addition;
+      Delta.Y+= Addition;
+      MaxBounds.Y+= Addition;
       WindowPos.Y+= Addition;
     end
     else if Y < Bound then begin
-      Dy-= Addition;
-      TopOfCanvas-= Addition;
+      Delta.Y-= Addition;
+      MinBounds.Y-= Addition;
       WindowPos.Y-= Addition;
     end;
-    ScrollBarHorizontal.SetParams(Round(WindowPos.X),
-                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
-    ScrollBarVertical.SetParams(Round(WindowPos.Y),
-                                Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
+    UpdateScrollBarsAndZoom();
   end;
-  Label1.Caption:= 'SHo ' + IntToStr(ScrollBarHorizontal.Min) + ' ' + IntToStr(ScrollBarHorizontal.Max);
-  Label4.Caption:= 'SVe ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
-  Label2.Caption:= 'WoP ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).X)) + ' ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).Y));
-  Label3.Caption:= 'ScP ' + IntToStr(X) + ' ' + IntToStr(Y);
-  Label5.Caption:= 'WinP ' + IntToStr(Round(WindowPos.X)) + ' ' + IntToStr(Round(WindowPos.Y));
-  PaintBox.Invalidate;
+  //Label1.Caption:= 'SHo ' + IntToStr(ScrollBarHorizontal.Min) + ' ' + IntToStr(ScrollBarHorizontal.Max);
+  //Label4.Caption:= 'SVe ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
+  //Label2.Caption:= 'WoP ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).X)) + ' ' + IntToStr(Round(TWorldPoint.WorldPoint(X, Y).Y));
+  //Label3.Caption:= 'ScP ' + IntToStr(X) + ' ' + IntToStr(Y);
+  //Label5.Caption:= 'WinP ' + IntToStr(Round(WindowPos.X)) + ' ' + IntToStr(Round(WindowPos.Y));
+  Invalidate;
 end;
 
 procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= False;
-  TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, TWorldPoint.WorldPoint(X, Y));
-  ScrollBarHorizontal.SetParams(Round(WindowPos.X),
-                                  Round(LeftOfCanvas * Zoom / 100), Round(RightOfCanvas * Zoom / 100));
-  ScrollBarVertical.SetParams(Round(WindowPos.Y),
-                                Round(TopOfCanvas * Zoom / 100), Round(BottomOfCanvas * Zoom / 100));
-  TrackBarZoom.Position:= Round(Zoom);
-  PaintBox.Invalidate;
+  TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, WorldPoint(X, Y));
+  UpdateScrollBarsAndZoom();
+  Invalidate;
 end;
 
 procedure TMainForm.PaintBoxPaint(Sender: TObject);
@@ -235,15 +236,15 @@ end;
 procedure TMainForm.ScrollBarHorizontalScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-  Dx:= ScrollPos;
-  PaintBox.Invalidate;
+  Delta.X:= ScrollPos;
+  Invalidate;
 end;
 
 procedure TMainForm.ScrollBarVerticalScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-  Dy:= ScrollPos;
-  PaintBox.Invalidate;
+  Delta.Y:= ScrollPos;
+  Invalidate;
 end;
 
 procedure TMainForm.ToolClick(Sender: TObject);
@@ -253,12 +254,8 @@ end;
 
 procedure TMainForm.TrackBarZoomChange(Sender: TObject);
 begin
-  Zoom:= TrackBarZoom.Position;
-  ScrollBarHorizontal.SetParams(Round(WindowPos.X),
-                                  Round(Min(LeftOfCanvas, LeftOfCanvas * Zoom / 100)), Round(Max(RightOfCanvas, RightOfCanvas * Zoom / 100)));
-  ScrollBarVertical.SetParams(Round(WindowPos.Y),
-                                Round(Min(TopOfCanvas, TopOfCanvas * Zoom / 100)), Round(Max(BottomOfCanvas, BottomOfCanvas * Zoom / 100)));
-  PaintBox.Invalidate;
+  UpdateScrollBarsAndZoom();
+  Invalidate;
 end;
 
 end.

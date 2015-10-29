@@ -110,20 +110,19 @@ begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     if Length(FPoints) > 0 then
-      MoveTo(TWorldPoint.ToScreenPoint(FPoints[0]));
+      MoveTo(ToScreenPoint(FPoints[0]));
     for Point in FPoints do
-      LineTo(TWorldPoint.ToScreenPoint(Point));
+      LineTo(ToScreenPoint(Point));
   end;
 end;
 
 procedure TLine.Draw(Canvas: TCanvas);
 begin
-  if (StartP = Nil) or (EndP = Nil) then Exit;
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
-    MoveTo(TWorldPoint.ToScreenPoint(StartP));
-    LineTo(TWorldPoint.ToScreenPoint(EndP));
+    MoveTo(ToScreenPoint(StartP));
+    LineTo(ToScreenPoint(EndP));
   end;
 end;
 
@@ -154,38 +153,35 @@ end;
 
 procedure TRectangle.Draw(Canvas: TCanvas);
 begin
-  if (StartP = Nil) or (EndP = Nil) then Exit;
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
-    Rectangle(TWorldPoint.ToScreenPoint(StartP).x, TWorldPoint.ToScreenPoint(StartP).y,
-              TWorldPoint.ToScreenPoint(EndP).x, TWorldPoint.ToScreenPoint(EndP).y);
+    Rectangle(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
+              ToScreenPoint(EndP).x, ToScreenPoint(EndP).y);
   end;
 end;
 
 procedure TRoundRectangle.Draw(Canvas: TCanvas);
 begin
-  if (StartP = Nil) or (EndP = Nil) then Exit;
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
-    RoundRect(TWorldPoint.ToScreenPoint(StartP).x, TWorldPoint.ToScreenPoint(StartP).y,
-              TWorldPoint.ToScreenPoint(EndP).x, TWorldPoint.ToScreenPoint(EndP).y,
+    RoundRect(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
+              ToScreenPoint(EndP).x, ToScreenPoint(EndP).y,
               RoundingOfRoundRect, RoundingOfRoundRect);
   end;
 end;
 
 procedure TEllipse.Draw(Canvas: TCanvas);
 begin
-  if (StartP = Nil) or (EndP = Nil) then Exit;
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= FPenWidth;
     Brush.Style:= bsClear;
-    Ellipse(TWorldPoint.ToScreenPoint(StartP).x, TWorldPoint.ToScreenPoint(StartP).y,
-              TWorldPoint.ToScreenPoint(EndP).x, TWorldPoint.ToScreenPoint(EndP).y);
+    Ellipse(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
+            ToScreenPoint(EndP).x, ToScreenPoint(EndP).y);
   end;
 end;
 

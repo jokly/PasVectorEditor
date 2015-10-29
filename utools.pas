@@ -328,8 +328,8 @@ begin
     if Zoom - ZoomOfLoupe > 0 then
       Zoom-= ZoomOfLoupe;
   end;
-  Dx:= (WPoint.X - WidthOfWindow / 2) * Zoom / 100;
-  Dy:= (WPoint.Y - HeightOfWindow / 2) * Zoom / 100;
+  //Dx:= (WPoint.X - WidthOfWindow / 2) * Zoom / 100;
+  //Dy:= (WPoint.Y - HeightOfWindow / 2) * Zoom / 100;
 end;
 procedure TTLoupe.OnMouseMove(Sender: TObject; Shift: TShiftState;
         WPoint: TWorldPoint);
@@ -351,10 +351,10 @@ end;
 procedure TTHand.OnMouseMove(Sender: TObject; Shift: TShiftState;
         WPoint: TWorldPoint);
 begin
-  Dx+= StartPos.X - WPoint.X;
-  Dy+= StartPos.Y - WPoint.Y;
-  WindowPos.X+= StartPos.X - WPoint.X;
-  WindowPos.Y+= StartPos.Y - WPoint.Y;
+  Delta.X+= StartPos.X - WPoint.X;
+  Delta.X+= StartPos.Y - WPoint.Y;
+  WindowPos.X:= StartPos.X - WPoint.X;
+  WindowPos.Y:= StartPos.Y - WPoint.Y;
 end;
 
 procedure TTHand.OnMouseUp(Sender: TObject; Button: TMouseButton;
@@ -384,17 +384,20 @@ end;
 
 procedure TTRectangleLoupe.OnMouseUp(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint);
+var
+  Rect: TRectangle;
 begin
   if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
-  if Min(WidthOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.X - (TFigure.GetLastFigure() as TRectangle).EndP.X),
-             HeightOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.Y - (TFigure.GetLastFigure() as TRectangle).EndP.Y)) * 100 < MaxZoom then
-    Zoom:= Min(WidthOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.X - (TFigure.GetLastFigure() as TRectangle).EndP.X),
-               HeightOfWindow / Abs((TFigure.GetLastFigure() as TRectangle).StartP.Y - (TFigure.GetLastFigure() as TRectangle).EndP.Y)) * 100;
-  WindowPos:= TWorldPoint.Create(Min((TFigure.GetLastFigure() as TRectangle).StartP.X, (TFigure.GetLastFigure() as TRectangle).EndP.X),
-                                     Min((TFigure.GetLastFigure() as TRectangle).StartP.Y, (TFigure.GetLastFigure() as TRectangle).EndP.Y));
-  Dx:= WindowPos.X * Zoom / 100;
-  Dy:= WindowPos.Y * Zoom / 100;
+  Rect:=(TFigure.GetLastFigure() as TRectangle);
+  if Min(SizeOfWindow.X / Abs(Rect.StartP.X - Rect.EndP.X),
+         SizeOfWindow.Y / Abs(Rect.StartP.Y - Rect.EndP.Y)) * 100 < MaxZoom then
+    Zoom:= Min(SizeOfWindow.X / Abs(Rect.StartP.X - Rect.EndP.X),
+               SizeOfWindow.Y / Abs(Rect.StartP.Y - Rect.EndP.Y)) * 100;
+  WindowPos:= CreateWorldPoint(Min(Rect.StartP.X, Rect.EndP.X),
+                     Min(Rect.StartP.Y, Rect.EndP.Y));
+  Delta.X:= WindowPos.X * Zoom;
+  Delta.Y:= WindowPos.Y * Zoom;
   TFigure.DeleteLastFigure();
 end;
 
