@@ -16,11 +16,6 @@ type
   TMainForm = class(TForm)
     ButtonAllCanvas: TButton;
     EditZoom: TEdit;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
     ValueOfZoom: TLabel;
     PenWidthBox: TComboBox;
     PenColorBox: TColorBox;
@@ -187,11 +182,6 @@ begin
     CalculateBounds(ToWorldPoint(X, Y));
     UpdateScrollBarsAndZoom();
   end;
-  Label1.Caption:= 'SHo ' + IntToStr(ScrollBarHorizontal.Min) + ' ' + IntToStr(ScrollBarHorizontal.Max);
-  Label4.Caption:= 'SVe ' + IntToStr(ScrollBarVertical.Min) + ' ' + IntToStr(ScrollBarVertical.Max);
-  Label2.Caption:= 'WoP ' + IntToStr(Round(ToWorldPoint(X, Y).X)) + ' ' + IntToStr(Round(ToWorldPoint(X, Y).Y));
-  Label3.Caption:= 'ScP ' + IntToStr(X) + ' ' + IntToStr(Y);
-  Label5.Caption:= 'Del ' + IntToStr(Round(Delta.X)) + ' ' + IntToStr(Round(Delta.Y));
   Invalidate;
 end;
 

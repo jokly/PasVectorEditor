@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 593
+  Left = 345
   Height = 421
-  Top = 217
+  Top = 76
   Width = 602
   Caption = 'pasVectorEditor'
   ClientHeight = 401
@@ -96,52 +96,12 @@ object MainForm: TMainForm
       ParentFont = False
       TabOrder = 1
     end
-    object Label1: TLabel
-      Left = 8
-      Height = 15
-      Top = 175
-      Width = 34
-      Caption = 'Label1'
-      ParentColor = False
-    end
-    object Label2: TLabel
-      Left = 8
-      Height = 15
-      Top = 215
-      Width = 34
-      Caption = 'Label2'
-      ParentColor = False
-    end
-    object Label3: TLabel
-      Left = 8
-      Height = 15
-      Top = 238
-      Width = 34
-      Caption = 'Label3'
-      ParentColor = False
-    end
-    object Label4: TLabel
-      Left = 8
-      Height = 15
-      Top = 196
-      Width = 34
-      Caption = 'Label4'
-      ParentColor = False
-    end
     object ValueOfZoom: TLabel
       Left = 32
       Height = 15
       Top = 88
       Width = 28
       Caption = '100%'
-      ParentColor = False
-    end
-    object Label5: TLabel
-      Left = 8
-      Height = 15
-      Top = 258
-      Width = 34
-      Caption = 'Label5'
       ParentColor = False
     end
     object ButtonAllCanvas: TButton
