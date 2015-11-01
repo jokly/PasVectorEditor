@@ -93,6 +93,7 @@ begin
       Height:= SizeOfButton;
       Glyph:= TTool.Tools[i].ImageOfButton;
       BorderStyle:= bsNone;
+      Spacing:=0;
       Left:= (i+1) * SpaceBetweenButtons + i * SizeOfButton;
       Top:= SpaceBetweenButtons;
       OnClick:= @MainForm.ToolClick;

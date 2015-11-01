@@ -129,7 +129,7 @@ type
 
   const
     SpaceBetweenButtons = 7;
-    SizeOfButton = 35;
+    SizeOfButton = 36;
     MinZoom = 0.01;
     MaxZoom = 90;
 
@@ -439,7 +439,7 @@ TTool.AddTool(TTRoundRectangle.Create('img\roundRect.bmp'));
 TTool.AddTool(TTEllipse.Create('img\ellipse.bmp'));
 TTool.AddTool(TTLoupe.Create('img\loupe.bmp'));
 TTool.AddTool(TTHand.Create('img\hand.bmp'));
-TTool.AddTool(TTRectangleLoupe.Create('img\rectangle.bmp'));
+TTool.AddTool(TTRectangleLoupe.Create('img\rectangleLoupe.bmp'));
 
 end.
 
