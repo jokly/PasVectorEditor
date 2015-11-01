@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 391
+  Left = 593
   Height = 421
-  Top = 393
+  Top = 217
   Width = 602
   Caption = 'pasVectorEditor'
   ClientHeight = 401
@@ -15,7 +15,7 @@ object MainForm: TMainForm
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   Position = poDesktopCenter
-  LCLVersion = '1.4.4.0'
+  LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
     Left = 91
     Height = 337

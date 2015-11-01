@@ -140,6 +140,11 @@ begin
   if (Key = VK_C) and (Shift = [ssCtrl]) then begin
     while TFigure.GetLastFigure() <> Nil do
       TFigure.DeleteLastFigure();
+    MinCoordinate:= WorldPoint(0, 0);
+    MaxCoordinate:= WorldPoint(0, 0);
+    MinBounds.X:= 0; MinBounds.Y:= 0;
+    MaxBounds.X:= PaintBox.Width; MaxBounds.Y:= PaintBox.Height;
+    UpdateScrollBarsAndZoom();
   end;
   Invalidate;
 end;
