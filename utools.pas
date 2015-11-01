@@ -131,7 +131,7 @@ type
     SpaceBetweenButtons = 7;
     SizeOfButton = 35;
     MinZoom = 0.01;
-    MaxZoom = 20;
+    MaxZoom = 90;
 
   var
     IsMouseDown: Boolean;
@@ -174,7 +174,6 @@ class procedure TTPaint.FindMinMaxCoordinate(WPoint: TWorldPoint);
 begin
   MinCoordinate:= WorldPoint(Min(WPoint.X, MinCoordinate.X), Min(WPoint.Y, MinCoordinate.Y));
   MaxCoordinate:= WorldPoint(Max(WPoint.X, MaxCoordinate.X), Max(WPoint.Y, MaxCoordinate.Y));
-
 end;
 
 procedure TTPen.OnMouseDown(Sender: TObject; Button: TMouseButton;
@@ -421,6 +420,7 @@ begin
   if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
   Rect:=(TFigure.GetLastFigure() as TRectangle);
+  if (Rect.StartP.X = Rect.EndP.X) or (Rect.StartP.Y = Rect.EndP.Y) then Exit;
   if Min(SizeOfWindow.X / Abs(Rect.StartP.X - Rect.EndP.X),
          SizeOfWindow.Y / Abs(Rect.StartP.Y - Rect.EndP.Y)) < MaxZoom then
     Zoom:= Min(SizeOfWindow.X / Abs(Rect.StartP.X - Rect.EndP.X),
