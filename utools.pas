@@ -139,7 +139,7 @@ type
 implementation
 
 const
-  ZoomOfLoupe = 0.2;
+  ZoomOfLoupe = 0.3;
 
 var
   IsMouseWasDown: Boolean;
@@ -351,13 +351,16 @@ end;
 
 procedure TTLoupe.OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint);
+var
+  startP: TPoint;
 begin
+  startP:= ToScreenPoint(WPoint);
   if Button = mbLeft then
     Zoom+= ZoomOfLoupe
-  else if Button = mbRight then begin
-    if Zoom - ZoomOfLoupe > 0 then
-      Zoom-= ZoomOfLoupe;
-  end;
+  else if Button = mbRight then
+    Zoom-= ZoomOfLoupe;
+  Delta.X+= ToScreenPoint(WPoint).X - startP.X;
+  Delta.Y+= ToScreenPoint(WPoint).Y - startP.Y;
 end;
 procedure TTLoupe.OnMouseMove(Sender: TObject; Shift: TShiftState;
         WPoint: TWorldPoint);
