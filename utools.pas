@@ -135,6 +135,7 @@ type
 
   var
     IsMouseDown: Boolean;
+    MinCoordinate, MaxCoordinate: TWorldPoint;
 
 implementation
 
@@ -144,7 +145,6 @@ const
 var
   IsMouseWasDown: Boolean;
   ButtonWasDown: TMouseButton;
-  MinCoordinate, MaxCoordinate: TWorldPoint;
 
 constructor TTool.Create(PathToFile: String);
 begin
@@ -174,6 +174,7 @@ class procedure TTPaint.FindMinMaxCoordinate(WPoint: TWorldPoint);
 begin
   MinCoordinate:= WorldPoint(Min(WPoint.X, MinCoordinate.X), Min(WPoint.Y, MinCoordinate.Y));
   MaxCoordinate:= WorldPoint(Max(WPoint.X, MaxCoordinate.X), Max(WPoint.Y, MaxCoordinate.Y));
+
 end;
 
 procedure TTPen.OnMouseDown(Sender: TObject; Button: TMouseButton;

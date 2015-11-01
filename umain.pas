@@ -113,8 +113,9 @@ var
   Shift: set of TShiftStateEnum;
 begin
   RectLoupe:= (TTRectangleLoupe.newinstance as TTRectangleLoupe);
-  RectLoupe.OnMouseDown(Sender, mbLeft, Shift, WorldPoint(MinBounds.X, MinBounds.Y));
-  RectLoupe.OnMouseUp(Sender, mbLeft, Shift, WorldPoint(MaxBounds.X, MaxBounds.Y));
+  RectLoupe.OnMouseDown(Sender, mbLeft, Shift, MinCoordinate);
+  RectLoupe.OnMouseUp(Sender, mbLeft, Shift, MaxCoordinate);
+  UpdateScrollBarsAndZoom();
   Invalidate;
 end;
 
