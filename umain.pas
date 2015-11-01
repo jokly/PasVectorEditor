@@ -74,11 +74,12 @@ begin
   ScrollBarHorizontal.SetParams(
     Round(Delta.X),
     Round(Min(MinBounds.X * Zoom, Delta.X)),
-    Round(Max(MaxBounds.X * Zoom, Delta.X) - SizeOfWindow.X * Zoom));
+    Round(Max(MaxBounds.X * Zoom, Delta.X)));
   ScrollBarVertical.SetParams(
     Round(Delta.Y),
     Round(Min(MinBounds.Y * Zoom, Delta.Y)),
-    Round(Max(MaxBounds.Y * Zoom, Delta.Y) - SizeOfWindow.Y * Zoom));
+    Round(Max(MaxBounds.Y * Zoom, Delta.Y)));
+  EditZoom.Text:= IntToStr(Round(Zoom * 100));
   ValueOfZoom.Caption:= EditZoom.Text + '%';
 end;
 
