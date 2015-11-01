@@ -179,18 +179,12 @@ end;
 procedure TTPen.OnMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if Button = mbRight then begin
-    ButtonWasDown:= mbRight;
-    Exit;
-  end
-  else ButtonWasDown:= mbLeft;
   TFigure.AddFigure(TPen.Create(FPenColor, FPenWidth));
   FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTPen.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TPen).AddPoint(WPoint);
   FindMinMaxCoordinate(WPoint);
 end;
@@ -204,11 +198,6 @@ end;
 procedure TTLine.OnMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if Button = mbRight then begin
-    ButtonWasDown:= mbRight;
-    Exit;
-  end
-  else ButtonWasDown:= mbLeft;
   TFigure.AddFigure(TLine.Create(FPenColor, FPenWidth));
   (TFigure.GetLastFigure() as TLine).StartP:= WPoint;
   (TFigure.GetLastFigure() as TLine).EndP:= WPoint;
@@ -217,7 +206,6 @@ end;
 
 procedure TTLine.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TLine).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
@@ -225,7 +213,6 @@ end;
 procedure TTLine.OnMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TLine).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
@@ -265,11 +252,6 @@ end;
 procedure TTRectangle.OnMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if Button = mbRight then begin
-    ButtonWasDown:= mbRight;
-    Exit;
-  end
-  else ButtonWasDown:= mbLeft;
   TFigure.AddFigure(TRectangle.Create(FPenColor, FPenWidth));
   (TFigure.GetLastFigure() as TRectangle).StartP:= WPoint;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
@@ -278,7 +260,6 @@ end;
 
 procedure TTRectangle.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
@@ -286,7 +267,6 @@ end;
 procedure TTRectangle.OnMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
@@ -294,11 +274,6 @@ end;
 procedure TTRoundRectangle.OnMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if Button = mbRight then begin
-    ButtonWasDown:= mbRight;
-    Exit;
-  end
-  else ButtonWasDown:= mbLeft;
   TFigure.AddFigure(TRoundRectangle.Create(FPenColor, FPenWidth));
   (TFigure.GetLastFigure() as TRoundRectangle).StartP:= WPoint;
   (TFigure.GetLastFigure() as TRoundRectangle).EndP:= WPoint;
@@ -307,7 +282,6 @@ end;
 
 procedure TTRoundRectangle.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TRoundRectangle).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
@@ -315,7 +289,6 @@ end;
 procedure TTRoundRectangle.OnMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TRoundRectangle).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
@@ -323,11 +296,6 @@ end;
 procedure TTEllipse.OnMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if Button = mbRight then begin
-    ButtonWasDown:= mbRight;
-    Exit;
-  end
-  else ButtonWasDown:= mbLeft;
   TFigure.AddFigure(TEllipse.Create(FPenColor, FPenWidth));
   (TFigure.GetLastFigure() as TEllipse).StartP:= WPoint;
   (TFigure.GetLastFigure() as TEllipse).EndP:= WPoint;
@@ -336,7 +304,6 @@ end;
 
 procedure TTEllipse.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TEllipse).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
@@ -344,7 +311,6 @@ end;
 procedure TTEllipse.OnMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TEllipse).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
@@ -397,7 +363,6 @@ procedure TTRectangleLoupe.OnMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   if Button = mbRight then begin
     ButtonWasDown:= mbRight;
-    TFigure.DeleteLastFigure();
     Exit;
   end
   else ButtonWasDown:= mbLeft;
