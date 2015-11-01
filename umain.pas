@@ -15,6 +15,7 @@ type
 
   TMainForm = class(TForm)
     ButtonAllCanvas: TButton;
+    EditZoom: TEdit;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -32,8 +33,8 @@ type
     ScrollBarHorizontal: TScrollBar;
     ToolsPanel: TPanel;
     PropertiesPanel: TPanel;
-    TrackBarZoom: TTrackBar;
     procedure ButtonAllCanvasClick(Sender: TObject);
+    procedure EditZoomChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormResize(Sender: TObject);
@@ -53,7 +54,6 @@ type
     procedure ScrollBarVerticalScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
     procedure ToolClick(Sender: TObject);
-    procedure TrackBarZoomChange(Sender: TObject);
     procedure UpdateScrollBarsAndZoom();
   end;
 
@@ -74,13 +74,12 @@ begin
   ScrollBarHorizontal.SetParams(
     Round(Delta.X),
     Round(Min(MinBounds.X * Zoom, Delta.X)),
-    Round(Max(MaxBounds.X * Zoom, Delta.X) - SizeOfWindow.X));
+    Round(Max(MaxBounds.X * Zoom, Delta.X) - SizeOfWindow.X * Zoom));
   ScrollBarVertical.SetParams(
     Round(Delta.Y),
     Round(Min(MinBounds.Y * Zoom, Delta.Y)),
-    Round(Max(MaxBounds.Y * Zoom, Delta.Y) - SizeOfWindow.Y));
-  TrackBarZoom.Position:= Round(Zoom * 100);
-  ValueOfZoom.Caption:= IntToStr(TrackBarZoom.Position) + '%';
+    Round(Max(MaxBounds.Y * Zoom, Delta.Y) - SizeOfWindow.Y * Zoom));
+  ValueOfZoom.Caption:= EditZoom.Text + '%';
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -105,8 +104,6 @@ begin
     end;
   end;
   TTool.Tools[0].ButtonOnForm.Click;
-  TrackBarZoom.Min:= Round(MinZoom * 100);
-  TrackBarZoom.Max:= Round(MaxZoom * 100);
 end;
 
 procedure TMainForm.ButtonAllCanvasClick(Sender: TObject);
@@ -117,6 +114,18 @@ begin
   RectLoupe:= (TTRectangleLoupe.newinstance as TTRectangleLoupe);
   RectLoupe.OnMouseDown(Sender, mbLeft, Shift, WorldPoint(MinBounds.X, MinBounds.Y));
   RectLoupe.OnMouseUp(Sender, mbLeft, Shift, WorldPoint(MaxBounds.X, MaxBounds.Y));
+  Invalidate;
+end;
+
+procedure TMainForm.EditZoomChange(Sender: TObject);
+begin
+  if EditZoom.Text = '' then EditZoom.Text:= IntToStr(Round(MinZoom * 100))
+  else if StrToInt(EditZoom.Text) < MinZoom * 100 then
+     EditZoom.Text:= IntToStr(Round(MinZoom * 100))
+  else if StrToInt(EditZoom.Text) > MaxZoom * 100 then
+     EditZoom.Text:= IntToStr(Round(MaxZoom * 100));
+  Zoom:= StrToInt(EditZoom.Text) / 100;
+  UpdateScrollBarsAndZoom();
   Invalidate;
 end;
 
@@ -223,13 +232,6 @@ end;
 procedure TMainForm.ToolClick(Sender: TObject);
 begin
   IndexOfBtn:= (Sender as TBitBtn).Tag;
-end;
-
-procedure TMainForm.TrackBarZoomChange(Sender: TObject);
-begin
-  Zoom:= TrackBarZoom.Position / 100;
-  UpdateScrollBarsAndZoom();
-  Invalidate;
 end;
 
 end.

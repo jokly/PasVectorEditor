@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 265
+  Left = 435
   Height = 421
-  Top = 125
+  Top = 137
   Width = 602
   Caption = 'pasVectorEditor'
   ClientHeight = 401
@@ -15,7 +15,7 @@ object MainForm: TMainForm
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   Position = poDesktopCenter
-  LCLVersion = '1.4.2.0'
+  LCLVersion = '1.4.4.0'
   object PaintBox: TPaintBox
     Left = 91
     Height = 337
@@ -81,17 +81,6 @@ object MainForm: TMainForm
       TabOrder = 0
       Text = '1'
     end
-    object TrackBarZoom: TTrackBar
-      Left = 8
-      Height = 22
-      Top = 64
-      Width = 73
-      Max = 800
-      Min = 100
-      OnChange = TrackBarZoomChange
-      Position = 100
-      TabOrder = 1
-    end
     object PenColorBox: TColorBox
       Left = 8
       Height = 22
@@ -105,7 +94,7 @@ object MainForm: TMainForm
       ItemHeight = 16
       OnChange = PenColorBoxChange
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 1
     end
     object Label1: TLabel
       Left = 8
@@ -158,11 +147,21 @@ object MainForm: TMainForm
     object ButtonAllCanvas: TButton
       Left = 8
       Height = 21
-      Top = 112
+      Top = 120
       Width = 73
       Caption = 'Весь холст'
       OnClick = ButtonAllCanvasClick
+      TabOrder = 2
+    end
+    object EditZoom: TEdit
+      Left = 8
+      Height = 23
+      Top = 64
+      Width = 73
+      NumbersOnly = True
+      OnChange = EditZoomChange
       TabOrder = 3
+      Text = '100'
     end
   end
   object ToolsPanel: TPanel
