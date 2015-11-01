@@ -374,8 +374,8 @@ end;
 procedure TTHand.OnMouseMove(Sender: TObject; Shift: TShiftState;
         WPoint: TWorldPoint);
 begin
-  Delta.X+= TTHand.StartPos.X - WPoint.X;
-  Delta.Y+= TTHand.StartPos.Y - WPoint.Y;
+  Delta.X+= (StartPos.X - WPoint.X) * Zoom;
+  Delta.Y+= (StartPos.Y - WPoint.Y) * Zoom;
 end;
 
 procedure TTHand.OnMouseUp(Sender: TObject; Button: TMouseButton;
