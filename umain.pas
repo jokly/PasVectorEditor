@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, ColorBox, StdCtrls, LCLtype, ComCtrls, Windows, Math, UAbout,
-  UTools, UFigures, UCoordinateSystem;
+  Menus, Buttons, ColorBox, StdCtrls, LCLtype, ComCtrls, Grids, Windows, Math,
+  UAbout, UTools, UFigures, UCoordinateSystem;
 
 type
 
@@ -15,10 +15,13 @@ type
 
   TMainForm = class(TForm)
     ButtonAllCanvas: TButton;
+    DrawGridColor: TDrawGrid;
     EditZoom: TEdit;
+    ColorPanel: TPanel;
+    LeftColor: TShape;
+    RightColor: TShape;
     ValueOfZoom: TLabel;
     PenWidthBox: TComboBox;
-    PenColorBox: TColorBox;
     MainMenu: TMainMenu;
     MFile: TMenuItem;
     MAbout: TMenuItem;
@@ -29,6 +32,10 @@ type
     ToolsPanel: TPanel;
     PropertiesPanel: TPanel;
     procedure ButtonAllCanvasClick(Sender: TObject);
+    procedure DrawGridColorDrawCell(Sender: TObject; aCol, aRow: Integer;
+      aRect: TRect; aState: TGridDrawState);
+    procedure DrawGridColorMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure EditZoomChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -42,7 +49,6 @@ type
     procedure PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure PaintBoxPaint(Sender: TObject);
-    procedure PenColorBoxChange(Sender: TObject);
     procedure PenWidthBoxChange(Sender: TObject);
     procedure ScrollBarHorizontalScroll(Sender: TObject;
       ScrollCode: TScrollCode; var ScrollPos: Integer);
@@ -50,6 +56,7 @@ type
       var ScrollPos: Integer);
     procedure ToolClick(Sender: TObject);
     procedure UpdateScrollBarsAndZoom();
+    procedure SetPenColor(Button: TMouseButton);
   end;
 
 var
@@ -59,6 +66,8 @@ implementation
 
 var
   IndexOfBtn: Integer;
+  ArrayOfColor: array[1..14] of TColor = (clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal,
+                          clGray, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua);
 
 {$R *.lfm}
 
@@ -76,6 +85,14 @@ begin
     Round(Max(MaxBounds.Y * Zoom, Delta.Y)));
   EditZoom.Text:= IntToStr(Round(Zoom * 100));
   ValueOfZoom.Caption:= EditZoom.Text + '%';
+end;
+
+procedure TMainForm.SetPenColor(Button: TMouseButton);
+begin
+  if Button = mbLeft then
+     TTPaint.SetPenColor(LeftColor.Brush.Color)
+  else if Button = mbRight then
+     TTPaint.SetPenColor(RightColor.Brush.Color)
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -113,6 +130,27 @@ begin
   RectLoupe.OnMouseUp(Sender, mbLeft, Shift, MaxCoordinate);
   UpdateScrollBarsAndZoom();
   Invalidate;
+end;
+
+procedure TMainForm.DrawGridColorDrawCell(Sender: TObject; aCol, aRow: Integer;
+  aRect: TRect; aState: TGridDrawState);
+begin
+  with DrawGridColor.Canvas do begin
+    Brush.Color:= ArrayOfColor[aCol * 2 + aRow];
+    FillRect(aRect);
+  end;
+end;
+
+procedure TMainForm.DrawGridColorMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  aCol, aRow: longint;
+begin
+  DrawGridColor.MouseToCell(X, Y, aCol, aRow);
+  if Button = mbLeft then
+    LeftColor.Brush.Color:= ArrayOfColor[aCol * 2 + aRow]
+  else if Button = mbRight then
+    RightColor.Brush.Color:= ArrayOfColor[aCol * 2 + aRow];
 end;
 
 procedure TMainForm.EditZoomChange(Sender: TObject);
@@ -170,6 +208,7 @@ procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= True;
+  SetPenColor(Button);
   TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, ToWorldPoint(X, Y));
   UpdateScrollBarsAndZoom();
   Invalidate;
@@ -201,11 +240,6 @@ var
 begin
   for Figure in FFigures do
       Figure.Draw(PaintBox.Canvas);
-end;
-
-procedure TMainForm.PenColorBoxChange(Sender: TObject);
-begin
-  TTPaint.SetPenColor(PenColorBox.Selected);
 end;
 
 procedure TMainForm.PenWidthBoxChange(Sender: TObject);

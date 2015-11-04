@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 214
-  Height = 421
-  Top = 133
-  Width = 602
+  Left = 382
+  Height = 476
+  Top = 128
+  Width = 575
   Caption = 'pasVectorEditor'
-  ClientHeight = 401
-  ClientWidth = 602
+  ClientHeight = 456
+  ClientWidth = 575
   Color = clWhite
   Constraints.MinHeight = 200
   Constraints.MinWidth = 200
@@ -15,12 +15,12 @@ object MainForm: TMainForm
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   Position = poDesktopCenter
-  LCLVersion = '1.4.2.0'
+  LCLVersion = '1.4.4.0'
   object PaintBox: TPaintBox
     Left = 91
-    Height = 337
+    Height = 343
     Top = 49
-    Width = 496
+    Width = 469
     Align = alClient
     Color = clWhite
     ParentColor = False
@@ -31,12 +31,12 @@ object MainForm: TMainForm
   end
   object PropertiesPanel: TPanel
     Left = 0
-    Height = 337
+    Height = 343
     Top = 49
     Width = 91
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 337
+    ClientHeight = 343
     ClientWidth = 91
     Color = clSilver
     ParentColor = False
@@ -44,7 +44,7 @@ object MainForm: TMainForm
     object PenWidthBox: TComboBox
       Left = 8
       Height = 21
-      Top = 32
+      Top = 0
       Width = 73
       Font.CharSet = RUSSIAN_CHARSET
       Font.Height = -11
@@ -81,25 +81,10 @@ object MainForm: TMainForm
       TabOrder = 0
       Text = '1'
     end
-    object PenColorBox: TColorBox
-      Left = 8
-      Height = 22
-      Top = 0
-      Width = 73
-      Font.CharSet = RUSSIAN_CHARSET
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      ItemHeight = 16
-      OnChange = PenColorBoxChange
-      ParentFont = False
-      TabOrder = 1
-    end
     object ValueOfZoom: TLabel
       Left = 32
       Height = 15
-      Top = 88
+      Top = 56
       Width = 28
       Caption = '100%'
       ParentColor = False
@@ -107,20 +92,20 @@ object MainForm: TMainForm
     object ButtonAllCanvas: TButton
       Left = 8
       Height = 21
-      Top = 120
+      Top = 88
       Width = 73
       Caption = 'Весь холст'
       OnClick = ButtonAllCanvasClick
-      TabOrder = 2
+      TabOrder = 1
     end
     object EditZoom: TEdit
       Left = 8
       Height = 23
-      Top = 64
+      Top = 32
       Width = 73
       NumbersOnly = True
       OnChange = EditZoomChange
-      TabOrder = 3
+      TabOrder = 2
       Text = '100'
     end
   end
@@ -128,7 +113,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 49
     Top = 0
-    Width = 602
+    Width = 575
     Align = alTop
     BevelOuter = bvNone
     Color = clSilver
@@ -138,8 +123,8 @@ object MainForm: TMainForm
   object ScrollBarHorizontal: TScrollBar
     Left = 0
     Height = 15
-    Top = 386
-    Width = 602
+    Top = 441
+    Width = 575
     Align = alBottom
     Max = 0
     PageSize = 0
@@ -147,8 +132,8 @@ object MainForm: TMainForm
     OnScroll = ScrollBarHorizontalScroll
   end
   object ScrollBarVertical: TScrollBar
-    Left = 587
-    Height = 337
+    Left = 560
+    Height = 343
     Top = 49
     Width = 15
     Align = alRight
@@ -157,6 +142,49 @@ object MainForm: TMainForm
     PageSize = 0
     TabOrder = 3
     OnScroll = ScrollBarVerticalScroll
+  end
+  object ColorPanel: TPanel
+    Left = 0
+    Height = 49
+    Top = 392
+    Width = 575
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 49
+    ClientWidth = 575
+    Color = clSilver
+    ParentColor = False
+    TabOrder = 4
+    object DrawGridColor: TDrawGrid
+      Left = 96
+      Height = 41
+      Top = 2
+      Width = 143
+      ColCount = 7
+      DefaultColWidth = 20
+      DefaultRowHeight = 20
+      ExtendedSelect = False
+      FixedCols = 0
+      FixedRows = 0
+      RowCount = 2
+      ScrollBars = ssNone
+      TabOrder = 0
+      OnDrawCell = DrawGridColorDrawCell
+      OnMouseDown = DrawGridColorMouseDown
+    end
+    object LeftColor: TShape
+      Left = 8
+      Height = 30
+      Top = 2
+      Width = 30
+      Brush.Color = clBlack
+    end
+    object RightColor: TShape
+      Left = 48
+      Height = 30
+      Top = 2
+      Width = 30
+    end
   end
   object MainMenu: TMainMenu
     left = 760
