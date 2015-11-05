@@ -163,7 +163,6 @@ object MainForm: TMainForm
       ColCount = 7
       DefaultColWidth = 20
       DefaultRowHeight = 20
-      ExtendedSelect = False
       FixedCols = 0
       FixedRows = 0
       RowCount = 2

@@ -141,7 +141,7 @@ procedure TMainForm.DrawGridColorDrawCell(Sender: TObject; aCol, aRow: Integer;
   aRect: TRect; aState: TGridDrawState);
 begin
   with DrawGridColor.Canvas do begin
-    Brush.Color:= ArrayOfColor[aCol * 2 + aRow];
+    Brush.Color:= ArrayOfColor[aRow * 7 + aCol + 1];
     FillRect(aRect);
   end;
 end;
@@ -153,9 +153,9 @@ var
 begin
   DrawGridColor.MouseToCell(X, Y, aCol, aRow);
   if Button = mbLeft then
-    LeftColor.Brush.Color:= ArrayOfColor[aCol * 2 + aRow]
+    LeftColor.Brush.Color:= ArrayOfColor[aCol * 7 + aRow]
   else if Button = mbRight then
-    RightColor.Brush.Color:= ArrayOfColor[aCol * 2 + aRow];
+    RightColor.Brush.Color:= ArrayOfColor[aCol * 7 + aRow];
 end;
 
 procedure TMainForm.EditZoomChange(Sender: TObject);
