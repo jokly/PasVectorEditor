@@ -153,9 +153,9 @@ var
 begin
   DrawGridColor.MouseToCell(X, Y, aCol, aRow);
   if Button = mbLeft then
-    LeftColor.Brush.Color:= ArrayOfColor[aCol * 7 + aRow]
+    LeftColor.Brush.Color:= ArrayOfColor[aRow * 7 + aCol + 1]
   else if Button = mbRight then
-    RightColor.Brush.Color:= ArrayOfColor[aCol * 7 + aRow];
+    RightColor.Brush.Color:= ArrayOfColor[aRow * 7 + aCol + 1];
 end;
 
 procedure TMainForm.EditZoomChange(Sender: TObject);
