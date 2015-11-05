@@ -159,12 +159,12 @@ object MainForm: TMainForm
       Left = 96
       Height = 41
       Top = 2
-      Width = 143
+      Width = 142
       ColCount = 7
       DefaultColWidth = 20
       DefaultRowHeight = 20
-      FixedCols = 0
-      FixedRows = 0
+      ExtendedSelect = False
+      Flat = True
       RowCount = 2
       ScrollBars = ssNone
       TabOrder = 0
@@ -174,7 +174,7 @@ object MainForm: TMainForm
     object LeftColor: TShape
       Left = 8
       Height = 30
-      Top = 2
+      Top = 8
       Width = 30
       Brush.Color = clBlack
       OnMouseDown = LeftColorMouseDown
@@ -182,7 +182,7 @@ object MainForm: TMainForm
     object RightColor: TShape
       Left = 48
       Height = 30
-      Top = 2
+      Top = 8
       Width = 30
       OnMouseDown = RightColorMouseDown
     end
