@@ -143,8 +143,7 @@ const
   ZoomOfLoupe = 0.3;
 
 var
-  IsMouseWasDown: Boolean;
-  ButtonWasDown: TMouseButton;
+  ButtonWasDown: TMouseButton = mbMiddle;
 
 constructor TTool.Create(PathToFile: String);
 begin
@@ -220,16 +219,13 @@ end;
 procedure TTPolyline.OnMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if Button = mbRight then begin
+  if (Button <> ButtonWasDown) and (ButtonWasDown <> mbMiddle) then begin
     (TFigure.GetLastFigure() as TPolyline).GetLastLine().EndP:= WPoint;
-    IsMouseWasDown:= False;
     Exit;
-  end;
-  if IsMouseWasDown then
-    (TFigure.GetLastFigure() as TPolyline).GetLastLine().EndP:= WPoint
-  else
-     IsMouseWasDown:= True;
-  TFigure.AddFigure(TPolyline.Create(FPenColor, FPenWidth));
+  end
+  else if ButtonWasDown = mbMiddle then
+    TFigure.AddFigure(TPolyline.Create(FPenColor, FPenWidth));
+  ButtonWasDown:= Button;
   (TFigure.GetLastFigure() as TPolyline).AddLine;
   (TFigure.GetLastFigure() as TPolyline).GetLastLine().StartP:= WPoint;
   (TFigure.GetLastFigure() as TPolyline).GetLastLine().EndP:= WPoint;
@@ -245,7 +241,11 @@ end;
 procedure TTPolyline.OnMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if IsMouseWasDown then IsMouseDown:= True;
+  IsMouseDown:= True;
+  if Button <> ButtonWasDown then begin
+    IsMouseDown:= False;
+    ButtonWasDown:= mbMiddle;
+  end;
   FindMinMaxCoordinate(WPoint);
 end;
 
