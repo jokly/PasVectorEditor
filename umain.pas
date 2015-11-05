@@ -15,6 +15,7 @@ type
 
   TMainForm = class(TForm)
     ButtonAllCanvas: TButton;
+    ColorDialog: TColorDialog;
     DrawGridColor: TDrawGrid;
     EditZoom: TEdit;
     ColorPanel: TPanel;
@@ -40,6 +41,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormResize(Sender: TObject);
+    procedure LeftColorMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure MAboutClick(Sender: TObject);
     procedure MExitClick(Sender: TObject);
     procedure PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
@@ -50,6 +53,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure PaintBoxPaint(Sender: TObject);
     procedure PenWidthBoxChange(Sender: TObject);
+    procedure RightColorMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure ScrollBarHorizontalScroll(Sender: TObject;
       ScrollCode: TScrollCode; var ScrollPos: Integer);
     procedure ScrollBarVerticalScroll(Sender: TObject; ScrollCode: TScrollCode;
@@ -194,6 +199,13 @@ begin
   UpdateScrollBarsAndZoom();
 end;
 
+procedure TMainForm.LeftColorMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if ColorDialog.Execute then
+     LeftColor.Brush.Color:= ColorDialog.Color;
+end;
+
 procedure TMainForm.MAboutClick(Sender: TObject);
 begin
   AboutForm.Show;
@@ -245,6 +257,13 @@ end;
 procedure TMainForm.PenWidthBoxChange(Sender: TObject);
 begin
   TTPaint.SetPenWidth(StrToInt(PenWidthBox.Text));
+end;
+
+procedure TMainForm.RightColorMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if ColorDialog.Execute then
+     RightColor.Brush.Color:= ColorDialog.Color;
 end;
 
 procedure TMainForm.ScrollBarHorizontalScroll(Sender: TObject;

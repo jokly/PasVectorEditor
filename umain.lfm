@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 382
-  Height = 476
-  Top = 128
-  Width = 575
+  Left = 324
+  Height = 451
+  Top = 145
+  Width = 564
   Caption = 'pasVectorEditor'
-  ClientHeight = 456
-  ClientWidth = 575
+  ClientHeight = 431
+  ClientWidth = 564
   Color = clWhite
   Constraints.MinHeight = 200
   Constraints.MinWidth = 200
@@ -15,12 +15,12 @@ object MainForm: TMainForm
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   Position = poDesktopCenter
-  LCLVersion = '1.4.4.0'
+  LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
     Left = 91
-    Height = 343
+    Height = 318
     Top = 49
-    Width = 469
+    Width = 458
     Align = alClient
     Color = clWhite
     ParentColor = False
@@ -31,12 +31,12 @@ object MainForm: TMainForm
   end
   object PropertiesPanel: TPanel
     Left = 0
-    Height = 343
+    Height = 318
     Top = 49
     Width = 91
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 343
+    ClientHeight = 318
     ClientWidth = 91
     Color = clSilver
     ParentColor = False
@@ -113,7 +113,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 49
     Top = 0
-    Width = 575
+    Width = 564
     Align = alTop
     BevelOuter = bvNone
     Color = clSilver
@@ -123,8 +123,8 @@ object MainForm: TMainForm
   object ScrollBarHorizontal: TScrollBar
     Left = 0
     Height = 15
-    Top = 441
-    Width = 575
+    Top = 416
+    Width = 564
     Align = alBottom
     Max = 0
     PageSize = 0
@@ -132,8 +132,8 @@ object MainForm: TMainForm
     OnScroll = ScrollBarHorizontalScroll
   end
   object ScrollBarVertical: TScrollBar
-    Left = 560
-    Height = 343
+    Left = 549
+    Height = 318
     Top = 49
     Width = 15
     Align = alRight
@@ -146,12 +146,12 @@ object MainForm: TMainForm
   object ColorPanel: TPanel
     Left = 0
     Height = 49
-    Top = 392
-    Width = 575
+    Top = 367
+    Width = 564
     Align = alBottom
     BevelOuter = bvNone
     ClientHeight = 49
-    ClientWidth = 575
+    ClientWidth = 564
     Color = clSilver
     ParentColor = False
     TabOrder = 4
@@ -178,16 +178,18 @@ object MainForm: TMainForm
       Top = 2
       Width = 30
       Brush.Color = clBlack
+      OnMouseDown = LeftColorMouseDown
     end
     object RightColor: TShape
       Left = 48
       Height = 30
       Top = 2
       Width = 30
+      OnMouseDown = RightColorMouseDown
     end
   end
   object MainMenu: TMainMenu
-    left = 760
+    left = 64
     top = 8
     object MFile: TMenuItem
       Caption = 'Файл'
@@ -200,5 +202,32 @@ object MainForm: TMainForm
       Caption = 'О программе'
       OnClick = MAboutClick
     end
+  end
+  object ColorDialog: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 16
+    top = 8
   end
 end
