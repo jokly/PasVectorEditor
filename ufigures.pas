@@ -1,12 +1,12 @@
 unit UFigures;
 
-{$mode objfpc}{$H+}
+{$mode objfpc}{$H+}{$M+}
 
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, UCoordinateSystem;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, GraphType, Dialogs, ExtCtrls,
+  Menus, FPCanvas, Buttons, UCoordinateSystem;
 
 type
 
@@ -14,12 +14,16 @@ type
     private
       FPenColor: TColor;
       FPenWidth: Integer;
+      FPenStyle: TFPPenStyle;
     public
-      constructor Create(PenColor: TColor; PenWidth: Integer);
       class procedure AddFigure(Figure: TFigure);
       class function GetLastFigure(): TFigure;
       class procedure DeleteLastFigure();
       procedure Draw(Canvas: TCanvas); virtual; abstract;
+      procedure SetPenColor(Color: TColor);
+    published
+      property PenWidth: Integer read FPenWidth write FPenWidth default 1;
+      property PenStyle: TFPPenStyle read FPenStyle write FPenStyle default psSolid;
   end;
 
   TPen = Class(TFigure)
@@ -45,21 +49,36 @@ type
       function GetLastLine(): TLine;
   end;
 
-  TRectangle = Class(TFigure)
+  TFillShape = Class(TFigure)
+    private
+      FBrushColor: TColor;
+      FBrushStyle: TFPBrushStyle;
     public
       StartP, EndP: TWorldPoint;
+      procedure SetBrushColor(Color: TColor);
+    published
+      property BrushStyle: TFPBrushStyle read FBrushStyle write FBrushStyle default bsClear;
+  end;
+
+  TRectangle = Class(TFillShape)
+    public
       procedure Draw(Canvas: TCanvas); override;
   end;
 
-  TRoundRectangle = Class(TFigure)
+  TRoundRectangle = Class(TFillShape)
+    private
+      FRounding: Integer;
     public
-      StartP, EndP: TWorldPoint;
       procedure Draw(Canvas: TCanvas); override;
+    published
+      property Rounding: Integer
+        read FRounding
+        write FRounding
+        default 20;
   end;
 
-  TEllipse = Class(TFigure)
+  TEllipse = Class(TFillShape)
     public
-      StartP, EndP: TWorldPoint;
       procedure Draw(Canvas: TCanvas); override;
   end;
 
@@ -67,14 +86,6 @@ type
     FFigures: array of TFigure;
 
 implementation
-const
-  RoundingOfRoundRect = 20;
-
-constructor TFigure.Create(PenColor: TColor; PenWidth: Integer);
-begin
-  FPenColor:= PenColor;
-  FPenWidth:= PenWidth;
-end;
 
 class procedure TFigure.AddFigure(Figure: TFigure);
 begin
@@ -96,6 +107,11 @@ begin
     SetLength(FFigures, Length(FFigures) - 1);
 end;
 
+procedure TFigure.SetPenColor(Color: TColor);
+begin
+  FPenColor:= Color;
+end;
+
 procedure TPen.AddPoint(Point: TWorldPoint);
 begin
   SetLength(FPoints, Length(FPoints) + 1);
@@ -108,7 +124,8 @@ var
 begin
   with Canvas do begin
     Pen.Color:= FPenColor;
-    Pen.Width:= FPenWidth;
+    Pen.Width:= PenWidth;
+    Pen.Style:= PenStyle;
     if Length(FPoints) > 0 then
       MoveTo(ToScreenPoint(FPoints[0]));
     for Point in FPoints do
@@ -120,7 +137,8 @@ procedure TLine.Draw(Canvas: TCanvas);
 begin
   with Canvas do begin
     Pen.Color:= FPenColor;
-    Pen.Width:= FPenWidth;
+    Pen.Width:= PenWidth;
+    Pen.Style:= PenStyle;
     MoveTo(ToScreenPoint(StartP));
     LineTo(ToScreenPoint(EndP));
   end;
@@ -131,32 +149,44 @@ var
   _line: TLine;
 begin
   Canvas.Pen.Color:= FPenColor;
-  Canvas.Pen.Width:= FPenWidth;
-  for _line in FLines do
-    _line.Draw(Canvas);
+  Canvas.Pen.Width:= PenWidth;
+  Canvas.Pen.Style:= PenStyle;
+  for _line in FLines do begin
+    with Canvas do begin
+      MoveTo(ToScreenPoint(_line.StartP));
+      LineTo(ToScreenPoint(_line.EndP));
+    end;
+  end;
 end;
 
 procedure TPolyline.AddLine();
 begin
   SetLength(FLines, Length(FLines) + 1);
-  FLines[High(FLines)]:= TLine.Create(FPenColor, FPenWidth);
+  FLines[High(FLines)]:= TLine.Create();
 end;
 
 function TPolyline.GetLastLine(): TLine;
 begin
-  if FLines = Nil then Exit;
+  if FLines = Nil then Exit(nil);
   if (Length(FLines) > 0) then
     Result:= FLines[High(FLines)]
   else
     Result:= Nil;
 end;
 
+procedure TFillShape.SetBrushColor(Color: TColor);
+begin
+  FBrushColor:= Color;
+end;
+
 procedure TRectangle.Draw(Canvas: TCanvas);
 begin
   with Canvas do begin
     Pen.Color:= FPenColor;
-    Pen.Width:= FPenWidth;
-    Brush.Style:= bsClear;
+    Pen.Width:= PenWidth;
+    Pen.Style:= PenStyle;
+    Brush.Color:= FBrushColor;
+    Brush.Style:= BrushStyle;
     Rectangle(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
               ToScreenPoint(EndP).x, ToScreenPoint(EndP).y);
   end;
@@ -166,11 +196,13 @@ procedure TRoundRectangle.Draw(Canvas: TCanvas);
 begin
   with Canvas do begin
     Pen.Color:= FPenColor;
-    Pen.Width:= FPenWidth;
-    Brush.Style:= bsClear;
+    Pen.Width:= PenWidth;
+    Pen.Style:= PenStyle;
+    Brush.Color:= FBrushColor;
+    Brush.Style:= BrushStyle;
     RoundRect(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
               ToScreenPoint(EndP).x, ToScreenPoint(EndP).y,
-              RoundingOfRoundRect, RoundingOfRoundRect);
+              FRounding, FRounding);
   end;
 end;
 
@@ -178,8 +210,10 @@ procedure TEllipse.Draw(Canvas: TCanvas);
 begin
   with Canvas do begin
     Pen.Color:= FPenColor;
-    Pen.Width:= FPenWidth;
-    Brush.Style:= bsClear;
+    Pen.Width:= PenWidth;
+    Pen.Style:= PenStyle;
+    Brush.Color:= FBrushColor;
+    Brush.Style:= BrushStyle;
     Ellipse(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
             ToScreenPoint(EndP).x, ToScreenPoint(EndP).y);
   end;

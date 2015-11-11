@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 324
-  Height = 451
-  Top = 145
-  Width = 564
+  Left = 400
+  Height = 442
+  Top = 114
+  Width = 672
   Caption = 'pasVectorEditor'
-  ClientHeight = 431
-  ClientWidth = 564
+  ClientHeight = 422
+  ClientWidth = 672
   Color = clWhite
   Constraints.MinHeight = 200
   Constraints.MinWidth = 200
@@ -18,9 +18,9 @@ object MainForm: TMainForm
   LCLVersion = '1.4.2.0'
   object PaintBox: TPaintBox
     Left = 91
-    Height = 318
+    Height = 309
     Top = 49
-    Width = 458
+    Width = 566
     Align = alClient
     Color = clWhite
     ParentColor = False
@@ -31,60 +31,20 @@ object MainForm: TMainForm
   end
   object PropertiesPanel: TPanel
     Left = 0
-    Height = 318
+    Height = 309
     Top = 49
     Width = 91
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 318
+    ClientHeight = 309
     ClientWidth = 91
     Color = clSilver
     ParentColor = False
     TabOrder = 0
-    object PenWidthBox: TComboBox
-      Left = 8
-      Height = 21
-      Top = 0
-      Width = 73
-      Font.CharSet = RUSSIAN_CHARSET
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      ItemHeight = 13
-      ItemIndex = 0
-      Items.Strings = (
-        '1'
-        '2'
-        '3'
-        '4'
-        '5'
-        '6'
-        '7'
-        '8'
-        '9'
-        '10'
-        '11'
-        '12'
-        '13'
-        '14'
-        '15'
-        '16'
-        '17'
-        '18'
-        '19'
-        '20'
-      )
-      OnChange = PenWidthBoxChange
-      ParentFont = False
-      Style = csDropDownList
-      TabOrder = 0
-      Text = '1'
-    end
     object ValueOfZoom: TLabel
       Left = 32
       Height = 15
-      Top = 56
+      Top = 24
       Width = 28
       Caption = '100%'
       ParentColor = False
@@ -92,20 +52,20 @@ object MainForm: TMainForm
     object ButtonAllCanvas: TButton
       Left = 8
       Height = 21
-      Top = 88
+      Top = 56
       Width = 73
       Caption = 'Весь холст'
       OnClick = ButtonAllCanvasClick
-      TabOrder = 1
+      TabOrder = 0
     end
     object EditZoom: TEdit
       Left = 8
       Height = 23
-      Top = 32
+      Top = 0
       Width = 73
       NumbersOnly = True
       OnChange = EditZoomChange
-      TabOrder = 2
+      TabOrder = 1
       Text = '100'
     end
   end
@@ -113,7 +73,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 49
     Top = 0
-    Width = 564
+    Width = 672
     Align = alTop
     BevelOuter = bvNone
     Color = clSilver
@@ -123,8 +83,8 @@ object MainForm: TMainForm
   object ScrollBarHorizontal: TScrollBar
     Left = 0
     Height = 15
-    Top = 416
-    Width = 564
+    Top = 407
+    Width = 672
     Align = alBottom
     Max = 0
     PageSize = 0
@@ -132,8 +92,8 @@ object MainForm: TMainForm
     OnScroll = ScrollBarHorizontalScroll
   end
   object ScrollBarVertical: TScrollBar
-    Left = 549
-    Height = 318
+    Left = 657
+    Height = 309
     Top = 49
     Width = 15
     Align = alRight
@@ -146,12 +106,12 @@ object MainForm: TMainForm
   object ColorPanel: TPanel
     Left = 0
     Height = 49
-    Top = 367
-    Width = 564
+    Top = 358
+    Width = 672
     Align = alBottom
     BevelOuter = bvNone
     ClientHeight = 49
-    ClientWidth = 564
+    ClientWidth = 672
     Color = clSilver
     ParentColor = False
     TabOrder = 4
@@ -188,8 +148,8 @@ object MainForm: TMainForm
     end
   end
   object MainMenu: TMainMenu
-    left = 64
-    top = 8
+    left = 192
+    top = 88
     object MFile: TMenuItem
       Caption = 'Файл'
       object MExit: TMenuItem
@@ -226,7 +186,7 @@ object MainForm: TMainForm
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 16
-    top = 8
+    left = 144
+    top = 88
   end
 end

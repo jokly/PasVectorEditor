@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, ColorBox, StdCtrls, LCLtype, ComCtrls, Grids, Windows, Math,
+  Menus, Buttons, StdCtrls, LCLtype, Grids, Windows, Math,
+  typinfo, rttiutils, FPCanvas,
   UAbout, UTools, UFigures, UCoordinateSystem;
 
 type
@@ -22,7 +23,6 @@ type
     LeftColor: TShape;
     RightColor: TShape;
     ValueOfZoom: TLabel;
-    PenWidthBox: TComboBox;
     MainMenu: TMainMenu;
     MFile: TMenuItem;
     MAbout: TMenuItem;
@@ -52,7 +52,6 @@ type
     procedure PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure PaintBoxPaint(Sender: TObject);
-    procedure PenWidthBoxChange(Sender: TObject);
     procedure RightColorMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure ScrollBarHorizontalScroll(Sender: TObject;
@@ -61,7 +60,15 @@ type
       var ScrollPos: Integer);
     procedure ToolClick(Sender: TObject);
     procedure UpdateScrollBarsAndZoom();
-    procedure SetPenColor(Button: TMouseButton);
+    procedure SetColor(Button: TMouseButton);
+    procedure InitializeProperties();
+    procedure ShowFigureProperties(Size: Integer);
+    procedure OnChangeProperty(Sender: TObject);
+    procedure CreateComboBox(_Name: String; Values: array of String);
+    procedure PenWidth();
+    procedure PenStyle();
+    procedure BrushStyle();
+    procedure Rounding();
   end;
 
 var
@@ -69,43 +76,27 @@ var
 
 implementation
 
+const
+  InitialTopProperties = 126;
+
 var
   IndexOfBtn: Integer;
-  ArrayOfColor: array[1..14] of TColor = (clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal,
-                          clGray, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua);
+  ArrayOfColor: array[1..14] of TColor = (
+    clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal,
+    clGray, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua);
+  Properties: array of TComboBox;
+  TopProperties: Integer = InitialTopProperties;
 
 {$R *.lfm}
 
 { TMainForm }
-
-procedure TMainForm.UpdateScrollBarsAndZoom();
-begin
-  ScrollBarHorizontal.SetParams(
-    Round(Delta.X),
-    Round(Min(MinBounds.X * Zoom, Delta.X)),
-    Round(Max(MaxBounds.X * Zoom, Delta.X)));
-  ScrollBarVertical.SetParams(
-    Round(Delta.Y),
-    Round(Min(MinBounds.Y * Zoom, Delta.Y)),
-    Round(Max(MaxBounds.Y * Zoom, Delta.Y)));
-  EditZoom.Text:= IntToStr(Round(Zoom * 100));
-  ValueOfZoom.Caption:= EditZoom.Text + '%';
-end;
-
-procedure TMainForm.SetPenColor(Button: TMouseButton);
-begin
-  if Button = mbLeft then
-     TTPaint.SetPenColor(LeftColor.Brush.Color)
-  else if Button = mbRight then
-     TTPaint.SetPenColor(RightColor.Brush.Color)
-end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 var
   i: Integer;
 begin
   ToolsPanel.Height:= SizeOfButton + 2 * SpaceBetweenButtons;
-  for i:=0 to High(TTool.Tools) do begin
+  for i:= 0 to High(TTool.Tools) do begin
     TTool.Tools[i].ButtonOnForm:= TBitBtn.Create(Self);
     with TTool.Tools[i].ButtonOnForm do begin
       Name:= TTool.Tools[i].ToString + IntToStr(i);
@@ -123,6 +114,35 @@ begin
     end;
   end;
   TTool.Tools[0].ButtonOnForm.Click;
+end;
+
+procedure TMainForm.UpdateScrollBarsAndZoom();
+begin
+  ScrollBarHorizontal.SetParams(
+    Round(Delta.X),
+    Round(Min(MinBounds.X * Zoom, Delta.X)),
+    Round(Max(MaxBounds.X * Zoom, Delta.X)));
+  ScrollBarVertical.SetParams(
+    Round(Delta.Y),
+    Round(Min(MinBounds.Y * Zoom, Delta.Y)),
+    Round(Max(MaxBounds.Y * Zoom, Delta.Y)));
+  EditZoom.Text:= IntToStr(Round(Zoom * 100));
+  ValueOfZoom.Caption:= EditZoom.Text + '%';
+end;
+
+procedure TMainForm.SetColor(Button: TMouseButton);
+begin
+  TTPaint.Figure.SetPenColor(LeftColor.Brush.Color);
+  if TTPaint.Figure.ClassParent = TFillShape then
+    (TTPaint.Figure as TFillShape).SetBrushColor(RightColor.Brush.Color);
+end;
+
+procedure TMainForm.InitializeProperties();
+var
+  i: Integer;
+begin
+  for i:= 0 to High(Properties) do
+    SetPropValue(TTPaint.Figure, Properties[i].Name, Properties[i].Text);
 end;
 
 procedure TMainForm.ButtonAllCanvasClick(Sender: TObject);
@@ -220,8 +240,9 @@ procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= True;
-  SetPenColor(Button);
   TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, ToWorldPoint(X, Y));
+  SetColor(Button);
+  InitializeProperties();
   UpdateScrollBarsAndZoom();
   Invalidate;
 end;
@@ -251,12 +272,8 @@ var
   Figure: TFigure;
 begin
   for Figure in FFigures do
-      Figure.Draw(PaintBox.Canvas);
-end;
-
-procedure TMainForm.PenWidthBoxChange(Sender: TObject);
-begin
-  TTPaint.SetPenWidth(StrToInt(PenWidthBox.Text));
+    Figure.Draw(PaintBox.Canvas);
+  TTPaint.Figure.Draw(PaintBox.Canvas);
 end;
 
 procedure TMainForm.RightColorMouseDown(Sender: TObject; Button: TMouseButton;
@@ -280,9 +297,100 @@ begin
   Invalidate;
 end;
 
+procedure TMainForm.OnChangeProperty(Sender: TObject);
+begin
+  with Sender as TComboBox do
+    SetPropValue(TTPaint.Figure, Name, Items[ItemIndex]);
+end;
+
+procedure TMainForm.CreateComboBox(_Name: String; Values: array of String);
+var
+  i: Integer;
+begin
+  SetLength(Properties, Length(Properties) + 1);
+  Properties[High(Properties)]:= TComboBox.Create(Self);
+  with Properties[High(Properties)] do begin
+    Visible:= False;
+    Top:= TopProperties + 10;
+    Width:= 73;
+    TopProperties:= Top + Height;
+    Parent:= Self;
+    Name:= _Name;
+    Left:= 8;
+    ReadOnly:= True;
+    OnChange:= @MainForm.OnChangeProperty;
+    Tag:= High(Properties);
+    for i:= 0 to High(Values) do
+      AddItem(Values[i], Properties[High(Properties)]);
+    Caption:= Items[0];
+    Visible:= True;
+  end;
+end;
+
+procedure TMainForm.PenWidth();
+var
+  i: Integer;
+  Values: array[1..20] of String;
+begin
+  for i:= 1 to High(Values) do
+    Values[i]:= IntToStr(i);
+  CreateComboBox('PenWidth', Values);
+end;
+
+procedure TMainForm.PenStyle();
+var
+  Styles: array[1..8] of String = ('psSolid', 'psDash', 'psDot', 'psDashDot',
+  'psDashDotDot', 'psinsideFrame', 'psPattern', 'psClear');
+begin
+  CreateComboBox('PenStyle', Styles);
+end;
+
+procedure TMainForm.BrushStyle();
+var
+  Styles: array[1..10] of String = ('bsSolid', 'bsClear', 'bsHorizontal',
+  'bsVertical', 'bsFDiagonal', 'bsBDiagonal', 'bsCross', 'bsDiagCross',
+  'bsImage', 'bsPattern');
+begin
+  CreateComboBox('BrushStyle', Styles);
+end;
+
+procedure TMainForm.Rounding();
+var
+  i: Integer;
+  Values: array[1..20] of String;
+begin
+  for i:= 1 to High(Values) do
+    Values[i]:= IntToStr(10 + i);
+  CreateComboBox('Rounding', Values);
+end;
+
+procedure TMainForm.ShowFigureProperties(Size: Integer);
+var
+  i:integer;
+begin
+  for i:= 0 to Size - 1 do
+    TTool.ExecMethod(MainForm, ToolProperties^[i]^.Name);
+end;
+
 procedure TMainForm.ToolClick(Sender: TObject);
+var
+  i: Integer;
+  ToolFigure: TTPaint;
 begin
   IndexOfBtn:= (Sender as TBitBtn).Tag;
+  if TTool.Tools[IndexOfBtn].ClassParent = TTPaint then begin
+    ToolFigure:= TTool.Tools[IndexOfBtn] as TTPaint;
+    ToolFigure.CreateFigure();
+    TopProperties:= InitialTopProperties;
+    for i:= 0 to High(Properties) do
+      Properties[i].Destroy;
+    SetLength(Properties, 0);
+    ShowFigureProperties(TTPaint.GetProperties(ToolFigure.Figure));
+  end else begin
+    for i:= 0 to High(Properties) do
+      Properties[i].Destroy;
+    SetLength(Properties, 0);
+  end;
 end;
 
 end.

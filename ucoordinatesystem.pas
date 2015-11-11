@@ -39,7 +39,7 @@ end;
 
 function ToWorldPoint(X, Y: Double): TWorldPoint;
 begin
-  Result.X:= (X + Delta.X) * 1 / Zoom;
+  Result.X:= (X + Delta.X) / Zoom;
   Result.Y:= (Y + Delta.Y) * 1 / Zoom;
 end;
 
@@ -51,7 +51,9 @@ end;
 
 function ToScreenPoint(WordPoint: TWorldPoint): TPoint;
 begin
-  Result:= Point(Round(WordPoint.X * Zoom - Delta.X), Round(WordPoint.Y * Zoom - Delta.Y));
+  Result:= Point(
+    Round(WordPoint.X * Zoom - Delta.X),
+    Round(WordPoint.Y * Zoom - Delta.Y));
 end;
 
 procedure CalculateBounds(WPoint: TWorldPoint);
