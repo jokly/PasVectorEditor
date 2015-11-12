@@ -49,7 +49,7 @@ type
       function GetLastLine(): TLine;
   end;
 
-  TFillShape = Class(TFigure)
+  TFillFigure = Class(TFigure)
     private
       FBrushColor: TColor;
       FBrushStyle: TFPBrushStyle;
@@ -60,12 +60,12 @@ type
       property BrushStyle: TFPBrushStyle read FBrushStyle write FBrushStyle default bsClear;
   end;
 
-  TRectangle = Class(TFillShape)
+  TRectangle = Class(TFillFigure)
     public
       procedure Draw(Canvas: TCanvas); override;
   end;
 
-  TRoundRectangle = Class(TFillShape)
+  TRoundRectangle = Class(TFillFigure)
     private
       FRounding: Integer;
     public
@@ -77,7 +77,7 @@ type
         default 20;
   end;
 
-  TEllipse = Class(TFillShape)
+  TEllipse = Class(TFillFigure)
     public
       procedure Draw(Canvas: TCanvas); override;
   end;
@@ -174,7 +174,7 @@ begin
     Result:= Nil;
 end;
 
-procedure TFillShape.SetBrushColor(Color: TColor);
+procedure TFillFigure.SetBrushColor(Color: TColor);
 begin
   FBrushColor:= Color;
 end;

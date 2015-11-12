@@ -133,8 +133,8 @@ end;
 procedure TMainForm.SetColor(Button: TMouseButton);
 begin
   TTPaint.Figure.SetPenColor(LeftColor.Brush.Color);
-  if TTPaint.Figure.ClassParent = TFillShape then
-    (TTPaint.Figure as TFillShape).SetBrushColor(RightColor.Brush.Color);
+  if TTPaint.Figure.ClassParent = TFillFigure then
+    (TTPaint.Figure as TFillFigure).SetBrushColor(RightColor.Brush.Color);
 end;
 
 procedure TMainForm.InitializeProperties();
@@ -243,7 +243,6 @@ begin
   TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, ToWorldPoint(X, Y));
   SetColor(Button);
   InitializeProperties();
-  UpdateScrollBarsAndZoom();
   Invalidate;
 end;
 
@@ -263,7 +262,6 @@ procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   IsMouseDown:= False;
   TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, ToWorldPoint(X, Y));
-  UpdateScrollBarsAndZoom();
   Invalidate;
 end;
 

@@ -254,42 +254,32 @@ end;
 procedure TTPolyline.OnMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if Button = mbRight then begin
+  if (Button = mbRight) and ((Figure as TPolyline).GetLastLine <> Nil) then begin
     (Figure as TPolyline).GetLastLine().EndP:= WPoint;
+    TFigure.AddFigure(Figure);
+    CreateFigure();
     IsMouseDown:= False;
     Exit;
-  end;
-  IsMouseDown:= True;
+  end
+  else if Button = mbRight then Exit;
   (Figure as TPolyline).AddLine();
   (Figure as TPolyline).GetLastLine().StartP:= WPoint;
   (Figure as TPolyline).GetLastLine().EndP:= WPoint;
-  {if (Button <> ButtonWasDown) and (ButtonWasDown <> mbMiddle) then begin
-    (TFigure.GetLastFigure() as TPolyline).GetLastLine().EndP:= WPoint;
-    Exit;
-  end
-  else if ButtonWasDown = mbMiddle then
-    TFigure.AddFigure(TPolyline.Create());
-  ButtonWasDown:= Button;
-  (TFigure.GetLastFigure() as TPolyline).AddLine;
-  (TFigure.GetLastFigure() as TPolyline).GetLastLine().StartP:= WPoint;
-  (TFigure.GetLastFigure() as TPolyline).GetLastLine().EndP:= WPoint; }
   FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTPolyline.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  (TFigure.GetLastFigure() as TPolyline).GetLastLine().EndP:= WPoint;
+  if (Figure as TPolyline).GetLastLine <> Nil then
+    (Figure as TPolyline).GetLastLine().EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTPolyline.OnMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; WPoint: TWorldPoint);
 begin
-  if IsMouseDown = False then begin
-    TFigure.AddFigure(Figure);
-    CreateFigure();
-  end;
   IsMouseDown:= True;
+  if Button = mbRight then IsMouseDown:= False;
   FindMinMaxCoordinate(WPoint);
 end;
 
@@ -430,7 +420,7 @@ begin
   end
   else ButtonWasDown:= mbLeft;
   TFigure.AddFigure(TRectangle.Create());
-  (TFigure.GetLastFigure() as TFillShape).BrushStyle:= bsClear;
+  (TFigure.GetLastFigure() as TFillFigure).BrushStyle:= bsClear;
   (TFigure.GetLastFigure() as TRectangle).StartP:= WPoint;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
 end;
@@ -462,7 +452,7 @@ end;
 initialization
 TTool.AddTool(TTPen.Create('img\pen.bmp'));
 TTool.AddTool(TTLine.Create('img\line.bmp'));
-//TTool.AddTool(TTPolyline.Create('img\polyline.bmp'));
+TTool.AddTool(TTPolyline.Create('img\polyline.bmp'));
 TTool.AddTool(TTRectangle.Create('img\rectangle.bmp'));
 TTool.AddTool(TTRoundRectangle.Create('img\roundRect.bmp'));
 TTool.AddTool(TTEllipse.Create('img\ellipse.bmp'));
