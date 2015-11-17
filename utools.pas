@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, Math, Typinfo, UFigures, UCoordinateSystem;
+  Menus, Buttons, Math, Typinfo, UFigures, UCoordinateSystem, UToolProperties;
 
 type
 
@@ -17,7 +17,7 @@ type
       ImageOfButton: TBitmap;
       class procedure AddTool(Tool: TTool);
       constructor Create(PathToFile: String);
-      class function ExecMethod(Instance: TObject; _Name: String): Boolean;
+      class procedure FindMinMaxCoordinate(WPoint: TWorldPoint);
       procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint); virtual; abstract;
       procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
@@ -27,19 +27,14 @@ type
   end;
 
   TTPaint = Class(TTool)
-    protected
-      class procedure FindMinMaxCoordinate(WPoint: TWorldPoint);
     public
       Figure: TFigure; static;
       procedure CreateFigure(); virtual; abstract;
-      class function GetProperties(_Figure: TFigure): Integer;
-    published
-
   end;
 
   TTPen = Class(TTPaint)
     public
-    procedure CreateFigure(); override;
+      procedure CreateFigure(); override;
       procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
         Shift: TShiftState; WPoint: TWorldPoint); override;
       procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
@@ -144,7 +139,6 @@ type
   var
     IsMouseDown: Boolean;
     MinCoordinate, MaxCoordinate: TWorldPoint;
-    ToolProperties: PPropList;
 
 implementation
 
@@ -168,26 +162,7 @@ begin
   Tools[High(Tools)]:= Tool;
 end;
 
-class function TTPaint.GetProperties(_Figure: TFigure): Integer;
-begin
-  Result:= GetPropList(_Figure.ClassInfo, ToolProperties);
-end;
-
-class function TTool.ExecMethod(Instance: TObject; _Name: String): Boolean;
-type
-  TProc = procedure of object;
-var
-  Method: TMethod;
-  Exec: TProc;
-begin
-  Method.Data:= Pointer(Instance);
-  Method.Code:= Instance.MethodAddress(_Name);
-  Exec:= TProc(Method);
-  Result:= Assigned(Method.Code);
-  if Result then Exec;
-end;
-
-class procedure TTPaint.FindMinMaxCoordinate(WPoint: TWorldPoint);
+class procedure TTool.FindMinMaxCoordinate(WPoint: TWorldPoint);
 begin
   MinCoordinate:= WorldPoint(Min(WPoint.X, MinCoordinate.X), Min(WPoint.Y, MinCoordinate.Y));
   MaxCoordinate:= WorldPoint(Max(WPoint.X, MaxCoordinate.X), Max(WPoint.Y, MaxCoordinate.Y));
@@ -196,6 +171,7 @@ end;
 procedure TTPen.CreateFigure();
 begin
   Figure:= TPen.Create;
+  TToolParams.ChangeFigure(Figure);
 end;
 
 procedure TTPen.OnMouseDown(Sender: TObject; Button: TMouseButton;
@@ -221,6 +197,7 @@ end;
 procedure TTLine.CreateFigure();
 begin
   Figure:= TLine.Create;
+  TToolParams.ChangeFigure(Figure);
 end;
 
 procedure TTLine.OnMouseDown(Sender: TObject; Button: TMouseButton;
@@ -249,6 +226,7 @@ end;
 procedure TTPolyline.CreateFigure();
 begin
   Figure:= TPolyline.Create;
+  TToolParams.ChangeFigure(Figure);
 end;
 
 procedure TTPolyline.OnMouseDown(Sender: TObject; Button: TMouseButton;
@@ -286,6 +264,7 @@ end;
 procedure TTRectangle.CreateFigure();
 begin
   Figure:= TRectangle.Create;
+  TToolParams.ChangeFigure(Figure);
 end;
 
 procedure TTRectangle.OnMouseDown(Sender: TObject; Button: TMouseButton;
@@ -314,6 +293,7 @@ end;
 procedure TTRoundRectangle.CreateFigure();
 begin
   Figure:= TRoundRectangle.Create;
+  TToolParams.ChangeFigure(Figure);
 end;
 
 procedure TTRoundRectangle.OnMouseDown(Sender: TObject; Button: TMouseButton;
@@ -342,6 +322,7 @@ end;
 procedure TTEllipse.CreateFigure();
 begin
   Figure:= TEllipse.Create;
+  TToolParams.ChangeFigure(Figure);
 end;
 
 procedure TTEllipse.OnMouseDown(Sender: TObject; Button: TMouseButton;

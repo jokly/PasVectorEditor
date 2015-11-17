@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 400
+  Left = 418
   Height = 442
-  Top = 114
-  Width = 672
+  Top = 119
+  Width = 666
   Caption = 'pasVectorEditor'
   ClientHeight = 422
-  ClientWidth = 672
+  ClientWidth = 666
   Color = clWhite
   Constraints.MinHeight = 200
   Constraints.MinWidth = 200
@@ -20,7 +20,7 @@ object MainForm: TMainForm
     Left = 91
     Height = 309
     Top = 49
-    Width = 566
+    Width = 560
     Align = alClient
     Color = clWhite
     ParentColor = False
@@ -43,25 +43,37 @@ object MainForm: TMainForm
     TabOrder = 0
     object ValueOfZoom: TLabel
       Left = 32
-      Height = 15
-      Top = 24
-      Width = 28
+      Height = 14
+      Top = 48
+      Width = 26
       Caption = '100%'
+      Font.CharSet = RUSSIAN_CHARSET
+      Font.Height = -12
+      Font.Name = 'Calibri Light'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
       ParentColor = False
+      ParentFont = False
     end
     object ButtonAllCanvas: TButton
       Left = 8
       Height = 21
-      Top = 56
+      Top = 0
       Width = 73
-      Caption = 'Весь холст'
+      Caption = 'Во весь экран'
+      Font.CharSet = RUSSIAN_CHARSET
+      Font.Height = -12
+      Font.Name = 'Calibri Light'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
       OnClick = ButtonAllCanvasClick
+      ParentFont = False
       TabOrder = 0
     end
     object EditZoom: TEdit
       Left = 8
       Height = 23
-      Top = 0
+      Top = 24
       Width = 73
       NumbersOnly = True
       OnChange = EditZoomChange
@@ -73,7 +85,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 49
     Top = 0
-    Width = 672
+    Width = 666
     Align = alTop
     BevelOuter = bvNone
     Color = clSilver
@@ -84,7 +96,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 15
     Top = 407
-    Width = 672
+    Width = 666
     Align = alBottom
     Max = 0
     PageSize = 0
@@ -92,7 +104,7 @@ object MainForm: TMainForm
     OnScroll = ScrollBarHorizontalScroll
   end
   object ScrollBarVertical: TScrollBar
-    Left = 657
+    Left = 651
     Height = 309
     Top = 49
     Width = 15
@@ -107,11 +119,11 @@ object MainForm: TMainForm
     Left = 0
     Height = 49
     Top = 358
-    Width = 672
+    Width = 666
     Align = alBottom
     BevelOuter = bvNone
     ClientHeight = 49
-    ClientWidth = 672
+    ClientWidth = 666
     Color = clSilver
     ParentColor = False
     TabOrder = 4

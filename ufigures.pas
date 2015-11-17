@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, GraphType, Dialogs, ExtCtrls,
-  Menus, FPCanvas, Buttons, UCoordinateSystem;
+  Menus, Buttons, UCoordinateSystem;
 
 type
 
@@ -14,16 +14,16 @@ type
     private
       FPenColor: TColor;
       FPenWidth: Integer;
-      FPenStyle: TFPPenStyle;
+      FPenStyle: TPenStyle;
     public
+      procedure Draw(Canvas: TCanvas); virtual; abstract;
+      procedure SetPenColor(Color: TColor);
       class procedure AddFigure(Figure: TFigure);
       class function GetLastFigure(): TFigure;
       class procedure DeleteLastFigure();
-      procedure Draw(Canvas: TCanvas); virtual; abstract;
-      procedure SetPenColor(Color: TColor);
     published
       property PenWidth: Integer read FPenWidth write FPenWidth default 1;
-      property PenStyle: TFPPenStyle read FPenStyle write FPenStyle default psSolid;
+      property PenStyle: TPenStyle read FPenStyle write FPenStyle default psSolid;
   end;
 
   TPen = Class(TFigure)
@@ -52,12 +52,12 @@ type
   TFillFigure = Class(TFigure)
     private
       FBrushColor: TColor;
-      FBrushStyle: TFPBrushStyle;
+      FBrushStyle: TBrushStyle;
     public
       StartP, EndP: TWorldPoint;
       procedure SetBrushColor(Color: TColor);
     published
-      property BrushStyle: TFPBrushStyle read FBrushStyle write FBrushStyle default bsClear;
+      property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle default bsClear;
   end;
 
   TRectangle = Class(TFillFigure)
@@ -134,13 +134,18 @@ begin
 end;
 
 procedure TLine.Draw(Canvas: TCanvas);
+var
+  SPoint, EPoint: TPoint;
 begin
+  SPoint:= ToScreenPoint(StartP);
+  EPoint:= ToScreenPoint(EndP);
+  if (SPoint.X = EPoint.X) and (SPoint.Y = EPoint.Y) then Exit;
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= PenWidth;
     Pen.Style:= PenStyle;
-    MoveTo(ToScreenPoint(StartP));
-    LineTo(ToScreenPoint(EndP));
+    MoveTo(SPoint);
+    LineTo(EPoint);
   end;
 end;
 

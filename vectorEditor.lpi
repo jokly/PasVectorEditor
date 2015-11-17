@@ -33,7 +33,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="7">
       <Unit0>
         <Filename Value="vectorEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -69,6 +69,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UCoordinateSystem"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="utoolproperties.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UToolProperties"/>
+      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
