@@ -135,8 +135,8 @@ var
   Shift: set of TShiftStateEnum;
 begin
   RectLoupe:= (TTRectangleLoupe.newinstance as TTRectangleLoupe);
-  RectLoupe.OnMouseDown(Sender, mbLeft, Shift, MinCoordinate);
-  RectLoupe.OnMouseUp(Sender, mbLeft, Shift, MaxCoordinate);
+  RectLoupe.OnMouseDown(mbLeft, MinCoordinate);
+  RectLoupe.OnMouseUp(mbLeft, MaxCoordinate);
   UpdateScrollBarsAndZoom();
   Invalidate;
 end;
@@ -224,7 +224,7 @@ procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= True;
-  TTool.Tools[IndexOfBtn].OnMouseDown(Sender, Button, Shift, ToWorldPoint(X, Y));
+  TTool.Tools[IndexOfBtn].OnMouseDown(Button, ToWorldPoint(X, Y));
   SetColors(Button);
   Invalidate;
 end;
@@ -233,7 +233,7 @@ procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   if IsMouseDown then begin
-    TTool.Tools[IndexOfBtn].OnMouseMove(Sender, Shift, ToWorldPoint(X, Y));
+    TTool.Tools[IndexOfBtn].OnMouseMove(ToWorldPoint(X, Y));
     CalculateBounds(ToWorldPoint(X, Y));
     UpdateScrollBarsAndZoom();
   end;
@@ -244,7 +244,7 @@ procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= False;
-  TTool.Tools[IndexOfBtn].OnMouseUp(Sender, Button, Shift, ToWorldPoint(X, Y));
+  TTool.Tools[IndexOfBtn].OnMouseUp(Button, ToWorldPoint(X, Y));
   Invalidate;
 end;
 

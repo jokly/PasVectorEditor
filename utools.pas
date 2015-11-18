@@ -18,12 +18,9 @@ type
       class procedure AddTool(Tool: TTool);
       constructor Create(PathToFile: String);
       class procedure FindMinMaxCoordinate(WPoint: TWorldPoint);
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); virtual; abstract;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); virtual; abstract;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); virtual; abstract;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); virtual; abstract;
+      procedure OnMouseMove(WPoint: TWorldPoint); virtual; abstract;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); virtual; abstract;
   end;
 
   TTPaint = Class(TTool)
@@ -35,99 +32,72 @@ type
   TTPen = Class(TTPaint)
     public
       procedure CreateFigure(); override;
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); override;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
   TTLine = Class(TTPaint)
     public
       procedure CreateFigure(); override;
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); override;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
   TTPolyline = Class(TTPaint)
     public
       procedure CreateFigure(); override;
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); override;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
   TTRectangle = Class(TTPaint)
     public
       procedure CreateFigure(); override;
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); override;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
   TTRoundRectangle = Class(TTPaint)
     public
       procedure CreateFigure(); override;
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); override;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
   TTEllipse = Class(TTPaint)
     public
       procedure CreateFigure(); override;
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); override;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
   TTLoupe = Class(TTool)
     public
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); override;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
   TTHand = Class(TTool)
     private
       StartPos: TWorldPoint; static;
     public
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); override;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
   TTRectangleLoupe = Class(TTool)
     public
-      procedure OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
-      procedure OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint); override;
-      procedure OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint); override;
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
   const
@@ -174,20 +144,18 @@ begin
   TToolParams.ChangeFigure(Figure);
 end;
 
-procedure TTPen.OnMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTPen.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTPen.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTPen.OnMouseMove(WPoint: TWorldPoint);
 begin
   (Figure as TPen).AddPoint(WPoint);
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTPen.OnMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTPen.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   TFigure.AddFigure(Figure);
   CreateFigure();
@@ -200,22 +168,20 @@ begin
   TToolParams.ChangeFigure(Figure);
 end;
 
-procedure TTLine.OnMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTLine.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TLine).StartP:= WPoint;
   (Figure as TLine).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTLine.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTLine.OnMouseMove(WPoint: TWorldPoint);
 begin
   (Figure as TLine).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTLine.OnMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTLine.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TLine).EndP:= WPoint;
   TFigure.AddFigure(Figure);
@@ -229,8 +195,7 @@ begin
   TToolParams.ChangeFigure(Figure);
 end;
 
-procedure TTPolyline.OnMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTPolyline.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   if (Button = mbRight) and ((Figure as TPolyline).GetLastLine <> Nil) then begin
     (Figure as TPolyline).GetLastLine().EndP:= WPoint;
@@ -246,15 +211,14 @@ begin
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTPolyline.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTPolyline.OnMouseMove(WPoint: TWorldPoint);
 begin
   if (Figure as TPolyline).GetLastLine <> Nil then
     (Figure as TPolyline).GetLastLine().EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTPolyline.OnMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTPolyline.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   IsMouseDown:= True;
   if Button = mbRight then IsMouseDown:= False;
@@ -267,22 +231,20 @@ begin
   TToolParams.ChangeFigure(Figure);
 end;
 
-procedure TTRectangle.OnMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTRectangle.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TRectangle).StartP:= WPoint;
   (Figure as TRectangle).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTRectangle.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTRectangle.OnMouseMove(WPoint: TWorldPoint);
 begin
   (Figure as TRectangle).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTRectangle.OnMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTRectangle.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TRectangle).EndP:= WPoint;
   TFigure.AddFigure(Figure);
@@ -296,22 +258,20 @@ begin
   TToolParams.ChangeFigure(Figure);
 end;
 
-procedure TTRoundRectangle.OnMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTRoundRectangle.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TRoundRectangle).StartP:= WPoint;
   (Figure as TRoundRectangle).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTRoundRectangle.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTRoundRectangle.OnMouseMove(WPoint: TWorldPoint);
 begin
   (Figure as TRoundRectangle).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTRoundRectangle.OnMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTRoundRectangle.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TRoundRectangle).EndP:= WPoint;
   TFigure.AddFigure(Figure);
@@ -325,22 +285,20 @@ begin
   TToolParams.ChangeFigure(Figure);
 end;
 
-procedure TTEllipse.OnMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTEllipse.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TEllipse).StartP:= WPoint;
   (Figure as TEllipse).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTEllipse.OnMouseMove(Sender: TObject; Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTEllipse.OnMouseMove(WPoint: TWorldPoint);
 begin
   (Figure as TEllipse).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTEllipse.OnMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTEllipse.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TEllipse).EndP:= WPoint;
   TFigure.AddFigure(Figure);
@@ -348,8 +306,7 @@ begin
   FindMinMaxCoordinate(WPoint);
 end;
 
-procedure TTLoupe.OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTLoupe.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 var
   startP: TPoint;
 begin
@@ -361,39 +318,33 @@ begin
   Delta.X+= ToScreenPoint(WPoint).X - startP.X;
   Delta.Y+= ToScreenPoint(WPoint).Y - startP.Y;
 end;
-procedure TTLoupe.OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint);
+procedure TTLoupe.OnMouseMove(WPoint: TWorldPoint);
 begin
 
 end;
 
-procedure TTLoupe.OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTLoupe.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
 
 end;
 
-procedure TTHand.OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTHand.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   TTHand.StartPos:= WPoint;
 end;
-procedure TTHand.OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint);
+procedure TTHand.OnMouseMove(WPoint: TWorldPoint);
 begin
   Delta.X+= (StartPos.X - WPoint.X) * Zoom;
   Delta.Y+= (StartPos.Y - WPoint.Y) * Zoom;
 end;
 
 
-procedure TTHand.OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTHand.OnMouseUp(Button: TMouseButton;  WPoint: TWorldPoint);
 begin
 
 end;
 
-procedure TTRectangleLoupe.OnMouseDown(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTRectangleLoupe.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   if Button = mbRight then begin
     ButtonWasDown:= mbRight;
@@ -405,15 +356,13 @@ begin
   (TFigure.GetLastFigure() as TRectangle).StartP:= WPoint;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
 end;
-procedure TTRectangleLoupe.OnMouseMove(Sender: TObject; Shift: TShiftState;
-        WPoint: TWorldPoint);
+procedure TTRectangleLoupe.OnMouseMove(WPoint: TWorldPoint);
 begin
   if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
 end;
 
-procedure TTRectangleLoupe.OnMouseUp(Sender: TObject; Button: TMouseButton;
-        Shift: TShiftState; WPoint: TWorldPoint);
+procedure TTRectangleLoupe.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 var
   Rect: TRectangle;
 begin
