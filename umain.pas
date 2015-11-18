@@ -119,9 +119,14 @@ end;
 
 procedure TMainForm.SetColors(Button: TMouseButton);
 begin
-  TTPaint.Figure.SetPenColor(LeftColor.Brush.Color);
-  if TTPaint.Figure.ClassParent = TFillFigure then
-    (TTPaint.Figure as TFillFigure).SetBrushColor(RightColor.Brush.Color);
+  if Button = mbLeft then TTPaint.Figure.SetPenColor(LeftColor.Brush.Color)
+  else if Button = mbRight then TTPaint.Figure.SetPenColor(RightColor.Brush.Color);
+  if TTPaint.Figure.ClassParent = TFillFigure then begin
+    if Button = mbLeft then
+      (TTPaint.Figure as TFillFigure).SetBrushColor(RightColor.Brush.Color)
+    else if Button = mbRight then
+      (TTPaint.Figure as TFillFigure).SetBrushColor(LeftColor.Brush.Color);
+  end;
 end;
 
 procedure TMainForm.ButtonAllCanvasClick(Sender: TObject);
