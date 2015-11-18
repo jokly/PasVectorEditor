@@ -5,8 +5,7 @@ unit UToolProperties;
 interface
 
 uses
-  Classes, SysUtils, StdCtrls, ExtCtrls, Forms, Controls, FPCanvas, TypInfo,
-  UFigures;
+  Classes, SysUtils, StdCtrls, ExtCtrls, Forms, Controls, FPCanvas, TypInfo;
 
 type
 
@@ -36,9 +35,9 @@ TToolParams = Class(TObject)
   private
     FPropEditors: array of TToolParam; static;
   public
-    constructor Create(_Figure: TFigure; Form: TForm);
+    constructor Create(_Figure: TObject; Form: TForm);
     procedure Delete;
-    class procedure ChangeFigure(_Figure: TFigure);
+    class procedure ChangeFigure(_Figure: TObject);
 end;
 
 implementation
@@ -48,7 +47,7 @@ const
   MaxValueLength = 2;
 
 var
-  Figure: TFigure;
+  Figure: TObject;
   YPosEditor: Integer = InitYPosEditor;
 
 procedure TToolParam.OnChangeEditor(Sender: TObject);
@@ -117,7 +116,7 @@ begin
   FEditor:= CreateComboBox(_Name, Form, Styles, Self);
 end;
 
-constructor TToolParams.Create(_Figure: TFigure; Form: TForm);
+constructor TToolParams.Create(_Figure: TObject; Form: TForm);
 var
   Num, i: Integer;
   PropList: PPropList;
@@ -137,7 +136,7 @@ begin
   end;
 end;
 
-class procedure TToolParams.ChangeFigure(_Figure: TFigure);
+class procedure TToolParams.ChangeFigure(_Figure: TObject);
 var
   i: Integer;
 begin
