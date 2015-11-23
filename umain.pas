@@ -72,7 +72,6 @@ var
   ArrayOfColor: array[1..14] of TColor = (
     clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal,
     clGray, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua);
-  ToolParams: TToolParams;
 
 {$R *.lfm}
 
@@ -100,7 +99,7 @@ begin
       Tag:= i;
     end;
   end;
-  TTool.Tools[0].ButtonOnForm.Click;
+  TTool.Tools[4].ButtonOnForm.Click;
 end;
 
 procedure TMainForm.UpdateScrollBarsAndZoom();
@@ -119,13 +118,14 @@ end;
 
 procedure TMainForm.SetColors(Button: TMouseButton);
 begin
-  if Button = mbLeft then TTPaint.Figure.SetPenColor(LeftColor.Brush.Color)
-  else if Button = mbRight then TTPaint.Figure.SetPenColor(RightColor.Brush.Color);
-  if TTPaint.Figure.ClassParent = TFillFigure then begin
+  if TTool.Figure = Nil then Exit;
+  if Button = mbLeft then TTool.Figure.SetPenColor(LeftColor.Brush.Color)
+  else if Button = mbRight then TTool.Figure.SetPenColor(RightColor.Brush.Color);
+  if TTool.Figure.ClassParent = TFillFigure then begin
     if Button = mbLeft then
-      (TTPaint.Figure as TFillFigure).SetBrushColor(RightColor.Brush.Color)
+      (TTool.Figure as TFillFigure).SetBrushColor(RightColor.Brush.Color)
     else if Button = mbRight then
-      (TTPaint.Figure as TFillFigure).SetBrushColor(LeftColor.Brush.Color);
+      (TTool.Figure as TFillFigure).SetBrushColor(LeftColor.Brush.Color);
   end;
 end;
 
@@ -254,7 +254,8 @@ var
 begin
   for Figure in FFigures do
     Figure.Draw(PaintBox.Canvas);
-  TTPaint.Figure.Draw(PaintBox.Canvas);
+  if TTool.Figure <> Nil then
+    TTool.Figure.Draw(PaintBox.Canvas);
 end;
 
 procedure TMainForm.RightColorMouseDown(Sender: TObject; Button: TMouseButton;
@@ -279,16 +280,9 @@ begin
 end;
 
 procedure TMainForm.ToolClick(Sender: TObject);
-var
-  PaintTool: TTPaint;
 begin
   IndexOfBtn:= (Sender as TBitBtn).Tag;
-  ToolParams.Delete;
-  if TTool.Tools[IndexOfBtn].ClassParent = TTPaint then begin
-    PaintTool:= TTool.Tools[IndexOfBtn] as TTPaint;
-    PaintTool.CreateFigure();
-    ToolParams:= TToolParams.Create(PaintTool.Figure, MainForm);
-  end;
+  TTool.ShowProperties(TTool.Tools[IndexOfBtn], PropertiesPanel);
 end;
 
 end.

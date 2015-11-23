@@ -10,26 +10,25 @@ uses
 
 type
 
+  { TTool }
+
   TTool = Class(TObject)
     public
       Tools: array of TTool; static;
       ButtonOnForm: TBitBtn;
       ImageOfButton: TBitmap;
+      Figure: TFigure; static;
       class procedure AddTool(Tool: TTool);
       constructor Create(PathToFile: String);
       class procedure FindMinMaxCoordinate(WPoint: TWorldPoint);
+      class procedure ShowProperties(ATool: TTool; Panel: TWinControl);
+      procedure CreateFigure(); virtual;
       procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); virtual; abstract;
       procedure OnMouseMove(WPoint: TWorldPoint); virtual; abstract;
       procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); virtual; abstract;
   end;
 
-  TTPaint = Class(TTool)
-    public
-      Figure: TFigure; static;
-      procedure CreateFigure(); virtual; abstract;
-  end;
-
-  TTPen = Class(TTPaint)
+  TTPen = Class(TTool)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
@@ -37,7 +36,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
-  TTLine = Class(TTPaint)
+  TTLine = Class(TTool)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
@@ -45,7 +44,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
-  TTPolyline = Class(TTPaint)
+  TTPolyline = Class(TTool)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
@@ -53,7 +52,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
-  TTRectangle = Class(TTPaint)
+  TTRectangle = Class(TTool)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
@@ -61,7 +60,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
-  TTRoundRectangle = Class(TTPaint)
+  TTRoundRectangle = Class(TTool)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
@@ -69,7 +68,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
-  TTEllipse = Class(TTPaint)
+  TTEllipse = Class(TTool)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
@@ -117,6 +116,14 @@ const
 
 var
   ButtonWasDown: TMouseButton = mbMiddle;
+  ToolParams: TToolProps;
+
+class procedure TTool.ShowProperties(ATool: TTool; Panel: TWinControl);
+begin
+  ToolParams.Delete;
+  ATool.CreateFigure();
+  ToolParams:= TToolProps.Create(Figure, Panel);
+end;
 
 constructor TTool.Create(PathToFile: String);
 begin
@@ -138,10 +145,15 @@ begin
   MaxCoordinate:= WorldPoint(Max(WPoint.X, MaxCoordinate.X), Max(WPoint.Y, MaxCoordinate.Y));
 end;
 
+procedure TTool.CreateFigure;
+begin
+  Figure:= Nil;
+end;
+
 procedure TTPen.CreateFigure();
 begin
   Figure:= TPen.Create;
-  TToolParams.ChangeFigure(Figure);
+  TToolProps.ChangeProps(Figure);
 end;
 
 procedure TTPen.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -165,7 +177,7 @@ end;
 procedure TTLine.CreateFigure();
 begin
   Figure:= TLine.Create;
-  TToolParams.ChangeFigure(Figure);
+  TToolProps.ChangeProps(Figure);
 end;
 
 procedure TTLine.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -192,7 +204,7 @@ end;
 procedure TTPolyline.CreateFigure();
 begin
   Figure:= TPolyline.Create;
-  TToolParams.ChangeFigure(Figure);
+  TToolProps.ChangeProps(Figure);
 end;
 
 procedure TTPolyline.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -228,7 +240,7 @@ end;
 procedure TTRectangle.CreateFigure();
 begin
   Figure:= TRectangle.Create;
-  TToolParams.ChangeFigure(Figure);
+  TToolProps.ChangeProps(Figure);
 end;
 
 procedure TTRectangle.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -255,7 +267,7 @@ end;
 procedure TTRoundRectangle.CreateFigure();
 begin
   Figure:= TRoundRectangle.Create;
-  TToolParams.ChangeFigure(Figure);
+  TToolProps.ChangeProps(Figure);
 end;
 
 procedure TTRoundRectangle.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -282,7 +294,7 @@ end;
 procedure TTEllipse.CreateFigure();
 begin
   Figure:= TEllipse.Create;
-  TToolParams.ChangeFigure(Figure);
+  TToolProps.ChangeProps(Figure);
 end;
 
 procedure TTEllipse.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);

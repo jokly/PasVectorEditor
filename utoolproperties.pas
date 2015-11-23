@@ -5,70 +5,75 @@ unit UToolProperties;
 interface
 
 uses
-  Classes, SysUtils, StdCtrls, ExtCtrls, Forms, Controls, FPCanvas, TypInfo;
+  Classes, SysUtils, StdCtrls, ExtCtrls, Forms, Controls, FPCanvas, Graphics, TypInfo;
 
 type
 
-TToolParam = Class(TObject)
-  public
-    FEditor: TWinControl;
-    constructor Create(_Name: String; Form: TForm); virtual; abstract;
+TToolProp = Class(TObject)
+  protected
     procedure OnChangeEditor(Sender: TObject);
-end;
-
-TIntegerParam = Class(TToolParam)
   public
-    constructor Create(_Name: String; Form: TForm); override;
+    TypeName: String;
+    FEditor: TWinControl;
+    function CreateProp(AName: String; Panel: TWinControl): TToolProp; virtual; abstract;
 end;
 
-TPenStyleParam = Class(TToolParam)
+TIntegerProp = Class(TToolProp)
   public
-    constructor Create(_Name: String; Form: TForm); override;
+    function CreateProp(AName: String; Panel: TWinControl): TToolProp; override;
 end;
 
-TBrushStyleParam = Class(TToolParam)
+TPenStyleProp = Class(TToolProp)
   public
-    constructor Create(_Name: String; Form: TForm); override;
+    function CreateProp(AName: String; Panel: TWinControl): TToolProp; override;
 end;
 
-TToolParams = Class(TObject)
+TBrushStyleProp = Class(TToolProp)
+  public
+    function CreateProp(AName: String; Panel: TWinControl): TToolProp; override;
+end;
+
+TToolProps = Class(TObject)
   private
-    FPropEditors: array of TToolParam; static;
+    FPropsList: array of TToolProp; static;
+    FPropEditors: array of TToolProp; static;
   public
-    constructor Create(_Figure: TObject; Form: TForm);
+    constructor Create(AFigure: TObject; Panel: TWinControl);
     procedure Delete;
-    class procedure ChangeFigure(_Figure: TObject);
+    class procedure ChangeProps(AFigure: TObject);
+    class procedure AddProp(Prop: TToolProp; Name: String);
 end;
 
 implementation
 
 const
-  InitYPosEditor = 126;
+  InitYPosEditor = 65;
   MaxValueLength = 2;
 
 var
   Figure: TObject;
   YPosEditor: Integer = InitYPosEditor;
 
-procedure TToolParam.OnChangeEditor(Sender: TObject);
+procedure TToolProp.OnChangeEditor(Sender: TObject);
 begin
   with Sender as TWinControl do
     SetPropValue(Figure, Name, Caption);
 end;
 
-function CreateComboBox(_Name: String; Form: TForm; Values: array of String; Param: TToolParam): TComboBox;
+function CreateComboBox(AName: String; Panel: TWinControl; Values: array of String; Param: TToolProp): TComboBox;
 var
   i: Integer;
 begin
-  Result:= TComboBox.Create(Form);
+  Result:= TComboBox.Create(Panel);
   with (Result as TComboBox) do begin
     Visible:= False;
     Top:= YPosEditor + 10;
     YPosEditor:= Top + Height;
     Width:= 73;
     Left:= 8;
-    Parent:= Form;
-    Name:= _Name;
+    Parent:= Panel;
+    Name:= AName;
+    ReadOnly:= True;
     for i:= 0 to High(Values) do
       AddItem(Values[i], Result);
     Caption:= Items[0];
@@ -77,19 +82,22 @@ begin
   end;
 end;
 
-constructor TIntegerParam.Create(_Name: String; Form: TForm);
+function TIntegerProp.CreateProp(AName: String; Panel: TWinControl): TToolProp;
+var
+  ToolParam: TToolProp;
 begin
-  FEditor:= TLabeledEdit.Create(Form);
-  with (FEditor as TLabeledEdit) do begin
+  ToolParam:= TToolProp.Create;
+  ToolParam.FEditor:= TLabeledEdit.Create(Panel);
+  with (ToolParam.FEditor as TLabeledEdit) do begin
     Visible:= False;
-    Top:= YPosEditor + 10;
+    Top:= YPosEditor + 20;
     YPosEditor:= Top + Height;
     Width:= 73;
     Left:= 8;
-    Parent:= Form;
-    Name:= _Name;
+    Parent:= Panel;
+    Name:= AName;
     Text:= '1';
-    EditLabel.Caption:= _Name;
+    EditLabel.Caption:= AName;
     EditLabel.Visible:= True;
     LabelPosition:= lpAbove;
     MaxLength:= MaxValueLength;
@@ -97,55 +105,62 @@ begin
     OnChange:= @Self.OnChangeEditor;
     Visible:= True;
   end;
+  Result:= ToolParam;
 end;
 
-constructor TPenStyleParam.Create(_Name: String; Form: TForm);
+function TPenStyleProp.CreateProp(AName: String; Panel: TWinControl): TToolProp;
 var
   Styles: array[1..8] of String = ('psSolid', 'psDash', 'psDot', 'psDashDot',
   'psDashDotDot', 'psinsideFrame', 'psPattern', 'psClear');
+  ToolParam: TToolProp;
 begin
-  FEditor:= CreateComboBox(_Name, Form, Styles, Self);
+  ToolParam:= TToolProp.Create;
+  ToolParam.FEditor:= CreateComboBox(AName, Panel, Styles, Self);
+  Result:= ToolParam;
 end;
 
-constructor TBrushStyleParam.Create(_Name: String; Form: TForm);
+function TBrushStyleProp.CreateProp(AName: String; Panel: TWinControl): TToolProp;
 var
   Styles: array[1..10] of String = ('bsSolid', 'bsClear', 'bsHorizontal',
   'bsVertical', 'bsFDiagonal', 'bsBDiagonal', 'bsCross', 'bsDiagCross',
   'bsImage', 'bsPattern');
+  ToolParam: TToolProp;
 begin
-  FEditor:= CreateComboBox(_Name, Form, Styles, Self);
+  ToolParam:= TToolProp.Create;
+  ToolParam.FEditor:= CreateComboBox(AName, Panel, Styles, Self);
+  Result:= ToolParam;
 end;
 
-constructor TToolParams.Create(_Figure: TObject; Form: TForm);
+constructor TToolProps.Create(AFigure: TObject; Panel: TWinControl);
 var
-  Num, i: Integer;
+  Num, i, j: Integer;
   PropList: PPropList;
   PropInfo: TPropInfo;
 begin
-  Figure:= _Figure;
-  Num:= GetPropList(_Figure.ClassInfo, PropList);
+  if AFigure = Nil then Exit;
+  Figure:= AFigure;
+  Num:= GetPropList(AFigure.ClassInfo, PropList);
   SetLength(FPropEditors, Num);
   for i:= 0 to Num - 1 do begin
     PropInfo:= PropList^[i]^;
-    if PropInfo.PropType^.Kind = tkInteger then
-      FPropEditors[i]:= TIntegerParam.Create(PropInfo.Name, Form)
-    else if PropInfo.PropType^.Name = 'TFPPenStyle' then
-      FPropEditors[i]:= TPenStyleParam.Create(PropInfo.Name, Form)
-    else if PropInfo.PropType^.Name = 'TFPBrushStyle' then
-      FPropEditors[i]:= TBrushStyleParam.Create(PropInfo.Name, Form);
+    for j:= 0 to High(FPropsList) do
+      if PropInfo.PropType^.Name = FPropsList[j].TypeName then begin
+        FPropEditors[i]:= FPropsList[j].CreateProp(PropInfo.Name, Panel);
+        break;
+      end;
   end;
 end;
 
-class procedure TToolParams.ChangeFigure(_Figure: TObject);
+class procedure TToolProps.ChangeProps(AFigure: TObject);
 var
   i: Integer;
 begin
-  Figure:= _Figure;
+  Figure:= AFigure;
   for i:= 0 to High(FPropEditors) do
     FPropEditors[i].OnChangeEditor(FPropEditors[i].FEditor);
 end;
 
-procedure TToolParams.Delete();
+procedure TToolProps.Delete();
 var
   i: Integer;
 begin
@@ -155,6 +170,18 @@ begin
   SetLength(FPropEditors, 0);
   YPosEditor:= InitYPosEditor;
 end;
+
+class procedure TToolProps.AddProp(Prop: TToolProp; Name: String);
+begin
+  SetLength(FPropsList, Length(FPropsList) + 1);
+  Prop.TypeName:= Name;
+  FPropsList[High(FPropsList)]:= Prop;
+end;
+
+initialization
+TToolProps.AddProp(TIntegerProp.Create, 'LongInt');
+TToolProps.AddProp(TPenStyleProp.Create, 'TFPPenStyle');
+TToolProps.AddProp(TBrushStyleProp.Create, 'TFPBrushStyle');
 
 end.
 
