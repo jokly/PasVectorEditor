@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, Buttons, StdCtrls, LCLtype, Grids, Windows, Math, FPCanvas,
-  UAbout, UTools, UFigures, UCoordinateSystem, UToolProperties;
+  UAbout, UTools, UFigures, UCoordinateSystem;
 
 type
 

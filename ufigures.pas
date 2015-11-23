@@ -67,13 +67,18 @@ type
 
   TRoundRectangle = Class(TFillFigure)
     private
-      FRounding: Integer;
+      FRoundingX: Integer;
+      FRoundingY: Integer;
     public
       procedure Draw(Canvas: TCanvas); override;
     published
-      property Rounding: Integer
-        read FRounding
-        write FRounding
+      property RoundingX: Integer
+        read FRoundingX
+        write FRoundingX
+        default 20;
+      property RoundingY: Integer
+        read FRoundingY
+        write FRoundingY
         default 20;
   end;
 
@@ -209,7 +214,7 @@ begin
     Brush.Style:= BrushStyle;
     RoundRect(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
               ToScreenPoint(EndP).x, ToScreenPoint(EndP).y,
-              FRounding, FRounding);
+              RoundingX, RoundingY);
   end;
 end;
 
