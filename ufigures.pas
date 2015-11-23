@@ -89,6 +89,7 @@ implementation
 
 class procedure TFigure.AddFigure(Figure: TFigure);
 begin
+  if Figure = Nil then Exit;
   SetLength(FFigures, Length(FFigures) + 1);
   FFigures[High(FFigures)]:= Figure;
 end;
@@ -120,16 +121,17 @@ end;
 
 procedure TPen.Draw(Canvas: TCanvas);
 var
-  Point: TWorldPoint;
+  ScPoints: array of TPoint;
+  i: Integer;
 begin
   with Canvas do begin
     Pen.Color:= FPenColor;
     Pen.Width:= PenWidth;
     Pen.Style:= PenStyle;
-    if Length(FPoints) > 0 then
-      MoveTo(ToScreenPoint(FPoints[0]));
-    for Point in FPoints do
-      LineTo(ToScreenPoint(Point));
+    SetLength(ScPoints, Length(FPoints));
+    for i:= 0 to High(FPoints) do
+      ScPoints[i]:= ToScreenPoint(FPoints[i]);
+    Polyline(ScPoints);
   end;
 end;
 
