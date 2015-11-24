@@ -5,9 +5,11 @@ unit UFigures;
 interface
 
 uses
-  Graphics, windows, UCoordinateSystem;
+  Classes, Graphics, LCLIntf, LCLType, UCoordinateSystem;
 
 type
+
+  { TFigure }
 
   TFigure = Class(TObject)
     private
@@ -15,38 +17,50 @@ type
       FPenWidth: Integer;
       FPenStyle: TPenStyle;
     public
-      procedure Draw(Canvas: TCanvas); virtual; abstract;
-      procedure SetPenColor(Color: TColor);
       class procedure AddFigure(Figure: TFigure);
       class function GetLastFigure(): TFigure;
       class procedure DeleteLastFigure();
+      procedure SetPenColor(Color: TColor);
+      procedure Draw(Canvas: TCanvas); virtual; abstract;
+      function IsInside(MousePoint: TPoint; Radius: Integer): Boolean; virtual; abstract;
     published
       property PenWidth: Integer read FPenWidth write FPenWidth default 1;
       property PenStyle: TPenStyle read FPenStyle write FPenStyle default psSolid;
   end;
+
+  { TPen }
 
   TPen = Class(TFigure)
     private
       FPoints: array of TWorldPoint;
     public
       procedure AddPoint(Point: TWorldPoint);
+      function IsInside(MousePoint: TPoint; Radius: Integer): Boolean; override;
       procedure Draw(Canvas: TCanvas); override;
   end;
+
+  { TLine }
 
   TLine = Class(TFigure)
     public
       StartP, EndP: TWorldPoint;
+      function IsInside(MousePoint: TPoint; Radius: Integer): Boolean; override;
       procedure Draw(Canvas: TCanvas); override;
   end;
+
+  { TPolyline }
 
   TPolyline = Class(TFigure)
     private
       FLines: array of TLine;
     public
-      procedure Draw(Canvas: TCanvas); override;
       procedure AddLine();
       function GetLastLine(): TLine;
+      function IsInside(MousePoint: TPoint; Radius: Integer): Boolean; override;
+      procedure Draw(Canvas: TCanvas); override;
   end;
+
+  { TFillFigure }
 
   TFillFigure = Class(TFigure)
     private
@@ -59,10 +73,15 @@ type
       property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle default bsClear;
   end;
 
+  { TRectangle }
+
   TRectangle = Class(TFillFigure)
     public
       procedure Draw(Canvas: TCanvas); override;
+      function IsInside(MousePoint: TPoint; Radius: Integer): Boolean; override;
   end;
+
+  { TRoundRectangle }
 
   TRoundRectangle = Class(TFillFigure)
     private
@@ -70,6 +89,7 @@ type
       FRoundingY: Integer;
     public
       procedure Draw(Canvas: TCanvas); override;
+      function IsInside(MousePoint: TPoint; Radius: Integer): Boolean; override;
     published
       property RoundingX: Integer
         read FRoundingX
@@ -81,35 +101,38 @@ type
         default 20;
   end;
 
+  { TEllipse }
+
   TEllipse = Class(TFillFigure)
     public
       procedure Draw(Canvas: TCanvas); override;
+      function IsInside(MousePoint: TPoint; Radius: Integer): Boolean; override;
   end;
 
   var
-    FFigures: array of TFigure;
+    Figures: array of TFigure;
 
 implementation
 
 class procedure TFigure.AddFigure(Figure: TFigure);
 begin
   if Figure = Nil then Exit;
-  SetLength(FFigures, Length(FFigures) + 1);
-  FFigures[High(FFigures)]:= Figure;
+  SetLength(Figures, Length(Figures) + 1);
+  Figures[High(Figures)]:= Figure;
 end;
 
 class function TFigure.GetLastFigure(): TFigure;
 begin
-  if Length(FFigures) > 0 then
-    Result:= FFigures[High(FFigures)]
+  if Length(Figures) > 0 then
+    Result:= Figures[High(Figures)]
   else
     Result:= Nil;
 end;
 
 class procedure TFigure.DeleteLastFigure();
 begin
-  if Length(FFigures) > 0 then
-    SetLength(FFigures, Length(FFigures) - 1);
+  if Length(Figures) > 0 then
+    SetLength(Figures, Length(Figures) - 1);
 end;
 
 procedure TFigure.SetPenColor(Color: TColor);
@@ -121,6 +144,24 @@ procedure TPen.AddPoint(Point: TWorldPoint);
 begin
   SetLength(FPoints, Length(FPoints) + 1);
   FPoints[High(FPoints)]:= Point;
+end;
+
+function TPen.IsInside(MousePoint: TPoint; Radius: Integer): Boolean;
+var
+  MouseRect: TRect;
+  FigurePos: array of TPoint;
+  Region: HRGN;
+  i: Integer;
+begin
+  Result:= False;
+  MouseRect.TopLeft:= Point(MousePoint.x - Radius, MousePoint.y - Radius);
+  MouseRect.BottomRight:= Point(MousePoint.x + Radius, MousePoint.y + Radius);
+  SetLength(FigurePos, Length(FPoints));
+  for i:= 0 to High(FPoints) do
+    FigurePos[i]:= ToScreenPoint(FPoints[i]);
+  Region:= CreatePolygonRgn(@FigurePos[0], Length(FigurePos), WINDING);
+  if RectInRegion(Region, MouseRect) then Result:= True;
+  DeleteObject(Region);
 end;
 
 procedure TPen.Draw(Canvas: TCanvas);
@@ -137,6 +178,26 @@ begin
       ScPoints[i]:= ToScreenPoint(FPoints[i]);
     Polyline(ScPoints);
   end;
+end;
+
+function TLine.IsInside(MousePoint: TPoint; Radius: Integer): Boolean;
+var
+  MouseRect: TRect;
+  FigurePos: array of TPoint;
+  Region: HRGN;
+  i: Integer;
+begin
+  Result:= False;
+  MouseRect.TopLeft:= Point(MousePoint.x - Radius, MousePoint.y - Radius);
+  MouseRect.BottomRight:= Point(MousePoint.x + Radius, MousePoint.y + Radius);
+  SetLength(FigurePos, 4);
+  FigurePos[0]:= Point(round(StartP.X - 1), round(StartP.Y + 1));
+  FigurePos[1]:= Point(round(StartP.X + 1), round(StartP.Y - 1));
+  FigurePos[2]:= Point(round(EndP.x - 1), round(EndP.y + 1));
+  FigurePos[3]:= Point(round(EndP.x + 1), round(EndP.y - 1));
+  Region:= CreatePolygonRgn(@FigurePos[0], Length(FigurePos), WINDING);
+  if RectInRegion(Region, MouseRect) then Result:= True;
+  DeleteObject(Region);
 end;
 
 procedure TLine.Draw(Canvas: TCanvas);
@@ -185,10 +246,35 @@ begin
     Result:= Nil;
 end;
 
+function TPolyline.IsInside(MousePoint: TPoint; Radius: Integer): Boolean;
+var
+  i: Integer;
+begin
+  Result:= False;
+  for i:= 0 to High(FLines) do
+    if FLines[i].IsInside(MousePoint, Radius) then begin
+      Result:= True;
+      Break;
+    end;
+end;
+
 procedure TFillFigure.SetBrushColor(Color: TColor);
 begin
   FBrushColor:= Color;
 end;
+
+{function TFillFigure.IsInside(MousePoint: TPoint; Radius: Integer): Boolean;
+var
+  MouseRect: TRect;
+  Region: HRGN;
+begin
+  Result:= False;
+  MouseRect.TopLeft:= Point(MousePoint.x - Radius, MousePoint.y - Radius);
+  MouseRect.BottomRight:= Point(MousePoint.x + Radius, MousePoint.y + Radius);
+  Region:= CreateRectRgnIndirect(Rect(round(StartP.X), round(StartP.Y), round(EndP.X), round(EndP.Y)));
+  if RectInRegion(Region, MouseRect) then Result:= True;
+  DeleteObject(Region);
+end;}
 
 procedure TRectangle.Draw(Canvas: TCanvas);
 begin
@@ -201,6 +287,19 @@ begin
     Rectangle(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
               ToScreenPoint(EndP).x, ToScreenPoint(EndP).y);
   end;
+end;
+
+function TRectangle.IsInside(MousePoint: TPoint; Radius: Integer): Boolean;
+var
+  MouseRect: TRect;
+  Region: HRGN;
+begin
+  Result:= False;
+  MouseRect.TopLeft:= Point(MousePoint.x - Radius, MousePoint.y - Radius);
+  MouseRect.BottomRight:= Point(MousePoint.x + Radius, MousePoint.y + Radius);
+  Region:= CreateRectRgnIndirect(Rect(round(StartP.X), round(StartP.Y), round(EndP.X), round(EndP.Y)));
+  if RectInRegion(Region, MouseRect) then Result:= True;
+  DeleteObject(Region);
 end;
 
 procedure TRoundRectangle.Draw(Canvas: TCanvas);
@@ -217,6 +316,21 @@ begin
   end;
 end;
 
+function TRoundRectangle.IsInside(MousePoint: TPoint; Radius: Integer): Boolean;
+var
+  MouseRect: TRect;
+  Region: HRGN;
+begin
+  Result:= False;
+  MouseRect.TopLeft:= Point(MousePoint.x - Radius, MousePoint.y - Radius);
+  MouseRect.BottomRight:= Point(MousePoint.x + Radius, MousePoint.y + Radius);
+  Region:= CreateRoundRectRgn(
+           round(StartP.X), round(StartP.Y), round(EndP.X), round(EndP.Y),
+           RoundingX, RoundingY);
+  if RectInRegion(Region, MouseRect) then Result:= True;
+  DeleteObject(Region);
+end;
+
 procedure TEllipse.Draw(Canvas: TCanvas);
 begin
   with Canvas do begin
@@ -228,6 +342,20 @@ begin
     Ellipse(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
             ToScreenPoint(EndP).x, ToScreenPoint(EndP).y);
   end;
+end;
+
+function TEllipse.IsInside(MousePoint: TPoint; Radius: Integer): Boolean;
+var
+  MouseRect: TRect;
+  Region: HRGN;
+begin
+  Result:= False;
+  MouseRect.TopLeft:= Point(MousePoint.x - Radius, MousePoint.y - Radius);
+  MouseRect.BottomRight:= Point(MousePoint.x + Radius, MousePoint.y + Radius);
+  Region:= CreateEllipticRgnIndirect(
+           Rect(round(StartP.X), round(StartP.Y), round(EndP.X), round(EndP.Y)));
+  if RectInRegion(Region, MouseRect) then Result:= True;
+  DeleteObject(Region);
 end;
 
 end.

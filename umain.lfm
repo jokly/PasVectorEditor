@@ -160,8 +160,8 @@ object MainForm: TMainForm
     end
   end
   object MainMenu: TMainMenu
-    left = 192
-    top = 88
+    left = 32
+    top = 176
     object MFile: TMenuItem
       Caption = 'Файл'
       object MExit: TMenuItem
@@ -198,7 +198,7 @@ object MainForm: TMainForm
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 144
-    top = 88
+    left = 32
+    top = 120
   end
 end

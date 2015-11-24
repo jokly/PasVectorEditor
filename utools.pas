@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, Controls, Graphics,
-  Buttons, Math, Typinfo, UFigures, UCoordinateSystem, UToolProperties;
+  Buttons, Math, Typinfo, UFigures, UCoordinateSystem, UToolProperties,
+  Dialogs; //To Delete
 
 type
 
@@ -99,6 +100,15 @@ type
       procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
+  { TTCursor }
+
+  TTCursor = Class(TTool)
+    public
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
+  end;
+
   const
     SpaceBetweenButtons = 7;
     SizeOfButton = 36;
@@ -157,6 +167,8 @@ begin
 end;
 
 procedure TTPen.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
+var
+  i: Integer;
 begin
   FindMinMaxCoordinate(WPoint);
 end;
@@ -391,6 +403,27 @@ begin
   TFigure.DeleteLastFigure();
 end;
 
+procedure TTCursor.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
+var
+  i: Integer;
+begin
+  for i:=0 to High(Figures) do begin
+    if Figures[i].IsInside(ToScreenPoint(WPoint), 1) then begin
+
+    end;
+  end;
+end;
+
+procedure TTCursor.OnMouseMove(WPoint: TWorldPoint);
+begin
+
+end;
+
+procedure TTCursor.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
+begin
+
+end;
+
 initialization
 TTool.AddTool(TTPen.Create('img\pen.bmp'));
 TTool.AddTool(TTLine.Create('img\line.bmp'));
@@ -401,6 +434,7 @@ TTool.AddTool(TTEllipse.Create('img\ellipse.bmp'));
 TTool.AddTool(TTLoupe.Create('img\loupe.bmp'));
 TTool.AddTool(TTHand.Create('img\hand.bmp'));
 TTool.AddTool(TTRectangleLoupe.Create('img\rectangleLoupe.bmp'));
+TTool.AddTool(TTCursor.Create('img\cursor.bmp'));
 
 end.
 

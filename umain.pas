@@ -252,7 +252,7 @@ procedure TMainForm.PaintBoxPaint(Sender: TObject);
 var
   Figure: TFigure;
 begin
-  for Figure in FFigures do
+  for Figure in Figures do
     Figure.Draw(PaintBox.Canvas);
   if TTool.Figure <> Nil then
     TTool.Figure.Draw(PaintBox.Canvas);
