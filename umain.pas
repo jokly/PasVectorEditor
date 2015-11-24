@@ -5,8 +5,8 @@ unit UMain;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, StdCtrls, LCLtype, Grids, Windows, Math, FPCanvas,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls,
+  Menus, Buttons, StdCtrls, Grids, Windows, Math,
   UAbout, UTools, UFigures, UCoordinateSystem;
 
 type
@@ -99,7 +99,7 @@ begin
       Tag:= i;
     end;
   end;
-  TTool.Tools[4].ButtonOnForm.Click;
+  TTool.Tools[0].ButtonOnForm.Click;
 end;
 
 procedure TMainForm.UpdateScrollBarsAndZoom();

@@ -5,7 +5,7 @@ unit UToolProperties;
 interface
 
 uses
-  Classes, SysUtils, StdCtrls, ExtCtrls, Forms, Controls, FPCanvas, Graphics, TypInfo;
+  StdCtrls, ExtCtrls, Controls, FPCanvas, Graphics, TypInfo;
 
 type
 

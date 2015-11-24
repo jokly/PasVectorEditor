@@ -5,8 +5,7 @@ unit UFigures;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, GraphType, Dialogs, ExtCtrls,
-  Menus, Buttons, UCoordinateSystem;
+  Graphics, windows, UCoordinateSystem;
 
 type
 

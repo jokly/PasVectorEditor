@@ -5,8 +5,8 @@ unit UTools;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, Buttons, Math, Typinfo, UFigures, UCoordinateSystem, UToolProperties;
+  Classes, Controls, Graphics,
+  Buttons, Math, Typinfo, UFigures, UCoordinateSystem, UToolProperties;
 
 type
 
