@@ -6,8 +6,7 @@ interface
 
 uses
   Classes, Controls, Graphics,
-  Buttons, Math, Typinfo, UFigures, UCoordinateSystem, UToolProperties,
-  Dialogs; //To Delete
+  Buttons, Math, Typinfo, UFigures, UCoordinateSystem, UToolProperties;
 
 type
 
@@ -19,6 +18,8 @@ type
     public
       class procedure FindMinMaxCoordinate(WPoint: TWorldPoint);
       class procedure DeleteSelecetedFig();
+      class procedure ToTopFigures();
+      class procedure ToBottomFigures();
   end;
 
   TTool = Class(TObject)
@@ -166,6 +167,46 @@ begin
     end
     else
       inc(i);
+  end;
+end;
+
+class procedure TMethods.ToTopFigures;
+var
+  i, j, IndexInsert: Integer;
+  Temp: TFigure;
+begin
+  i:= 0;
+  IndexInsert:= High(Figures);
+  while i <= IndexInsert do begin
+    if Figures[i].IsSelected then begin
+      Temp:= Figures[i];
+      for j:=i to IndexInsert - 1 do
+        Figures[j]:= Figures[j + 1];
+      Figures[IndexInsert]:= Temp;
+      dec(IndexInsert);
+      i:= 0;
+    end
+    else
+      inc(i);
+  end;
+end;
+
+class procedure TMethods.ToBottomFigures;
+var
+  i, j, IndexInsert: Integer;
+  Temp: TFigure;
+begin
+  i:= 0;
+  IndexInsert:= 0;
+  while i <= High(Figures) do begin
+    if Figures[i].IsSelected then begin
+      Temp:= Figures[i];
+      for j:=i downto IndexInsert + 1 do
+        Figures[j]:= Figures[j - 1];
+      Figures[IndexInsert]:= Temp;
+      inc(IndexInsert);
+    end;
+    inc(i);
   end;
 end;
 
@@ -452,12 +493,13 @@ begin
     for i:=0 to High(Figures) do
       Figures[i].IsSelected:= False;
   end;
-  for i:=0 to High(Figures) do begin
+  for i:=High(Figures)  downto 0 do begin
     if Figures[i].IsInside(Rect(MousePoint.x - 1, MousePoint.y - 1, MousePoint.x + 1, MousePoint.y + 1)) then begin
       if Figures[i].IsSelected = False then
         Figures[i].IsSelected:= True
       else
         Figures[i].IsSelected:= False;
+      Break;
     end;
   end;
 end;
