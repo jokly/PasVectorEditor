@@ -381,11 +381,6 @@ end;
 
 procedure TTRectangleLoupe.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
-  if Button = mbRight then begin
-    ButtonWasDown:= mbRight;
-    Exit;
-  end
-  else ButtonWasDown:= mbLeft;
   TFigure.AddFigure(TRectangle.Create());
   (TFigure.GetLastFigure() as TFillFigure).BrushStyle:= bsClear;
   (TFigure.GetLastFigure() as TRectangle).StartP:= WPoint;
@@ -393,7 +388,6 @@ begin
 end;
 procedure TTRectangleLoupe.OnMouseMove(WPoint: TWorldPoint);
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
 end;
 
@@ -401,7 +395,6 @@ procedure TTRectangleLoupe.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 var
   Rect: TRectangle;
 begin
-  if ButtonWasDown = mbRight then Exit;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
   Rect:=(TFigure.GetLastFigure() as TRectangle);
   if (Rect.StartP.X = Rect.EndP.X) or (Rect.StartP.Y = Rect.EndP.Y) then Exit;
@@ -423,7 +416,7 @@ begin
   if not(CtrlState) then begin
     SetLength(SelectedFigures, 0);
     for i:=0 to High(Figures) do
-      TFigure.IsSelected:= False;
+      Figures[i].IsSelected:= False;
   end;
   for i:=0 to High(Figures) do begin
     if Figures[i].IsInside(Rect(MousePoint.x - 1, MousePoint.y - 1, MousePoint.x + 1, MousePoint.y + 1)) then begin
@@ -446,7 +439,10 @@ end;
 
 procedure TTRectSelect.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
-
+  TFigure.AddFigure(TRectangle.Create());
+  (TFigure.GetLastFigure() as TFillFigure).BrushStyle:= bsClear;
+  (TFigure.GetLastFigure() as TRectangle).StartP:= WPoint;
+  (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
 end;
 
 procedure TTRectSelect.OnMouseMove(WPoint: TWorldPoint);
