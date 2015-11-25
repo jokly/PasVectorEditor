@@ -13,6 +13,14 @@ type
 
   { TTool }
 
+  { TMethods }
+
+  TMethods = class(TObject)
+    public
+      class procedure FindMinMaxCoordinate(WPoint: TWorldPoint);
+      class procedure DeleteSelecetedFig();
+  end;
+
   TTool = Class(TObject)
     public
       Tools: array of TTool; static;
@@ -21,7 +29,6 @@ type
       Figure: TFigure; static;
       class procedure AddTool(Tool: TTool);
       constructor Create(PathToFile: String);
-      class procedure FindMinMaxCoordinate(WPoint: TWorldPoint);
       class procedure ShowProperties(ATool: TTool; Panel: TWinControl);
       procedure CreateFigure(); virtual;
       procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); virtual; abstract;
@@ -138,6 +145,30 @@ const
 var
   ToolParams: TToolProps;
 
+{ TMethods }
+
+class procedure TMethods.FindMinMaxCoordinate(WPoint: TWorldPoint);
+begin
+  MinCoordinate:= WorldPoint(Min(WPoint.X, MinCoordinate.X), Min(WPoint.Y, MinCoordinate.Y));
+  MaxCoordinate:= WorldPoint(Max(WPoint.X, MaxCoordinate.X), Max(WPoint.Y, MaxCoordinate.Y));
+end;
+
+class procedure TMethods.DeleteSelecetedFig;
+var
+  i, j: Integer;
+begin
+  i:= 0;
+  while i <= High(Figures) do begin
+    if Figures[i].IsSelected then begin
+      for j:=i to High(Figures) - 1 do
+        Figures[j]:= Figures[j + 1];
+      SetLength(Figures, Length(Figures) - 1);
+    end
+    else
+      inc(i);
+  end;
+end;
+
 class procedure TTool.ShowProperties(ATool: TTool; Panel: TWinControl);
 begin
   ToolParams.Delete;
@@ -159,12 +190,6 @@ begin
   Tools[High(Tools)]:= Tool;
 end;
 
-class procedure TTool.FindMinMaxCoordinate(WPoint: TWorldPoint);
-begin
-  MinCoordinate:= WorldPoint(Min(WPoint.X, MinCoordinate.X), Min(WPoint.Y, MinCoordinate.Y));
-  MaxCoordinate:= WorldPoint(Max(WPoint.X, MaxCoordinate.X), Max(WPoint.Y, MaxCoordinate.Y));
-end;
-
 procedure TTool.CreateFigure;
 begin
   Figure:= Nil;
@@ -180,20 +205,20 @@ procedure TTPen.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 var
   i: Integer;
 begin
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTPen.OnMouseMove(WPoint: TWorldPoint);
 begin
   (Figure as TPen).AddPoint(WPoint);
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTPen.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   TFigure.AddFigure(Figure);
   CreateFigure();
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTLine.CreateFigure();
@@ -206,14 +231,14 @@ procedure TTLine.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TLine).StartP:= WPoint;
   (Figure as TLine).EndP:= WPoint;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTLine.OnMouseMove(WPoint: TWorldPoint);
 
 begin
   (Figure as TLine).EndP:= WPoint;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTLine.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
@@ -226,7 +251,7 @@ begin
   ALine.MaxP:= WorldPoint(Max(ALine.StartP.X, ALine.EndP.X), Max(ALine.StartP.Y, ALine.EndP.Y));
   TFigure.AddFigure(Figure);
   CreateFigure();
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTPolyline.CreateFigure();
@@ -252,21 +277,21 @@ begin
   end
   else if Button = mbRight then Exit;
   (Figure as TPolyline).AddLine(ALine);
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTPolyline.OnMouseMove(WPoint: TWorldPoint);
 begin
   if (Figure as TPolyline).GetLastLine <> Nil then
     (Figure as TPolyline).GetLastLine().EndP:= WPoint;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTPolyline.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   IsMouseDown:= True;
   if Button = mbRight then IsMouseDown:= False;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTRectangle.CreateFigure();
@@ -279,13 +304,13 @@ procedure TTRectangle.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TRectangle).StartP:= WPoint;
   (Figure as TRectangle).EndP:= WPoint;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTRectangle.OnMouseMove(WPoint: TWorldPoint);
 begin
   (Figure as TRectangle).EndP:= WPoint;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTRectangle.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
@@ -293,7 +318,7 @@ begin
   (Figure as TRectangle).EndP:= WPoint;
   TFigure.AddFigure(Figure);
   CreateFigure();
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTRoundRectangle.CreateFigure();
@@ -306,13 +331,13 @@ procedure TTRoundRectangle.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint
 begin
   (Figure as TRoundRectangle).StartP:= WPoint;
   (Figure as TRoundRectangle).EndP:= WPoint;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTRoundRectangle.OnMouseMove(WPoint: TWorldPoint);
 begin
   (Figure as TRoundRectangle).EndP:= WPoint;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTRoundRectangle.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
@@ -320,7 +345,7 @@ begin
   (Figure as TRoundRectangle).EndP:= WPoint;
   TFigure.AddFigure(Figure);
   CreateFigure();
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTEllipse.CreateFigure();
@@ -333,13 +358,13 @@ procedure TTEllipse.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   (Figure as TEllipse).StartP:= WPoint;
   (Figure as TEllipse).EndP:= WPoint;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTEllipse.OnMouseMove(WPoint: TWorldPoint);
 begin
   (Figure as TEllipse).EndP:= WPoint;
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTEllipse.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
@@ -347,7 +372,7 @@ begin
   (Figure as TEllipse).EndP:= WPoint;
   TFigure.AddFigure(Figure);
   CreateFigure();
-  FindMinMaxCoordinate(WPoint);
+  TMethods.FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTLoupe.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);

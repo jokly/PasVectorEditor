@@ -183,6 +183,8 @@ begin
   if GetKeyState(VK_LBUTTON) < 0 then Exit;
   if (Key = VK_Z) and (Shift = [ssCtrl]) then
      TFigure.DeleteLastFigure()
+  else if (Key = VK_D) and (Shift = [ssCtrl]) then
+     TMethods.DeleteSelecetedFig()
   else if (Key = VK_C) and (Shift = [ssCtrl]) then begin
     while TFigure.GetLastFigure() <> Nil do
       TFigure.DeleteLastFigure();
