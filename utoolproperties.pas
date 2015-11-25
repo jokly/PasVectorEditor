@@ -56,8 +56,10 @@ var
 
 procedure TToolProp.OnChangeEditor(Sender: TObject);
 begin
-  with Sender as TWinControl do
+  with Sender as TWinControl do begin
+    if Caption = '' then Caption:= '1';
     SetPropValue(Figure, Name, Caption);
+  end;
 end;
 
 function CreateComboBox(AName: String; Panel: TWinControl; Values: array of String; Param: TToolProp): TComboBox;
