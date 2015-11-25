@@ -136,7 +136,6 @@ const
   ZoomOfLoupe = 0.3;
 
 var
-  ButtonWasDown: TMouseButton = mbMiddle;
   ToolParams: TToolProps;
 
 class procedure TTool.ShowProperties(ATool: TTool; Panel: TWinControl);
@@ -447,12 +446,30 @@ end;
 
 procedure TTRectSelect.OnMouseMove(WPoint: TWorldPoint);
 begin
-
+  (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
 end;
 
 procedure TTRectSelect.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
+var
+  StartP, EndP: TPoint;
+  SelectRect: TRect;
+  i: Integer;
 begin
-
+  (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
+  StartP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).StartP);
+  EndP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).EndP);
+  SelectRect:= Rect(StartP.x, StartP.y, EndP.x, EndP.y);
+  SetLength(SelectedFigures, 0);
+  for i:=0 to High(Figures) do
+    Figures[i].IsSelected:= False;
+  for i:=0 to High(Figures) do begin
+    if Figures[i].IsInside(SelectRect) then begin
+      Figures[i].IsSelected:= True;
+      SetLength(SelectedFigures, Length(SelectedFigures) + 1);
+      SelectedFigures[High(SelectedFigures)]:= Figures[i];
+    end;
+  end;
+  TFigure.DeleteLastFigure();
 end;
 
 initialization
@@ -466,6 +483,7 @@ TTool.AddTool(TTLoupe.Create('img\loupe.bmp'));
 TTool.AddTool(TTHand.Create('img\hand.bmp'));
 TTool.AddTool(TTRectangleLoupe.Create('img\rectangleLoupe.bmp'));
 TTool.AddTool(TTCursorSelect.Create('img\cursor.bmp'));
+TTool.AddTool(TTRectSelect.Create('img\rectangle.bmp'));
 
 end.
 
