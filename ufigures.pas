@@ -5,7 +5,7 @@ unit UFigures;
 interface
 
 uses
-  Classes, Graphics, LCLIntf, LCLType, UCoordinateSystem;
+  Classes, Graphics, LCLIntf, LCLType, Math, UCoordinateSystem;
 
 type
 
@@ -23,6 +23,7 @@ type
       class procedure DeleteLastFigure();
       procedure SetPenColor(Color: TColor);
       procedure Draw(Canvas: TCanvas); virtual;
+      procedure DrawSelection(Canvas: TCanvas); virtual;
       function IsInside(ARect: TRect): Boolean; virtual; abstract;
     published
       property PenWidth: Integer read FPenWidth write FPenWidth default 1;
@@ -34,10 +35,13 @@ type
   TPen = Class(TFigure)
     private
       FPoints: array of TWorldPoint;
+    protected
+      MinP, MaxP: TWorldPoint;
     public
       procedure AddPoint(Point: TWorldPoint);
       function IsInside(ARect: TRect): Boolean; override;
       procedure Draw(Canvas: TCanvas); override;
+      procedure DrawSelection(Canvas: TCanvas); override;
   end;
 
   { TLine }
@@ -45,8 +49,10 @@ type
   TLine = Class(TFigure)
     public
       StartP, EndP: TWorldPoint;
+      MinP, MaxP: TWorldPoint;
       function IsInside(ARect: TRect): Boolean; override;
       procedure Draw(Canvas: TCanvas); override;
+      procedure DrawSelection(Canvas: TCanvas); override;
   end;
 
   { TPolyline }
@@ -54,11 +60,14 @@ type
   TPolyline = Class(TFigure)
     private
       FLines: array of TLine;
+    protected
+      MinP, MaxP: TWorldPoint;
     public
-      procedure AddLine();
+      procedure AddLine(ALine: TLine);
       function GetLastLine(): TLine;
       function IsInside(ARect: TRect): Boolean; override;
       procedure Draw(Canvas: TCanvas); override;
+      procedure DrawSelection(Canvas: TCanvas); override;
   end;
 
   { TFillFigure }
@@ -70,6 +79,8 @@ type
     public
       StartP, EndP: TWorldPoint;
       procedure SetBrushColor(Color: TColor);
+      procedure Draw(Canvas: TCanvas); override;
+      procedure DrawSelection(Canvas: TCanvas); override;
     published
       property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle default bsClear;
   end;
@@ -144,17 +155,32 @@ end;
 procedure TFigure.Draw(Canvas: TCanvas);
 begin
   with Canvas do begin
-    if IsSelected then
-      Pen.Color:= clRed
-    else
-      Pen.Color:= FPenColor;
     Pen.Width:= PenWidth;
     Pen.Style:= PenStyle;
+    Pen.Color:= FPenColor;
+  end;
+end;
+
+procedure TFigure.DrawSelection(Canvas: TCanvas);
+begin
+  with Canvas do begin
+    Pen.Width:= 2;
+    Pen.Color:= clBlue;
+    Pen.Style:= psDash;
+    Brush.Style:= bsClear;
   end;
 end;
 
 procedure TPen.AddPoint(Point: TWorldPoint);
 begin
+  if Length(FPoints) > 0 then begin
+    MinP:= WorldPoint(Min(Point.X, MinP.X), Min(Point.Y, MinP.Y));
+    MaxP:= WorldPoint(Max(Point.X, MaxP.X), Max(Point.Y, MaxP.Y));
+  end
+  else begin
+    MinP:= Point;
+    MaxP:= Point;
+  end;
   SetLength(FPoints, Length(FPoints) + 1);
   FPoints[High(FPoints)]:= Point;
 end;
@@ -179,6 +205,8 @@ var
   ScPoints: array of TPoint;
   i: Integer;
 begin
+  if IsSelected then
+    DrawSelection(Canvas);
   Inherited;
   with Canvas do begin
     SetLength(ScPoints, Length(FPoints));
@@ -188,13 +216,20 @@ begin
   end;
 end;
 
+procedure TPen.DrawSelection(Canvas: TCanvas);
+begin
+  Inherited;
+  Canvas.Rectangle(ToScreenPoint(MinP).x - 5, ToScreenPoint(MinP).y - 5,
+                   ToScreenPoint(MaxP).x + 5, ToScreenPoint(MaxP).y + 5);
+end;
+
 function TLine.IsInside(ARect: TRect): Boolean;
 var
   FigurePos: array of TPoint;
   Region: HRGN;
-  i: Integer;
 begin
   Result:= False;
+  ARect:= Rect(ARect.Left - 5, ARect.Top - 5, ARect.Right + 5, ARect.Bottom + 5);
   SetLength(FigurePos, 4);
   FigurePos[0]:= Point(round(StartP.X - 1), round(StartP.Y + 1));
   FigurePos[1]:= Point(round(StartP.X + 1), round(StartP.Y - 1));
@@ -206,23 +241,29 @@ begin
 end;
 
 procedure TLine.Draw(Canvas: TCanvas);
-var
-  SPoint, EPoint: TPoint;
 begin
-  SPoint:= ToScreenPoint(StartP);
-  EPoint:= ToScreenPoint(EndP);
-  if (SPoint.X = EPoint.X) and (SPoint.Y = EPoint.Y) then Exit;
+  if IsSelected then
+    DrawSelection(Canvas);
   Inherited;
   with Canvas do begin
-    MoveTo(SPoint);
-    LineTo(EPoint);
+    MoveTo(ToScreenPoint(StartP));
+    LineTo(ToScreenPoint(EndP));
   end;
+end;
+
+procedure TLine.DrawSelection(Canvas: TCanvas);
+begin
+  Inherited;
+  Canvas.Rectangle(ToScreenPoint(MinP).x - 5, ToScreenPoint(MinP).y - 5,
+                   ToScreenPoint(MaxP).x + 5, ToScreenPoint(MaxP).y + 5);
 end;
 
 procedure TPolyline.Draw(Canvas: TCanvas);
 var
   _line: TLine;
 begin
+  if IsSelected then
+    DrawSelection(Canvas);
   Inherited;
   for _line in FLines do begin
     with Canvas do begin
@@ -232,10 +273,25 @@ begin
   end;
 end;
 
-procedure TPolyline.AddLine();
+procedure TPolyline.DrawSelection(Canvas: TCanvas);
 begin
+  Inherited;
+  Canvas.Rectangle(ToScreenPoint(MinP).x - 5, ToScreenPoint(MinP).y - 5,
+                   ToScreenPoint(MaxP).x + 5, ToScreenPoint(MaxP).y + 5);
+end;
+
+procedure TPolyline.AddLine(ALine: TLine);
+begin
+  if Length(FLines) > 0 then begin
+    MinP:= WorldPoint(Min(ALine.StartP.X, MinP.X), Min(ALine.StartP.Y, MinP.Y));
+    MaxP:= WorldPoint(Max(ALine.StartP.X, MaxP.X), Max(ALine.StartP.Y, MaxP.Y));
+  end
+  else begin
+    MinP:= WorldPoint(Min(ALine.StartP.X, ALine.EndP.X), Min(ALine.StartP.Y, ALine.EndP.Y));
+    MaxP:= WorldPoint(Max(ALine.StartP.X, ALine.EndP.X), Max(ALine.StartP.Y, ALine.EndP.Y));
+  end;
   SetLength(FLines, Length(FLines) + 1);
-  FLines[High(FLines)]:= TLine.Create();
+  FLines[High(FLines)]:= ALine;
 end;
 
 function TPolyline.GetLastLine(): TLine;
@@ -264,6 +320,24 @@ begin
   FBrushColor:= Color;
 end;
 
+procedure TFillFigure.Draw(Canvas: TCanvas);
+begin
+  if IsSelected then
+    DrawSelection(Canvas);
+  Inherited;
+end;
+
+procedure TFillFigure.DrawSelection(Canvas: TCanvas);
+var
+  MinP, MaxP: TWorldPoint;
+begin
+  Inherited;
+  MinP:= WorldPoint(Min(StartP.X, EndP.X), Min(StartP.Y, EndP.Y));
+  MaxP:= WorldPoint(Max(StartP.X, EndP.X), Max(StartP.Y, EndP.Y));
+  Canvas.Rectangle(ToScreenPoint(MinP).x - 5, ToScreenPoint(MinP).y - 5,
+                   ToScreenPoint(MaxP).x + 5, ToScreenPoint(MaxP).y + 5);
+end;
+
 procedure TRectangle.Draw(Canvas: TCanvas);
 begin
   Inherited;
@@ -277,7 +351,6 @@ end;
 
 function TRectangle.IsInside(ARect: TRect): Boolean;
 var
-  MouseRect: TRect;
   Region: HRGN;
 begin
   Result:= False;
@@ -300,7 +373,6 @@ end;
 
 function TRoundRectangle.IsInside(ARect: TRect): Boolean;
 var
-  MouseRect: TRect;
   Region: HRGN;
 begin
   Result:= False;
@@ -324,7 +396,6 @@ end;
 
 function TEllipse.IsInside(ARect: TRect): Boolean;
 var
-  MouseRect: TRect;
   Region: HRGN;
 begin
   Result:= False;

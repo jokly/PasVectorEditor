@@ -210,14 +210,20 @@ begin
 end;
 
 procedure TTLine.OnMouseMove(WPoint: TWorldPoint);
+
 begin
   (Figure as TLine).EndP:= WPoint;
   FindMinMaxCoordinate(WPoint);
 end;
 
 procedure TTLine.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
+var
+  ALine: TLine;
 begin
-  (Figure as TLine).EndP:= WPoint;
+  ALine:= (Figure as TLine);
+  ALine.EndP:= WPoint;
+  ALine.MinP:= WorldPoint(Min(ALine.StartP.X, ALine.EndP.X), Min(ALine.StartP.Y, ALine.EndP.Y));
+  ALine.MaxP:= WorldPoint(Max(ALine.StartP.X, ALine.EndP.X), Max(ALine.StartP.Y, ALine.EndP.Y));
   TFigure.AddFigure(Figure);
   CreateFigure();
   FindMinMaxCoordinate(WPoint);
@@ -230,18 +236,22 @@ begin
 end;
 
 procedure TTPolyline.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
+var
+  ALine: TLine;
 begin
+  ALine:= TLine.Create;
+  ALine.StartP:= WPoint;
+  ALine.EndP:= WPoint;
   if (Button = mbRight) and ((Figure as TPolyline).GetLastLine <> Nil) then begin
     (Figure as TPolyline).GetLastLine().EndP:= WPoint;
+    (Figure as TPolyline).AddLine(ALine);
     TFigure.AddFigure(Figure);
     CreateFigure();
     IsMouseDown:= False;
     Exit;
   end
   else if Button = mbRight then Exit;
-  (Figure as TPolyline).AddLine();
-  (Figure as TPolyline).GetLastLine().StartP:= WPoint;
-  (Figure as TPolyline).GetLastLine().EndP:= WPoint;
+  (Figure as TPolyline).AddLine(ALine);
   FindMinMaxCoordinate(WPoint);
 end;
 
@@ -419,9 +429,10 @@ begin
   end;
   for i:=0 to High(Figures) do begin
     if Figures[i].IsInside(Rect(MousePoint.x - 1, MousePoint.y - 1, MousePoint.x + 1, MousePoint.y + 1)) then begin
-      Figures[i].IsSelected:= True;
-      SetLength(SelectedFigures, Length(SelectedFigures) + 1);
-      SelectedFigures[High(SelectedFigures)]:= Figures[i];
+      if Figures[i].IsSelected = False then
+        Figures[i].IsSelected:= True
+      else
+        Figures[i].IsSelected:= False;
     end;
   end;
 end;
