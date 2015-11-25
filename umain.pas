@@ -39,6 +39,7 @@ type
     procedure EditZoomChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormResize(Sender: TObject);
     procedure LeftColorMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -177,10 +178,12 @@ end;
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  if (Shift = [ssCtrl]) then
+     CtrlState:= True;
   if GetKeyState(VK_LBUTTON) < 0 then Exit;
   if (Key = VK_Z) and (Shift = [ssCtrl]) then
-     TFigure.DeleteLastFigure();
-  if (Key = VK_C) and (Shift = [ssCtrl]) then begin
+     TFigure.DeleteLastFigure()
+  else if (Key = VK_C) and (Shift = [ssCtrl]) then begin
     while TFigure.GetLastFigure() <> Nil do
       TFigure.DeleteLastFigure();
     MinCoordinate:= WorldPoint(0, 0);
@@ -190,6 +193,12 @@ begin
     UpdateScrollBarsAndZoom();
   end;
   Invalidate;
+end;
+
+procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState
+  );
+begin
+  if (Shift <> [ssCtrl]) then CtrlState:= False;
 end;
 
 procedure TMainForm.FormResize(Sender: TObject);

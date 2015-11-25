@@ -100,9 +100,18 @@ type
       procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
   end;
 
-  { TTCursor }
+  { TTCursorSelect }
 
-  TTCursor = Class(TTool)
+  TTCursorSelect = Class(TTool)
+    public
+      procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
+      procedure OnMouseMove(WPoint: TWorldPoint); override;
+      procedure OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint); override;
+  end;
+
+  { TTRectSelect }
+
+  TTRectSelect = Class(TTool)
     public
       procedure OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint); override;
       procedure OnMouseMove(WPoint: TWorldPoint); override;
@@ -118,6 +127,8 @@ type
   var
     IsMouseDown: Boolean;
     MinCoordinate, MaxCoordinate: TWorldPoint;
+    CtrlState: Boolean;
+    SelectedFigures: array of TFigure;
 
 implementation
 
@@ -403,23 +414,47 @@ begin
   TFigure.DeleteLastFigure();
 end;
 
-procedure TTCursor.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
+procedure TTCursorSelect.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 var
   i: Integer;
+  MousePoint: TPoint;
 begin
+  MousePoint:= ToScreenPoint(WPoint);
+  if not(CtrlState) then begin
+    SetLength(SelectedFigures, 0);
+    for i:=0 to High(Figures) do
+      TFigure.IsSelected:= False;
+  end;
   for i:=0 to High(Figures) do begin
-    if Figures[i].IsInside(ToScreenPoint(WPoint), 1) then begin
-
+    if Figures[i].IsInside(Rect(MousePoint.x - 1, MousePoint.y - 1, MousePoint.x + 1, MousePoint.y + 1)) then begin
+      Figures[i].IsSelected:= True;
+      SetLength(SelectedFigures, Length(SelectedFigures) + 1);
+      SelectedFigures[High(SelectedFigures)]:= Figures[i];
     end;
   end;
 end;
 
-procedure TTCursor.OnMouseMove(WPoint: TWorldPoint);
+procedure TTCursorSelect.OnMouseMove(WPoint: TWorldPoint);
 begin
 
 end;
 
-procedure TTCursor.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
+procedure TTCursorSelect.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
+begin
+
+end;
+
+procedure TTRectSelect.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
+begin
+
+end;
+
+procedure TTRectSelect.OnMouseMove(WPoint: TWorldPoint);
+begin
+
+end;
+
+procedure TTRectSelect.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
 begin
 
 end;
@@ -434,7 +469,7 @@ TTool.AddTool(TTEllipse.Create('img\ellipse.bmp'));
 TTool.AddTool(TTLoupe.Create('img\loupe.bmp'));
 TTool.AddTool(TTHand.Create('img\hand.bmp'));
 TTool.AddTool(TTRectangleLoupe.Create('img\rectangleLoupe.bmp'));
-TTool.AddTool(TTCursor.Create('img\cursor.bmp'));
+TTool.AddTool(TTCursorSelect.Create('img\cursor.bmp'));
 
 end.
 

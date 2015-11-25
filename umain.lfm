@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 264
+  Left = 339
   Height = 442
-  Top = 108
+  Top = 112
   Width = 666
   Caption = 'pasVectorEditor'
   ClientHeight = 422
@@ -13,6 +13,7 @@ object MainForm: TMainForm
   Menu = MainMenu
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyUp
   OnResize = FormResize
   Position = poDesktopCenter
   LCLVersion = '1.4.2.0'
