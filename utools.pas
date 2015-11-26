@@ -518,6 +518,9 @@ procedure TTRectSelect.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
 begin
   TFigure.AddFigure(TRectangle.Create());
   (TFigure.GetLastFigure() as TFillFigure).BrushStyle:= bsClear;
+  (TFigure.GetLastFigure() as TFillFigure).PenStyle:= psDash;
+  (TFigure.GetLastFigure() as TFillFigure).PenWidth:= 3;
+  (TFigure.GetLastFigure() as TFillFigure).SetPenColor(clBlue);
   (TFigure.GetLastFigure() as TRectangle).StartP:= WPoint;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
 end;

@@ -197,7 +197,8 @@ begin
   for i:= 0 to High(FPoints) do
     FigurePos[i]:= ToScreenPoint(FPoints[i]);
   for i:=High(FPoints) + 1 to High(FigurePos) do
-    FigurePos[i]:= Point(ToScreenPoint(FPoints[i - High(FPoints) + 1]).x + 1, ToScreenPoint(FPoints[i - High(FPoints) + 1]).y);
+    FigurePos[i]:= Point(ToScreenPoint(FPoints[i - High(FPoints) + 1]).x + 1,
+                         ToScreenPoint(FPoints[i - High(FPoints) + 1]).y);
   Region:= CreatePolygonRgn(@FigurePos[0], Length(FigurePos), ALTERNATE);
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
@@ -234,10 +235,10 @@ begin
   Result:= False;
   ARect:= Rect(ARect.Left - 5, ARect.Top - 5, ARect.Right + 5, ARect.Bottom + 5);
   SetLength(FigurePos, 4);
-  FigurePos[0]:= Point(round(StartP.X - 1), round(StartP.Y + 1));
-  FigurePos[1]:= Point(round(StartP.X + 1), round(StartP.Y - 1));
-  FigurePos[2]:= Point(round(EndP.x - 1), round(EndP.y + 1));
-  FigurePos[3]:= Point(round(EndP.x + 1), round(EndP.y - 1));
+  FigurePos[0]:= Point(ToScreenPoint(StartP).x + 1, ToScreenPoint(StartP).y + 1);
+  FigurePos[1]:= Point(ToScreenPoint(StartP).x + 1, ToScreenPoint(StartP).y - 1);
+  FigurePos[2]:= Point(ToScreenPoint(EndP).x - 1, ToScreenPoint(EndP).y + 1);
+  FigurePos[3]:= Point(ToScreenPoint(EndP).x + 1, ToScreenPoint(EndP).y - 1);
   Region:= CreatePolygonRgn(@FigurePos[0], Length(FigurePos), WINDING);
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
@@ -357,7 +358,8 @@ var
   Region: HRGN;
 begin
   Result:= False;
-  Region:= CreateRectRgnIndirect(Rect(round(StartP.X), round(StartP.Y), round(EndP.X), round(EndP.Y)));
+  Region:= CreateRectRgnIndirect(Rect(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
+                                      ToScreenPoint(EndP).x, ToScreenPoint(EndP).y));
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
 end;
@@ -380,7 +382,8 @@ var
 begin
   Result:= False;
   Region:= CreateRoundRectRgn(
-           round(StartP.X), round(StartP.Y), round(EndP.X), round(EndP.Y),
+           ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
+           ToScreenPoint(EndP).x, ToScreenPoint(EndP).y,
            RoundingX, RoundingY);
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
@@ -403,7 +406,8 @@ var
 begin
   Result:= False;
   Region:= CreateEllipticRgnIndirect(
-           Rect(round(StartP.X), round(StartP.Y), round(EndP.X), round(EndP.Y)));
+           Rect(ToScreenPoint(StartP).x, ToScreenPoint(StartP).y,
+                ToScreenPoint(EndP).x, ToScreenPoint(EndP).y));
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
 end;
