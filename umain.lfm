@@ -170,6 +170,24 @@ object MainForm: TMainForm
         OnClick = MExitClick
       end
     end
+    object MActions: TMenuItem
+      Caption = 'Действия'
+      object MClear: TMenuItem
+        Caption = 'Очистить Ctrl+C'
+      end
+      object MUndo: TMenuItem
+        Caption = 'Назад Ctrl+Z'
+      end
+      object MDelete: TMenuItem
+        Caption = 'Удалить Ctrl+D'
+      end
+      object MUp: TMenuItem
+        Caption = 'Вверх Ctrl+Up'
+      end
+      object MDown: TMenuItem
+        Caption = 'Вниз Ctrl+Down'
+      end
+    end
     object MAbout: TMenuItem
       Caption = 'О программе'
       OnClick = MAboutClick

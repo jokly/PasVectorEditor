@@ -20,6 +20,12 @@ type
     EditZoom: TEdit;
     ColorPanel: TPanel;
     LeftColor: TShape;
+    MActions: TMenuItem;
+    MClear: TMenuItem;
+    MDelete: TMenuItem;
+    MUndo: TMenuItem;
+    MUp: TMenuItem;
+    MDown: TMenuItem;
     RightColor: TShape;
     ValueOfZoom: TLabel;
     MainMenu: TMainMenu;

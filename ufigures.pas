@@ -192,10 +192,13 @@ var
   i: Integer;
 begin
   Result:= False;
-  SetLength(FigurePos, Length(FPoints));
+  ARect:= Rect(ARect.Left - 5, ARect.Top - 5, ARect.Right + 5, ARect.Bottom + 5);
+  SetLength(FigurePos, 2 * Length(FPoints));
   for i:= 0 to High(FPoints) do
     FigurePos[i]:= ToScreenPoint(FPoints[i]);
-  Region:= CreatePolygonRgn(@FigurePos[0], Length(FigurePos), WINDING);
+  for i:=High(FPoints) + 1 to High(FigurePos) do
+    FigurePos[i]:= Point(ToScreenPoint(FPoints[i - High(FPoints) + 1]).x + 1, ToScreenPoint(FPoints[i - High(FPoints) + 1]).y);
+  Region:= CreatePolygonRgn(@FigurePos[0], Length(FigurePos), ALTERNATE);
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
 end;
