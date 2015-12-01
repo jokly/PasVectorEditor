@@ -146,58 +146,61 @@ end;
 
 class procedure TSelectedFiguresMethods.Delete;
 var
-  i, j: Integer;
+  i, j, CountSelected: Integer;
+  TempFigures: array of TFigure;
 begin
-  i:= 0;
-  while i <= High(Figures) do begin
-    if Figures[i].IsSelected then begin
-      for j:=i to High(Figures) - 1 do
-        Figures[j]:= Figures[j + 1];
-      SetLength(Figures, Length(Figures) - 1);
-    end
-    else
-      inc(i);
-  end;
+  CountSelected:= 0;
+  for i:= 0 to High(Figures) do
+    if Figures[i].IsSelected then
+      Inc(CountSelected);
+  SetLength(TempFigures, Length(Figures) - CountSelected);
+  j:= 0;
+  for i:= 0 to High(Figures) do
+    if not Figures[i].IsSelected then begin
+      TempFigures[j]:= Figures[i];
+      Inc(j);
+    end;
+  Figures:= TempFigures;
 end;
 
 class procedure TSelectedFiguresMethods.ToTopFigures;
 var
-  i, j, IndexInsert: Integer;
-  Temp: TFigure;
+  i, j: Integer;
+  TempFigures: array of TFigure;
 begin
-  i:= 0;
-  IndexInsert:= High(Figures);
-  while i <= IndexInsert do begin
+  SetLength(TempFigures, Length(Figures));
+  j:= High(Figures);
+  for i:= 0 to High(Figures) do
     if Figures[i].IsSelected then begin
-      Temp:= Figures[i];
-      for j:=i to IndexInsert - 1 do
-        Figures[j]:= Figures[j + 1];
-      Figures[IndexInsert]:= Temp;
-      dec(IndexInsert);
-      i:= 0;
-    end
-    else
-      inc(i);
-  end;
+      TempFigures[j]:= Figures[i];
+      dec(j);
+    end;
+  for i:= High(Figures) downto 0 do
+    if not Figures[i].IsSelected then begin
+      TempFigures[j]:= Figures[i];
+      Dec(j);
+    end;
+  Figures:= TempFigures;
 end;
 
 class procedure TSelectedFiguresMethods.ToBottomFigures;
 var
-  i, j, IndexInsert: Integer;
-  Temp: TFigure;
+  i, j: Integer;
+  TempFigures: array of TFigure;
 begin
-  i:= 0;
-  IndexInsert:= 0;
-  while i <= High(Figures) do begin
-    if Figures[i].IsSelected then begin
-      Temp:= Figures[i];
-      for j:=i downto IndexInsert + 1 do
-        Figures[j]:= Figures[j - 1];
-      Figures[IndexInsert]:= Temp;
-      inc(IndexInsert);
+  SetLength(TempFigures, Length(Figures));
+  j:= 0;
+  for i:= 0 to High(Figures) do
+    if Figures[i].IsSelected then  begin
+      TempFigures[j]:= Figures[i];
+      Inc(j);
     end;
-    inc(i);
-  end;
+  for i:= 0 to High(Figures) do
+    if not Figures[i].IsSelected then begin
+      TempFigures[j]:= Figures[i];
+      Inc(j);
+    end;
+  Figures:= TempFigures;
 end;
 
 class procedure TTool.ShowProperties(ATool: TTool; Panel: TWinControl);
@@ -504,9 +507,8 @@ begin
       Figures[i].IsSelected:= False;
   end;
   for i:=High(Figures) - 1 downto 0  do begin
-    if Figures[i].IsInside(SelectRect) then begin
+    if Figures[i].IsInside(SelectRect) then
       Figures[i].IsSelected:= not Figures[i].IsSelected;
-    end;
   end;
 end;
 
