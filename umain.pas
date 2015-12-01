@@ -190,11 +190,11 @@ begin
   if (Key = VK_Z) and (Shift = [ssCtrl]) then
      TFigure.DeleteLastFigure()
   else if (Key = VK_D) and (Shift = [ssCtrl]) then
-     TMethods.DeleteSelecetedFig()
+     TSelectedFiguresMethods.Delete()
   else if (Key = VK_UP) and (Shift = [ssCtrl]) then
-     TMethods.ToTopFigures()
+     TSelectedFiguresMethods.ToTopFigures()
   else if (Key = VK_DOWN) and (Shift = [ssCtrl]) then
-     TMethods.ToBottomFigures()
+     TSelectedFiguresMethods.ToBottomFigures()
   else if (Key = VK_C) and (Shift = [ssCtrl]) then begin
     while TFigure.GetLastFigure() <> Nil do
       TFigure.DeleteLastFigure();

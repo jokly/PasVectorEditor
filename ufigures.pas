@@ -103,14 +103,8 @@ type
       procedure Draw(Canvas: TCanvas); override;
       function IsInside(ARect: TRect): Boolean; override;
     published
-      property RoundingX: Integer
-        read FRoundingX
-        write FRoundingX
-        default 20;
-      property RoundingY: Integer
-        read FRoundingY
-        write FRoundingY
-        default 20;
+      property RoundingX: Integer read FRoundingX write FRoundingX default 20;
+      property RoundingY: Integer read FRoundingY write FRoundingY default 20;
   end;
 
   { TEllipse }
