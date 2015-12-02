@@ -33,14 +33,17 @@ TBrushStyleProp = Class(TToolProp)
     function CreateProp(AName: String; Panel: TWinControl): TToolProp; override;
 end;
 
+{ TToolProps }
+
 TToolProps = Class(TObject)
   private
     FPropsList: array of TToolProp; static;
     FPropEditors: array of TToolProp; static;
   public
     constructor Create(AFigure: TObject; Panel: TWinControl);
+    constructor Create(AFigures: array of TObject; Panel: TWinControl);
     procedure Delete;
-    class procedure ChangeProps(AFigure: TObject);
+    class procedure ApplyProps(AFigure: TObject);
     class procedure AddProp(Prop: TToolProp; Name: String);
 end;
 
@@ -51,14 +54,17 @@ const
   MaxValueLength = 2;
 
 var
-  Figure: TObject;
+  Figures: array of TObject;
   YPosEditor: Integer = InitYPosEditor;
 
 procedure TToolProp.OnChangeEditor(Sender: TObject);
+var
+  i: Integer;
 begin
   with Sender as TWinControl do begin
     if Caption = '' then Caption:= '1';
-    SetPropValue(Figure, Name, Caption);
+    for i:= 0 to High(Figures) do
+      SetPropValue(Figures[i], Name, Caption);
   end;
 end;
 
@@ -140,7 +146,8 @@ var
   PropInfo: TPropInfo;
 begin
   if AFigure = Nil then Exit;
-  Figure:= AFigure;
+  SetLength(Figures, 1);
+  Figures[0]:= AFigure;
   Num:= GetPropList(AFigure.ClassInfo, PropList);
   SetLength(FPropEditors, Num);
   for i:= 0 to Num - 1 do begin
@@ -153,11 +160,54 @@ begin
   end;
 end;
 
-class procedure TToolProps.ChangeProps(AFigure: TObject);
+constructor TToolProps.Create(AFigures: array of TObject; Panel: TWinControl);
+var
+  Num1, Num2, i, j, g: Integer;
+  PropList1, PropList2: PPropList;
+  PropInfo1, PropInfo2: TPropInfo;
+  IsConsider: Integer;
+begin
+  if Length(AFigures) = 0 then Exit;
+  SetLength(Figures, Length(AFigures));
+  for i:= 0 to High(Figures) do
+    Figures[i]:= AFigures[i];
+  Num1:= GetPropList(AFigures[0].ClassInfo, PropList1);
+  for i:= 1 to High(AFigures) do begin
+    Num2:= GetPropList(Figures[i].ClassInfo, PropList2);
+    for j:= 0 to Num1 - 1 do begin
+      PropInfo1:= PropList1^[j]^;
+      IsConsider:= j;
+      for g:= 0 to Num2 - 1 do begin
+        PropInfo2:= PropList2^[g]^;
+        if PropInfo1.Name = PropInfo2.Name then begin
+          IsConsider:= -1;
+          break;
+        end;
+      end;
+      if IsConsider <> -1 then begin
+        for g:=IsConsider to Num1 - 2 do
+          PropList1^[g]:= PropList1^[g + 1];
+        dec(Num1);
+      end;
+    end;
+  end;
+  SetLength(FPropEditors, Num1);
+  for i:= 0 to Num1 - 1 do begin
+    PropInfo1:= PropList1^[i]^;
+    for j:= 0 to High(FPropsList) do
+      if PropInfo1.PropType^.Name = FPropsList[j].TypeName then begin
+        FPropEditors[i]:= FPropsList[j].CreateProp(PropInfo1.Name, Panel);
+        break;
+      end;
+  end;
+end;
+
+class procedure TToolProps.ApplyProps(AFigure: TObject);
 var
   i: Integer;
 begin
-  Figure:= AFigure;
+  SetLength(Figures, 1);
+  Figures[0]:= AFigure;
   for i:= 0 to High(FPropEditors) do
     FPropEditors[i].OnChangeEditor(FPropEditors[i].FEditor);
 end;

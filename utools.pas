@@ -127,6 +127,7 @@ type
     IsMouseDown: Boolean;
     MinCoordinate, MaxCoordinate: TWorldPoint;
     CtrlState: Boolean;
+    PropPanel: TWinControl;
 
 implementation
 
@@ -232,7 +233,7 @@ end;
 procedure TTPen.CreateFigure();
 begin
   Figure:= TPen.Create;
-  TToolProps.ChangeProps(Figure);
+  TToolProps.ApplyProps(Figure);
 end;
 
 procedure TTPen.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -258,7 +259,7 @@ end;
 procedure TTLine.CreateFigure();
 begin
   Figure:= TLine.Create;
-  TToolProps.ChangeProps(Figure);
+  TToolProps.ApplyProps(Figure);
 end;
 
 procedure TTLine.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -291,7 +292,7 @@ end;
 procedure TTPolyline.CreateFigure();
 begin
   Figure:= TPolyline.Create;
-  TToolProps.ChangeProps(Figure);
+  TToolProps.ApplyProps(Figure);
 end;
 
 procedure TTPolyline.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -331,7 +332,7 @@ end;
 procedure TTRectangle.CreateFigure();
 begin
   Figure:= TRectangle.Create;
-  TToolProps.ChangeProps(Figure);
+  TToolProps.ApplyProps(Figure);
 end;
 
 procedure TTRectangle.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -358,7 +359,7 @@ end;
 procedure TTRoundRectangle.CreateFigure();
 begin
   Figure:= TRoundRectangle.Create;
-  TToolProps.ChangeProps(Figure);
+  TToolProps.ApplyProps(Figure);
 end;
 
 procedure TTRoundRectangle.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -385,7 +386,7 @@ end;
 procedure TTEllipse.CreateFigure();
 begin
   Figure:= TEllipse.Create;
-  TToolProps.ChangeProps(Figure);
+  TToolProps.ApplyProps(Figure);
 end;
 
 procedure TTEllipse.OnMouseDown(Button: TMouseButton; WPoint: TWorldPoint);
@@ -513,9 +514,19 @@ begin
 end;
 
 procedure TTSelect.OnMouseUp(Button: TMouseButton; WPoint: TWorldPoint);
+var
+  SelectedFigures: array of TObject;
+  i: Integer;
 begin
   OnMouseMove(WPoint);
   TFigure.DeleteLastFigure();
+  for i:= 0 to High(Figures) do
+    if Figures[i].IsSelected then begin
+      SetLength(SelectedFigures, Length(SelectedFigures) + 1);
+      SelectedFigures[High(SelectedFigures)]:= Figures[i];
+    end;
+  ToolParams.Delete;
+  TToolProps.Create(SelectedFigures, PropPanel);
 end;
 
 initialization

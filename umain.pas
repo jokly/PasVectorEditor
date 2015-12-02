@@ -107,6 +107,7 @@ begin
     end;
   end;
   TTool.Tools[0].ButtonOnForm.Click;
+  PropPanel:= PropertiesPanel;
 end;
 
 procedure TMainForm.UpdateScrollBarsAndZoom();
