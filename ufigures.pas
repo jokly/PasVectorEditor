@@ -187,12 +187,12 @@ var
 begin
   Result:= False;
   ARect:= Rect(ARect.Left - 5, ARect.Top - 5, ARect.Right + 5, ARect.Bottom + 5);
-  SetLength(FigurePos, 2 * Length(FPoints));
+  SetLength(FigurePos, 2 * Length(FPoints) - 1);
   for i:= 0 to High(FPoints) do
     FigurePos[i]:= ToScreenPoint(FPoints[i]);
-  for i:=High(FPoints) + 1 to High(FigurePos) do
-    FigurePos[i]:= Point(ToScreenPoint(FPoints[i - High(FPoints) + 1]).x + 1,
-                         ToScreenPoint(FPoints[i - High(FPoints) + 1]).y);
+  for i:=High(FPoints) downto 0 do
+    FigurePos[2 * Length(FPoints) - 1 - i]:= Point(ToScreenPoint(FPoints[i]).x + 1,
+                         ToScreenPoint(FPoints[i]).y - 1);
   Region:= CreatePolygonRgn(@FigurePos[0], Length(FigurePos), ALTERNATE);
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
@@ -328,12 +328,14 @@ end;
 procedure TFillFigure.DrawSelection(Canvas: TCanvas);
 var
   MinP, MaxP: TWorldPoint;
+  Append: Integer;
 begin
   Inherited;
   MinP:= WorldPoint(Min(StartP.X, EndP.X), Min(StartP.Y, EndP.Y));
   MaxP:= WorldPoint(Max(StartP.X, EndP.X), Max(StartP.Y, EndP.Y));
-  Canvas.Rectangle(ToScreenPoint(MinP).x - 5, ToScreenPoint(MinP).y - 5,
-                   ToScreenPoint(MaxP).x + 5, ToScreenPoint(MaxP).y + 5);
+  Append:= PenWidth div 2 + 5;
+  Canvas.Rectangle(ToScreenPoint(MinP).x - Append, ToScreenPoint(MinP).y - Append,
+                   ToScreenPoint(MaxP).x + Append, ToScreenPoint(MaxP).y + Append);
 end;
 
 procedure TRectangle.Draw(Canvas: TCanvas);
