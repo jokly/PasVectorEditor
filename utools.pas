@@ -114,6 +114,7 @@ type
     private
       StartPos: TWorldPoint;
       FigureOffset: TWorldPoint;
+      IsShiftWasDown: Boolean;
     public
       procedure OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
       procedure OnMouseMove(Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -488,7 +489,10 @@ begin
   else if not(Shift = [ssCtrl]) then begin
     for i:=0 to High(Figures) do
       Figures[i].IsSelected:= False;
-  end;
+  end
+  else if Shift = [ssShift, ssCtrl] then Exit;
+  if not(ssShift in Shift) and (IsShiftWasDown) then
+    IsShiftWasDown:= False;
   TFigure.AddFigure(TRectangle.Create());
   (TFigure.GetLastFigure() as TFillFigure).BrushStyle:= bsClear;
   (TFigure.GetLastFigure() as TFillFigure).PenStyle:= psDash;
@@ -511,9 +515,12 @@ begin
     for i:= 0 to High(Figures) do
       if Figures[i].IsSelected then
         Figures[i].Depose(FigureOffset);
+    IsShiftWasDown:= True;
     Exit;
-  end;
-  if Shift = [ssShift, ssCtrl] then Exit;
+  end
+  else if Shift = [ssShift, ssCtrl] then Exit;
+  if IsShiftWasDown then Exit;
+
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
   StartP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).StartP);
   EndP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).EndP);
@@ -540,6 +547,11 @@ begin
     for i:= 0 to High(Figures) do
       if Figures[i].IsSelected then
         Figures[i].Depose(FigureOffset);
+    Exit;
+  end
+  else if Shift = [ssShift, ssCtrl] then Exit;
+  if not(ssShift in Shift) and (IsShiftWasDown) then begin
+    IsShiftWasDown:= False;
     Exit;
   end;
   OnMouseMove(Shift, WPoint);

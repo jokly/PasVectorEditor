@@ -232,10 +232,13 @@ begin
 end;
 
 procedure TPen.DrawSelection(Canvas: TCanvas);
+var
+  Append: Integer;
 begin
   Inherited;
-  Canvas.Rectangle(ToScreenPoint(MinP).x - 5, ToScreenPoint(MinP).y - 5,
-                   ToScreenPoint(MaxP).x + 5, ToScreenPoint(MaxP).y + 5);
+  Append:= PenWidth div 2 + 5;
+  Canvas.Rectangle(ToScreenPoint(MinP).x - Append, ToScreenPoint(MinP).y - Append,
+                   ToScreenPoint(MaxP).x + Append, ToScreenPoint(MaxP).y + Append);
 end;
 
 function TLine.IsInside(ARect: TRect): Boolean;
@@ -275,10 +278,13 @@ begin
 end;
 
 procedure TLine.DrawSelection(Canvas: TCanvas);
+var
+  Append: Integer;
 begin
   Inherited;
-  Canvas.Rectangle(ToScreenPoint(MinP).x - 5, ToScreenPoint(MinP).y - 5,
-                   ToScreenPoint(MaxP).x + 5, ToScreenPoint(MaxP).y + 5);
+  Append:= PenWidth div 2 + 5;
+  Canvas.Rectangle(ToScreenPoint(MinP).x - Append, ToScreenPoint(MinP).y - Append,
+                   ToScreenPoint(MaxP).x + Append, ToScreenPoint(MaxP).y + Append);
 end;
 
 procedure TPolyline.Draw(Canvas: TCanvas);
@@ -297,10 +303,13 @@ begin
 end;
 
 procedure TPolyline.DrawSelection(Canvas: TCanvas);
+var
+  Append: Integer;
 begin
   Inherited;
-  Canvas.Rectangle(ToScreenPoint(MinP).x - 5, ToScreenPoint(MinP).y - 5,
-                   ToScreenPoint(MaxP).x + 5, ToScreenPoint(MaxP).y + 5);
+  Append:= PenWidth div 2 + 5;
+  Canvas.Rectangle(ToScreenPoint(MinP).x - Append, ToScreenPoint(MinP).y - Append,
+                   ToScreenPoint(MaxP).x + Append, ToScreenPoint(MaxP).y + Append);
 end;
 
 procedure TPolyline.AddLine(ALine: TLine);

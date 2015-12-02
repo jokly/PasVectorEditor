@@ -257,8 +257,8 @@ begin
     TTool.Tools[IndexOfBtn].OnMouseMove(ShiftState, ToWorldPoint(X, Y));
     CalculateBounds(ToWorldPoint(X, Y));
     UpdateScrollBarsAndZoom();
+    Invalidate;
   end;
-  Invalidate;
 end;
 
 procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
