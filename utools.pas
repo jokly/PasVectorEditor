@@ -484,8 +484,8 @@ begin
     FigureOffset:= WorldPoint(0, 0);
     StartPos:= WPoint;
     Exit;
-  end;
-  if not(Shift = [ssCtrl]) then begin
+  end
+  else if not(Shift = [ssCtrl]) then begin
     for i:=0 to High(Figures) do
       Figures[i].IsSelected:= False;
   end;
@@ -513,6 +513,7 @@ begin
         Figures[i].Depose(FigureOffset);
     Exit;
   end;
+  if Shift = [ssShift, ssCtrl] then Exit;
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
   StartP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).StartP);
   EndP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).EndP);

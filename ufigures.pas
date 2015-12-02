@@ -204,8 +204,15 @@ begin
 end;
 
 procedure TPen.Depose(Offset: TWorldPoint);
+var
+  i: Integer;
 begin
-
+  for i:= 0 to High(FPoints) do  begin
+    FPoints[i].X+= Offset.X;
+    FPoints[i].Y+= Offset.Y;
+  end;
+  MinP.X+= Offset.X; MinP.Y+= Offset.Y;
+  MaxP.X+= Offset.X; MaxP.Y+= Offset.Y;
 end;
 
 procedure TPen.Draw(Canvas: TCanvas);
@@ -250,7 +257,10 @@ end;
 
 procedure TLine.Depose(Offset: TWorldPoint);
 begin
-
+  StartP.X+= Offset.X; StartP.Y+= Offset.Y;
+  EndP.X+= Offset.X; EndP.Y+= Offset.Y;
+  MinP.X+= Offset.X; MinP.Y+= Offset.Y;
+  MaxP.X+= Offset.X; MaxP.Y+= Offset.Y;
 end;
 
 procedure TLine.Draw(Canvas: TCanvas);
@@ -329,8 +339,13 @@ begin
 end;
 
 procedure TPolyline.Depose(Offset: TWorldPoint);
+var
+  i: Integer;
 begin
-
+  for i:= 0 to High(FLines) do
+    FLines[i].Depose(Offset);
+  MinP.X+= Offset.X; MinP.Y+= Offset.Y;
+  MaxP.X+= Offset.X; MaxP.Y+= Offset.Y;
 end;
 
 procedure TFillFigure.SetBrushColor(Color: TColor);
