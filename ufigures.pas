@@ -25,6 +25,7 @@ type
       procedure Draw(Canvas: TCanvas); virtual;
       procedure DrawSelection(Canvas: TCanvas); virtual;
       function IsInside(ARect: TRect): Boolean; virtual; abstract;
+      procedure Depose(Offset: TWorldPoint); virtual; abstract;
     published
       property PenWidth: Integer read FPenWidth write FPenWidth default 1;
       property PenStyle: TPenStyle read FPenStyle write FPenStyle default psSolid;
@@ -40,6 +41,7 @@ type
     public
       procedure AddPoint(Point: TWorldPoint);
       function IsInside(ARect: TRect): Boolean; override;
+      procedure Depose(Offset: TWorldPoint); override;
       procedure Draw(Canvas: TCanvas); override;
       procedure DrawSelection(Canvas: TCanvas); override;
   end;
@@ -51,6 +53,7 @@ type
       StartP, EndP: TWorldPoint;
       MinP, MaxP: TWorldPoint;
       function IsInside(ARect: TRect): Boolean; override;
+      procedure Depose(Offset: TWorldPoint); override;
       procedure Draw(Canvas: TCanvas); override;
       procedure DrawSelection(Canvas: TCanvas); override;
   end;
@@ -66,6 +69,7 @@ type
       procedure AddLine(ALine: TLine);
       function GetLastLine(): TLine;
       function IsInside(ARect: TRect): Boolean; override;
+      procedure Depose(Offset: TWorldPoint); override;
       procedure Draw(Canvas: TCanvas); override;
       procedure DrawSelection(Canvas: TCanvas); override;
   end;
@@ -79,6 +83,7 @@ type
     public
       StartP, EndP: TWorldPoint;
       procedure SetBrushColor(Color: TColor);
+      procedure Depose(Offset: TWorldPoint); override;
       procedure Draw(Canvas: TCanvas); override;
       procedure DrawSelection(Canvas: TCanvas); override;
     published
@@ -198,6 +203,11 @@ begin
   DeleteObject(Region);
 end;
 
+procedure TPen.Depose(Offset: TWorldPoint);
+begin
+
+end;
+
 procedure TPen.Draw(Canvas: TCanvas);
 var
   ScPoints: array of TPoint;
@@ -236,6 +246,11 @@ begin
   Region:= CreatePolygonRgn(@FigurePos[0], Length(FigurePos), WINDING);
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
+end;
+
+procedure TLine.Depose(Offset: TWorldPoint);
+begin
+
 end;
 
 procedure TLine.Draw(Canvas: TCanvas);
@@ -313,9 +328,22 @@ begin
     end;
 end;
 
+procedure TPolyline.Depose(Offset: TWorldPoint);
+begin
+
+end;
+
 procedure TFillFigure.SetBrushColor(Color: TColor);
 begin
   FBrushColor:= Color;
+end;
+
+procedure TFillFigure.Depose(Offset: TWorldPoint);
+begin
+  StartP.X+= Offset.X;
+  StartP.Y+= Offset.Y;
+  EndP.X+= Offset.X;
+  EndP.Y+= Offset.Y;
 end;
 
 procedure TFillFigure.Draw(Canvas: TCanvas);

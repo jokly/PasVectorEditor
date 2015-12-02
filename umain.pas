@@ -79,6 +79,7 @@ var
   ArrayOfColor: array[1..14] of TColor = (
     clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal,
     clGray, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua);
+  ShiftState: TShiftState;
 
 {$R *.lfm}
 
@@ -140,11 +141,10 @@ end;
 procedure TMainForm.ButtonAllCanvasClick(Sender: TObject);
 var
   RectLoupe: TTRectangleLoupe;
-  Shift: set of TShiftStateEnum;
 begin
   RectLoupe:= (TTRectangleLoupe.newinstance as TTRectangleLoupe);
-  RectLoupe.OnMouseDown(mbLeft, MinCoordinate);
-  RectLoupe.OnMouseUp(mbLeft, MaxCoordinate);
+  RectLoupe.OnMouseDown(mbLeft, ShiftState, MinCoordinate);
+  RectLoupe.OnMouseUp(mbLeft, ShiftState, MaxCoordinate);
   UpdateScrollBarsAndZoom();
   Invalidate;
 end;
@@ -185,8 +185,7 @@ end;
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if (Shift = [ssCtrl]) then
-     CtrlState:= True;
+  ShiftState:= Shift;
   if GetKeyState(VK_LBUTTON) < 0 then Exit;
   if (Key = VK_Z) and (Shift = [ssCtrl]) then
      TFigure.DeleteLastFigure()
@@ -211,7 +210,7 @@ end;
 procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState
   );
 begin
-  if (Shift <> [ssCtrl]) then CtrlState:= False;
+  ShiftState:= Shift;
 end;
 
 procedure TMainForm.FormResize(Sender: TObject);
@@ -246,7 +245,7 @@ procedure TMainForm.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= True;
-  TTool.Tools[IndexOfBtn].OnMouseDown(Button, ToWorldPoint(X, Y));
+  TTool.Tools[IndexOfBtn].OnMouseDown(Button, ShiftState, ToWorldPoint(X, Y));
   SetColors(Button);
   Invalidate;
 end;
@@ -255,7 +254,7 @@ procedure TMainForm.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   if IsMouseDown then begin
-    TTool.Tools[IndexOfBtn].OnMouseMove(ToWorldPoint(X, Y));
+    TTool.Tools[IndexOfBtn].OnMouseMove(ShiftState, ToWorldPoint(X, Y));
     CalculateBounds(ToWorldPoint(X, Y));
     UpdateScrollBarsAndZoom();
   end;
@@ -266,7 +265,7 @@ procedure TMainForm.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   IsMouseDown:= False;
-  TTool.Tools[IndexOfBtn].OnMouseUp(Button, ToWorldPoint(X, Y));
+  TTool.Tools[IndexOfBtn].OnMouseUp(Button, ShiftState, ToWorldPoint(X, Y));
   Invalidate;
 end;
 
