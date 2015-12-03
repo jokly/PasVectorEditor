@@ -161,13 +161,22 @@ end;
 procedure TMainForm.DrawGridColorMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
-  aCol, aRow: longint;
+  aCol, aRow, i: Integer;
 begin
   DrawGridColor.MouseToCell(X, Y, aCol, aRow);
-  if Button = mbLeft then
-    LeftColor.Brush.Color:= ArrayOfColor[aRow * 7 + aCol + 1]
-  else if Button = mbRight then
+  if Button = mbLeft then begin
+    LeftColor.Brush.Color:= ArrayOfColor[aRow * 7 + aCol + 1];
+    for i:= 0 to High(Figures) do
+    if Figures[i].IsSelected then
+      Figures[i].SetPenColor(LeftColor.Brush.Color);
+  end
+  else if Button = mbRight then begin
     RightColor.Brush.Color:= ArrayOfColor[aRow * 7 + aCol + 1];
+    for i:= 0 to High(Figures) do
+    if (Figures[i].ClassParent = TFillFigure) and (Figures[i].IsSelected) then
+       (Figures[i] as TFillFigure).SetBrushColor(RightColor.Brush.Color);
+  end;
+  Invalidate;
 end;
 
 procedure TMainForm.EditZoomChange(Sender: TObject);
@@ -226,9 +235,28 @@ end;
 
 procedure TMainForm.LeftColorMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
+var
+  i: Integer;
 begin
   if ColorDialog.Execute then
      LeftColor.Brush.Color:= ColorDialog.Color;
+  for i:= 0 to High(Figures) do
+    if Figures[i].IsSelected then
+      Figures[i].SetPenColor(ColorDialog.Color);
+  Invalidate;
+end;
+
+procedure TMainForm.RightColorMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  i: Integer;
+begin
+  if ColorDialog.Execute then
+     RightColor.Brush.Color:= ColorDialog.Color;
+  for i:= 0 to High(Figures) do
+    if (Figures[i].ClassParent = TFillFigure) and (Figures[i].IsSelected) then
+       (Figures[i] as TFillFigure).SetBrushColor(ColorDialog.Color);
+  Invalidate;
 end;
 
 procedure TMainForm.MAboutClick(Sender: TObject);
@@ -277,13 +305,6 @@ begin
     Figure.Draw(PaintBox.Canvas);
   if TTool.Figure <> Nil then
     TTool.Figure.Draw(PaintBox.Canvas);
-end;
-
-procedure TMainForm.RightColorMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  if ColorDialog.Execute then
-     RightColor.Brush.Color:= ColorDialog.Color;
 end;
 
 procedure TMainForm.ScrollBarHorizontalScroll(Sender: TObject;

@@ -150,19 +150,14 @@ end;
 
 class procedure TSelectedFiguresMethods.Delete;
 var
-  i, j, CountSelected: Integer;
+  i: Integer;
   TempFigures: array of TFigure;
 begin
-  CountSelected:= 0;
-  for i:= 0 to High(Figures) do
-    if Figures[i].IsSelected then
-      Inc(CountSelected);
-  SetLength(TempFigures, Length(Figures) - CountSelected);
-  j:= 0;
+  SetLength(TempFigures, 0);
   for i:= 0 to High(Figures) do
     if not Figures[i].IsSelected then begin
-      TempFigures[j]:= Figures[i];
-      Inc(j);
+      SetLength(TempFigures, Length(TempFigures) + 1);
+      TempFigures[High(TempFigures)]:= Figures[i];
     end;
   Figures:= TempFigures;
 end;
@@ -481,9 +476,9 @@ procedure TTSelect.OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint:
 var
   i: Integer;
 begin
+  StartPos:= WPoint;
   if Shift = [ssShift] then begin
     FigureOffset:= WorldPoint(0, 0);
-    StartPos:= WPoint;
     Exit;
   end
   else if not(Shift = [ssCtrl]) then begin
@@ -509,8 +504,8 @@ var
   i: Integer;
 begin
   if Shift = [ssShift] then begin
-    FigureOffset.X:= (WPoint.X - StartPos.X) * Zoom;
-    FigureOffset.Y:= (WPoint.Y - StartPos.Y) * Zoom;
+    FigureOffset.X:= WPoint.X - StartPos.X;
+    FigureOffset.Y:= WPoint.Y - StartPos.Y;
     StartPos:= WPoint;
     for i:= 0 to High(Figures) do
       if Figures[i].IsSelected then
@@ -524,14 +519,18 @@ begin
   (TFigure.GetLastFigure() as TRectangle).EndP:= WPoint;
   StartP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).StartP);
   EndP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).EndP);
-  SelectRect:= Rect(StartP.x, StartP.y, EndP.x, EndP.y);
+
   if not(Shift = [ssCtrl]) then begin
     for i:=0 to High(Figures) do
       Figures[i].IsSelected:= False;
   end;
+
+  SelectRect:= Rect(StartP.x, StartP.y, EndP.x, EndP.y);
   for i:=High(Figures) - 1 downto 0  do begin
-    if Figures[i].IsInside(SelectRect) then
+    if Figures[i].IsInside(SelectRect) then begin
       Figures[i].IsSelected:= not Figures[i].IsSelected;
+      if (StartPos.X = WPoint.X) and (StartPos.Y = WPoint.Y) then Break;
+    end;
   end;
 end;
 
@@ -540,21 +539,15 @@ var
   SelectedFigures: array of TObject;
   i: Integer;
 begin
-  if Shift = [ssShift] then begin
-    FigureOffset.X:= (WPoint.X - StartPos.X) * Zoom;
-    FigureOffset.Y:= (WPoint.Y - StartPos.Y) * Zoom;
-    StartPos:= WPoint;
-    for i:= 0 to High(Figures) do
-      if Figures[i].IsSelected then
-        Figures[i].Depose(FigureOffset);
+  if (Shift = [ssShift, ssCtrl]) or (Shift = [ssShift]) then
     Exit;
-  end
-  else if Shift = [ssShift, ssCtrl] then Exit;
   if not(ssShift in Shift) and (IsShiftWasDown) then begin
     IsShiftWasDown:= False;
     Exit;
   end;
+
   OnMouseMove(Shift, WPoint);
+
   TFigure.DeleteLastFigure();
   SetLength(SelectedFigures, 0);
   for i:= 0 to High(Figures) do
@@ -562,6 +555,7 @@ begin
       SetLength(SelectedFigures, Length(SelectedFigures) + 1);
       SelectedFigures[High(SelectedFigures)]:= Figures[i];
     end;
+
   ToolParams.Delete;
   TToolProps.Create(SelectedFigures, PropPanel);
 end;
