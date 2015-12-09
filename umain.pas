@@ -23,6 +23,8 @@ type
     MActions: TMenuItem;
     MClear: TMenuItem;
     MDelete: TMenuItem;
+    MNew: TMenuItem;
+    MExit: TMenuItem;
     MOpen: TMenuItem;
     MSave: TMenuItem;
     MSaveAs: TMenuItem;
@@ -36,7 +38,6 @@ type
     MainMenu: TMainMenu;
     MFile: TMenuItem;
     MAbout: TMenuItem;
-    MExit: TMenuItem;
     PaintBox: TPaintBox;
     ScrollBarVertical: TScrollBar;
     ScrollBarHorizontal: TScrollBar;
@@ -48,6 +49,7 @@ type
     procedure DrawGridColorMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure EditZoomChange(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -55,6 +57,7 @@ type
     procedure LeftColorMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure MAboutClick(Sender: TObject);
+    procedure MNewClick(Sender: TObject);
     procedure MOpenClick(Sender: TObject);
     procedure MSaveClick(Sender: TObject);
     procedure MSaveAsClick(Sender: TObject);
@@ -82,13 +85,18 @@ var
 
 implementation
 
+const
+  AppName =  'pasVectorEditor';
+  Untitled = 'untitled';
+
 var
   IndexOfBtn: Integer;
   ArrayOfColor: array[1..14] of TColor = (
     clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal,
     clGray, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua);
   ShiftState: TShiftState;
-  FileName: String = '';
+  IsSaved: Boolean = True;
+  FileName: String = Untitled;
 
 {$R *.lfm}
 
@@ -98,6 +106,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
 var
   i: Integer;
 begin
+  MainForm.Caption:= FileName + ' - ' + AppName;
+  DefaultFormatSettings.DecimalSeparator:= '.';
+
   ToolsPanel.Height:= SizeOfButton + 2 * SpaceBetweenButtons;
   for i:= 0 to High(TTool.Tools) do begin
     TTool.Tools[i].ButtonOnForm:= TBitBtn.Create(Self);
@@ -118,7 +129,6 @@ begin
   end;
   TTool.Tools[0].ButtonOnForm.Click;
   PropPanel:= PropertiesPanel;
-  DecimalSeparator:= '.';
 end;
 
 procedure TMainForm.UpdateScrollBarsAndZoom();
@@ -201,12 +211,31 @@ begin
   Invalidate;
 end;
 
+procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+var
+  Ans: TModalResult;
+begin
+  if IsSaved then
+     Exit;
+  Ans:= MessageDlg('Save changes?', 'File has been modified, save changes?', mtConfirmation,
+                   [mbYes, mbNo, mbIgnore], 0);
+  if Ans = mrYes then
+     MSave.Click
+  else if Ans = mrNo then
+     CanClose:= True
+  else
+    CanClose:= False;
+end;
+
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   ShiftState:= Shift;
-  if GetKeyState(VK_LBUTTON) < 0 then Exit;
-  if (Key = VK_S) and (Shift = [ssCtrl]) then
+  if GetKeyState(VK_LBUTTON) < 0 then
+    Exit;
+  if (Key = VK_N) and (Shift = [ssCtrl]) then
+     MNew.Click
+  else if (Key = VK_S) and (Shift = [ssCtrl]) then
      MSave.Click
   else if (Key = VK_S) and (Shift = [ssCtrl, ssShift]) then
      MSaveAs.Click
@@ -233,8 +262,7 @@ begin
   Invalidate;
 end;
 
-procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState
-  );
+procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   ShiftState:= Shift;
 end;
@@ -281,24 +309,36 @@ begin
   AboutForm.Show;
 end;
 
+procedure TMainForm.MNewClick(Sender: TObject);
+begin
+  FileName:= Untitled;
+  MainForm.Caption:= FileName + ' - ' + AppName;
+  IsSaved:= True;
+  SetLength(Figures, 0);
+  Invalidate;
+end;
+
 procedure TMainForm.MOpenClick(Sender: TObject);
 begin
-  if OpenDialog.Execute then begin
-     TFigure.LoadFile(OpenDialog.FileName);
-     MainForm.Caption:= OpenDialog.FileName + ' - pasVectorEditor';
+  if (OpenDialog.Execute) and (TFigure.LoadFile(OpenDialog.FileName)) then begin
+     MainForm.Caption:= OpenDialog.FileName + ' - ' + AppName;
      FileName:= OpenDialog.FileName;
-  end;
+     IsSaved:= True;
+  end
+  else
+    Application.MessageBox('Something wrong with opening file...', 'Warning', MB_ICONINFORMATION);
   Invalidate;
 end;
 
 procedure TMainForm.MSaveClick(Sender: TObject);
 begin
-  if FileName = '' then
+  if FileName = Untitled then
      MSaveAs.Click
   else begin
     TFigure.SaveFile(FileName);
-    MainForm.Caption:= FileName + ' - pasVectorEditor';
+    MainForm.Caption:= FileName + ' - ' + AppName;
     FileName:= FileName;
+    IsSaved:= True;
   end;
 end;
 
@@ -306,8 +346,9 @@ procedure TMainForm.MSaveAsClick(Sender: TObject);
 begin
   if SaveDialog.Execute then begin
     TFigure.SaveFile(SaveDialog.FileName);
-    MainForm.Caption:= SaveDialog.FileName + ' - pasVectorEditor';
+    MainForm.Caption:= SaveDialog.FileName + ' - ' + AppName;
     FileName:= SaveDialog.FileName;
+    IsSaved:= True;
   end;
 end;
 
@@ -322,7 +363,8 @@ begin
   IsMouseDown:= True;
   TTool.Tools[IndexOfBtn].OnMouseDown(Button, ShiftState, ToWorldPoint(X, Y));
   SetColors(Button);
-  MainForm.Caption:= FileName + '* - pasVectorEditor';
+  IsSaved:= False;
+  MainForm.Caption:= FileName + '* - ' + AppName;
   Invalidate;
 end;
 

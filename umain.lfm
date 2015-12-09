@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 355
+  Left = 340
   Height = 442
-  Top = 124
+  Top = 157
   Width = 666
   Caption = 'pasVectorEditor'
   ClientHeight = 422
@@ -11,6 +11,7 @@ object MainForm: TMainForm
   Constraints.MinWidth = 200
   KeyPreview = True
   Menu = MainMenu
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
@@ -165,9 +166,9 @@ object MainForm: TMainForm
     top = 176
     object MFile: TMenuItem
       Caption = 'Файл'
-      object MExit: TMenuItem
-        Caption = 'Выход'
-        OnClick = MExitClick
+      object MNew: TMenuItem
+        Caption = 'Новый файл Ctrl+N'
+        OnClick = MNewClick
       end
       object MOpen: TMenuItem
         Caption = 'Открыть файл... Ctrl+O '
@@ -180,6 +181,10 @@ object MainForm: TMainForm
       object MSaveAs: TMenuItem
         Caption = 'Сохранить как... Ctrl+Shift+S'
         OnClick = MSaveAsClick
+      end
+      object MExit: TMenuItem
+        Caption = 'Выход'
+        OnClick = MExitClick
       end
     end
     object MActions: TMenuItem
@@ -233,6 +238,7 @@ object MainForm: TMainForm
     top = 120
   end
   object OpenDialog: TOpenDialog
+    Filter = 'XML|*.xml'
     left = 32
     top = 232
   end

@@ -27,7 +27,7 @@ type
       procedure DrawSelection(Canvas: TCanvas); virtual;
       function IsInside(ARect: TRect): Boolean; virtual; abstract;
       procedure Depose(Offset: TWorldPoint); virtual; abstract;
-      class procedure LoadFile(FileName: String);
+      class function LoadFile(FileName: String): Boolean;
       class procedure LoadFigure(ANode: TDOMNode); virtual; abstract;
       procedure InitFigure(ANode: TDOMNode); virtual; // Устанавливает значения при загрузке
       class procedure SaveFile(FileName: String);
@@ -200,19 +200,20 @@ begin
   end;
 end;
 
-class procedure TFigure.LoadFile(FileName: String);
+class function TFigure.LoadFile(FileName: String): Boolean;
 var
   Doc: TXMLDocument;
   FigNode: TDOMNode;
   i: Integer;
 begin
+  Result:= True;
   if (Copy(FileName, Length(FileName) - 3, 4) <> '.xml') then
-    Exit;
-  SetLength(Figures, 0);
+    Exit(False);
   try
     ReadXMLFile(Doc, FileName);
     if Doc.DocumentElement.NodeName <> 'Figures' then
-      Exit;
+      Exit(False);
+    SetLength(Figures, 0);
     FigNode:= Doc.DocumentElement.FirstChild;
     while FigNode <> Nil do begin
       for i:=0 to High(ClassesFigures) do
