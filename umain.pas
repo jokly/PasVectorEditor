@@ -23,10 +23,15 @@ type
     MActions: TMenuItem;
     MClear: TMenuItem;
     MDelete: TMenuItem;
+    MOpen: TMenuItem;
+    MSave: TMenuItem;
+    MSaveAs: TMenuItem;
     MUndo: TMenuItem;
     MUp: TMenuItem;
     MDown: TMenuItem;
+    OpenDialog: TOpenDialog;
     RightColor: TShape;
+    SaveDialog: TSaveDialog;
     ValueOfZoom: TLabel;
     MainMenu: TMainMenu;
     MFile: TMenuItem;
@@ -50,6 +55,9 @@ type
     procedure LeftColorMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure MAboutClick(Sender: TObject);
+    procedure MOpenClick(Sender: TObject);
+    procedure MSaveClick(Sender: TObject);
+    procedure MSaveAsClick(Sender: TObject);
     procedure MExitClick(Sender: TObject);
     procedure PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -80,6 +88,7 @@ var
     clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal,
     clGray, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua);
   ShiftState: TShiftState;
+  FileName: String = '';
 
 {$R *.lfm}
 
@@ -109,6 +118,7 @@ begin
   end;
   TTool.Tools[0].ButtonOnForm.Click;
   PropPanel:= PropertiesPanel;
+  DecimalSeparator:= '.';
 end;
 
 procedure TMainForm.UpdateScrollBarsAndZoom();
@@ -196,7 +206,13 @@ procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   ShiftState:= Shift;
   if GetKeyState(VK_LBUTTON) < 0 then Exit;
-  if (Key = VK_Z) and (Shift = [ssCtrl]) then
+  if (Key = VK_S) and (Shift = [ssCtrl]) then
+     MSave.Click
+  else if (Key = VK_S) and (Shift = [ssCtrl, ssShift]) then
+     MSaveAs.Click
+  else if (Key = VK_O) and (Shift = [ssCtrl]) then
+     MOpen.Click
+  else if (Key = VK_Z) and (Shift = [ssCtrl]) then
      TFigure.DeleteLastFigure()
   else if (Key = VK_D) and (Shift = [ssCtrl]) then
      TSelectedFiguresMethods.Delete()
@@ -210,7 +226,8 @@ begin
     MinCoordinate:= WorldPoint(0, 0);
     MaxCoordinate:= WorldPoint(0, 0);
     MinBounds.X:= 0; MinBounds.Y:= 0;
-    MaxBounds.X:= PaintBox.Width; MaxBounds.Y:= PaintBox.Height;
+    MaxBounds.X:= PaintBox.Width;
+    MaxBounds.Y:= PaintBox.Height;
     UpdateScrollBarsAndZoom();
   end;
   Invalidate;
@@ -264,6 +281,36 @@ begin
   AboutForm.Show;
 end;
 
+procedure TMainForm.MOpenClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then begin
+     TFigure.LoadFile(OpenDialog.FileName);
+     MainForm.Caption:= OpenDialog.FileName + ' - pasVectorEditor';
+     FileName:= OpenDialog.FileName;
+  end;
+  Invalidate;
+end;
+
+procedure TMainForm.MSaveClick(Sender: TObject);
+begin
+  if FileName = '' then
+     MSaveAs.Click
+  else begin
+    TFigure.SaveFile(FileName);
+    MainForm.Caption:= FileName + ' - pasVectorEditor';
+    FileName:= FileName;
+  end;
+end;
+
+procedure TMainForm.MSaveAsClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then begin
+    TFigure.SaveFile(SaveDialog.FileName);
+    MainForm.Caption:= SaveDialog.FileName + ' - pasVectorEditor';
+    FileName:= SaveDialog.FileName;
+  end;
+end;
+
 procedure TMainForm.MExitClick(Sender: TObject);
 begin
   MainForm.Close;
@@ -275,6 +322,7 @@ begin
   IsMouseDown:= True;
   TTool.Tools[IndexOfBtn].OnMouseDown(Button, ShiftState, ToWorldPoint(X, Y));
   SetColors(Button);
+  MainForm.Caption:= FileName + '* - pasVectorEditor';
   Invalidate;
 end;
 

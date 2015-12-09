@@ -5,7 +5,8 @@ unit UFigures;
 interface
 
 uses
-  Classes, Graphics, LCLIntf, LCLType, Math, UCoordinateSystem;
+  Classes, Graphics, LCLIntf, LCLType, Math, UCoordinateSystem,
+  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite, TypInfo, sysutils, Dialogs;
 
 type
 
@@ -26,9 +27,15 @@ type
       procedure DrawSelection(Canvas: TCanvas); virtual;
       function IsInside(ARect: TRect): Boolean; virtual; abstract;
       procedure Depose(Offset: TWorldPoint); virtual; abstract;
+      class procedure LoadFile(FileName: String);
+      class procedure LoadFigure(ANode: TDOMNode); virtual; abstract;
+      procedure InitFigure(ANode: TDOMNode); virtual; // Устанавливает значения при загрузке
+      class procedure SaveFile(FileName: String);
+      procedure SetValuesOfFigures(ANode: TDOMNode); virtual; // Устанавливает значения при сохранении
+      function SaveFigure(ADoc: TXMLDocument): TDOMNode; virtual; abstract;
     published
-      property PenWidth: Integer read FPenWidth write FPenWidth default 1;
-      property PenStyle: TPenStyle read FPenStyle write FPenStyle default psSolid;
+      property PenWidth: Integer read FPenWidth write FPenWidth;
+      property PenStyle: TPenStyle read FPenStyle write FPenStyle;
   end;
 
   { TPen }
@@ -44,6 +51,8 @@ type
       procedure Depose(Offset: TWorldPoint); override;
       procedure Draw(Canvas: TCanvas); override;
       procedure DrawSelection(Canvas: TCanvas); override;
+      class procedure LoadFigure(ANode: TDOMNode); override;
+      function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   { TLine }
@@ -56,6 +65,8 @@ type
       procedure Depose(Offset: TWorldPoint); override;
       procedure Draw(Canvas: TCanvas); override;
       procedure DrawSelection(Canvas: TCanvas); override;
+      class procedure LoadFigure(ANode: TDOMNode); override;
+      function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   { TPolyline }
@@ -72,6 +83,8 @@ type
       procedure Depose(Offset: TWorldPoint); override;
       procedure Draw(Canvas: TCanvas); override;
       procedure DrawSelection(Canvas: TCanvas); override;
+      class procedure LoadFigure(ANode: TDOMNode); override;
+      function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   { TFillFigure }
@@ -86,8 +99,10 @@ type
       procedure Depose(Offset: TWorldPoint); override;
       procedure Draw(Canvas: TCanvas); override;
       procedure DrawSelection(Canvas: TCanvas); override;
+      procedure InitFigure(ANode: TDOMNode); override;
+      procedure SetValuesOfFigures(ANode: TDOMNode); override;
     published
-      property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle default bsClear;
+      property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle;
   end;
 
   { TRectangle }
@@ -96,6 +111,8 @@ type
     public
       procedure Draw(Canvas: TCanvas); override;
       function IsInside(ARect: TRect): Boolean; override;
+      class procedure LoadFigure(ANode: TDOMNode); override;
+      function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   { TRoundRectangle }
@@ -107,9 +124,11 @@ type
     public
       procedure Draw(Canvas: TCanvas); override;
       function IsInside(ARect: TRect): Boolean; override;
+      class procedure LoadFigure(ANode: TDOMNode); override;
+      function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
     published
-      property RoundingX: Integer read FRoundingX write FRoundingX default 20;
-      property RoundingY: Integer read FRoundingY write FRoundingY default 20;
+      property RoundingX: Integer read FRoundingX write FRoundingX;
+      property RoundingY: Integer read FRoundingY write FRoundingY;
   end;
 
   { TEllipse }
@@ -118,12 +137,23 @@ type
     public
       procedure Draw(Canvas: TCanvas); override;
       function IsInside(ARect: TRect): Boolean; override;
+      class procedure LoadFigure(ANode: TDOMNode); override;
+      function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   var
     Figures: array of TFigure;
 
 implementation
+
+var
+  ClassesFigures: array of TFigure;
+
+procedure AddFigure(AFigure: TFigure);
+begin
+  SetLength(ClassesFigures, Length(ClassesFigures) + 1);
+  ClassesFigures[High(ClassesFigures)]:= AFigure;
+end;
 
 class procedure TFigure.AddFigure(Figure: TFigure);
 begin
@@ -168,6 +198,66 @@ begin
     Pen.Style:= psDash;
     Brush.Style:= bsClear;
   end;
+end;
+
+class procedure TFigure.LoadFile(FileName: String);
+var
+  Doc: TXMLDocument;
+  FigNode: TDOMNode;
+  i: Integer;
+begin
+  if (Copy(FileName, Length(FileName) - 3, 4) <> '.xml') then
+    Exit;
+  SetLength(Figures, 0);
+  try
+    ReadXMLFile(Doc, FileName);
+    if Doc.DocumentElement.NodeName <> 'Figures' then
+      Exit;
+    FigNode:= Doc.DocumentElement.FirstChild;
+    while FigNode <> Nil do begin
+      for i:=0 to High(ClassesFigures) do
+        if FigNode.NodeName = ClassesFigures[i].ClassName then
+          ClassesFigures[i].LoadFigure(FigNode);
+      FigNode:= FigNode.GetNextNodeSkipChildren;
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
+
+class procedure TFigure.SaveFile(FileName: String);
+var
+  Doc: TXMLDocument;
+  FiguresNode: TDOMNode;
+  i: Integer;
+begin
+  if (Copy(FileName, Length(FileName) - 3, 4) <> '.xml') then
+    Exit;
+  try
+    Doc:= TXMLDocument.Create;
+    FiguresNode:= Doc.CreateElement('Figures');
+    Doc.AppendChild(FiguresNode);
+    FiguresNode:= Doc.DocumentElement;
+    for i:= 0 to High(Figures) do
+      FiguresNode.AppendChild(Figures[i].SaveFigure(Doc));
+    WriteXML(Doc, FileName);
+  finally
+    Doc.Free;
+  end;
+end;
+
+procedure TFigure.SetValuesOfFigures(ANode: TDOMNode);
+begin
+  TDOMElement(ANode).SetAttribute('PenWidth', IntToStr(PenWidth));
+  TDOMElement(ANode).SetAttribute('PenColor', IntToStr(FPenColor));
+  TDOMElement(ANode).SetAttribute('PenStyle',  GetEnumName(TypeInfo(TPenStyle), Integer(PenStyle)));
+end;
+
+procedure TFigure.InitFigure(ANode: TDOMNode);
+begin
+  SetPropValue(Self, 'PenWidth', ANode.Attributes.Item[0].NodeValue);
+  SetPenColor(StrToInt(ANode.Attributes.Item[1].NodeValue));
+  SetPropValue(Self, 'PenStyle', ANode.Attributes.Item[2].NodeValue);
 end;
 
 procedure TPen.AddPoint(Point: TWorldPoint);
@@ -241,6 +331,39 @@ begin
                    ToScreenPoint(MaxP).x + Append, ToScreenPoint(MaxP).y + Append);
 end;
 
+class procedure TPen.LoadFigure(ANode: TDOMNode);
+var
+  Pen: TPen;
+  i: Integer;
+  PNode: TDOMNode;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  Pen:= TPen.Create;
+  Pen.InitFigure(ANode);
+  PNode:= ANode;
+  for i:= 1 to ANode.GetChildCount do begin
+    PNode:= PNode.GetNextNode;
+    Pen.AddPoint(WorldPoint(StrToFloat(PNode.Attributes.Item[0].NodeValue),
+                            StrToFloat(PNode.Attributes.Item[1].NodeValue)));
+  end;
+  Figures[High(Figures)]:= Pen;
+end;
+
+function TPen.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+  i: Integer;
+begin
+  Result:= ADoc.CreateElement('TPen');
+  Self.SetValuesOfFigures(Result);
+  for i:= 0 to High(FPoints) do begin
+    PNode:= ADoc.CreateElement('point');
+    TDOMElement(PNode).SetAttribute('x', FloatToStr(FPoints[i].X));
+    TDOMElement(PNode).SetAttribute('y', FloatToStr(FPoints[i].Y));
+    Result.AppendChild(PNode);
+  end;
+end;
+
 function TLine.IsInside(ARect: TRect): Boolean;
 var
   FigurePos: array of TPoint;
@@ -287,6 +410,38 @@ begin
                    ToScreenPoint(MaxP).x + Append, ToScreenPoint(MaxP).y + Append);
 end;
 
+class procedure TLine.LoadFigure(ANode: TDOMNode);
+var
+  Line: TLine;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  Line:= TLine.Create;
+  Line.InitFigure(ANode);
+  ANode:= ANode.GetNextNode;
+  Line.StartP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                           StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  ANode:= ANode.GetNextNode;
+  Line.EndP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                         StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  Figures[High(Figures)]:= Line;
+end;
+
+function TLine.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+begin
+  Result:= ADoc.CreateElement('TLine');
+  Self.SetValuesOfFigures(Result);
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(StartP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(StartP.Y));
+  Result.AppendChild(PNode);
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(EndP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(EndP.Y));
+  Result.AppendChild(PNode);
+end;
+
 procedure TPolyline.Draw(Canvas: TCanvas);
 var
   _line: TLine;
@@ -310,6 +465,50 @@ begin
   Append:= PenWidth div 2 + 5;
   Canvas.Rectangle(ToScreenPoint(MinP).x - Append, ToScreenPoint(MinP).y - Append,
                    ToScreenPoint(MaxP).x + Append, ToScreenPoint(MaxP).y + Append);
+end;
+
+class procedure TPolyline.LoadFigure(ANode: TDOMNode);
+var
+  SPNode, EPNode: TDOMNode;
+  Polyline: TPolyline;
+  Line: TLine;
+  i: Integer;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  Polyline:= TPolyline.Create;
+  Polyline.InitFigure(ANode);
+  SPNode:= ANode.GetNextNode;
+  EPNode:= SPNode.GetNextNode;
+  for i:= 1 to ANode.GetChildCount do begin
+    Line:= TLine.Create;
+    Line.StartP:=WorldPoint(StrToFloat(SPNode.Attributes.Item[0].NodeValue),
+                            StrToFloat(SPNode.Attributes.Item[1].NodeValue));
+    Line.EndP:=WorldPoint(StrToFloat(EPNode.Attributes.Item[0].NodeValue),
+                          StrToFloat(EPNode.Attributes.Item[1].NodeValue));
+    EPNode:= SPNode.CloneNode(True);
+    SPNode:= SPNode.GetNextNode;
+    Polyline.AddLine(Line);
+  end;
+  Figures[High(Figures)]:= Polyline;
+end;
+
+function TPolyline.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+  i: Integer;
+begin
+  Result:= ADoc.CreateElement('TPolyline');
+  Self.SetValuesOfFigures(Result);
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(FLines[0].StartP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(FLines[0].StartP.Y));
+  Result.AppendChild(PNode);
+  for i:= 0 to High(FLines) do begin
+    PNode:= ADoc.CreateElement('point');
+    TDOMElement(PNode).SetAttribute('x', FloatToStr(FLines[i].EndP.X));
+    TDOMElement(PNode).SetAttribute('y', FloatToStr(FLines[i].EndP.Y));
+    Result.AppendChild(PNode);
+  end;
 end;
 
 procedure TPolyline.AddLine(ALine: TLine);
@@ -390,6 +589,20 @@ begin
                    ToScreenPoint(MaxP).x + Append, ToScreenPoint(MaxP).y + Append);
 end;
 
+procedure TFillFigure.InitFigure(ANode: TDOMNode);
+begin
+  inherited InitFigure(ANode);
+  SetBrushColor(StrToInt(ANode.Attributes.Item[3].NodeValue));
+  SetPropValue(Self, 'BrushStyle', ANode.Attributes.Item[4].NodeValue);
+end;
+
+procedure TFillFigure.SetValuesOfFigures(ANode: TDOMNode);
+begin
+  inherited SetValuesOfFigures(ANode);
+  TDOMElement(ANode).SetAttribute('BrushColor', IntToStr(FBrushColor));
+  TDOMElement(ANode).SetAttribute('BrushStyle',  GetEnumName(TypeInfo(TBrushStyle), Integer(BrushStyle)));
+end;
+
 procedure TRectangle.Draw(Canvas: TCanvas);
 begin
   Inherited;
@@ -410,6 +623,38 @@ begin
                                       ToScreenPoint(EndP).x, ToScreenPoint(EndP).y));
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
+end;
+
+class procedure TRectangle.LoadFigure(ANode: TDOMNode);
+var
+  Rect: TRectangle;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  Rect:= TRectangle.Create;
+  Rect.InitFigure(ANode);
+  ANode:= ANode.GetNextNode;
+  Rect.StartP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                           StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  ANode:= ANode.GetNextNode;
+  Rect.EndP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                         StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  Figures[High(Figures)]:= Rect;
+end;
+
+function TRectangle.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+begin
+  Result:= ADoc.CreateElement('TRectangle');
+  Self.SetValuesOfFigures(Result);
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(StartP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(StartP.Y));
+  Result.AppendChild(PNode);
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(EndP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(EndP.Y));
+  Result.AppendChild(PNode);
 end;
 
 procedure TRoundRectangle.Draw(Canvas: TCanvas);
@@ -437,6 +682,42 @@ begin
   DeleteObject(Region);
 end;
 
+class procedure TRoundRectangle.LoadFigure(ANode: TDOMNode);
+var
+  RoundRect: TRoundRectangle;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  RoundRect:= TRoundRectangle.Create;
+  RoundRect.InitFigure(ANode);
+  SetPropValue(RoundRect, 'RoundingX', ANode.Attributes.Item[5].NodeValue);
+  SetPropValue(RoundRect, 'RoundingY', ANode.Attributes.Item[6].NodeValue);
+  ANode:= ANode.GetNextNode;
+  RoundRect.StartP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                                StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  ANode:= ANode.GetNextNode;
+  RoundRect.EndP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                              StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  Figures[High(Figures)]:= RoundRect;
+end;
+
+function TRoundRectangle.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+begin
+  Result:= ADoc.CreateElement('TRoundRectangle');
+  Self.SetValuesOfFigures(Result);
+  TDOMElement(Result).SetAttribute('RoundingX', IntToStr(RoundingX));
+  TDOMElement(Result).SetAttribute('RoundingY', IntToStr(RoundingY));
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(StartP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(StartP.Y));
+  Result.AppendChild(PNode);
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(EndP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(EndP.Y));
+  Result.AppendChild(PNode);
+end;
+
 procedure TEllipse.Draw(Canvas: TCanvas);
 begin
   Inherited;
@@ -459,6 +740,46 @@ begin
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);
 end;
+
+class procedure TEllipse.LoadFigure(ANode: TDOMNode);
+var
+  Ellipse: TEllipse;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  Ellipse:= TEllipse.Create;
+  Ellipse.InitFigure(ANode);
+  ANode:= ANode.GetNextNode;
+  Ellipse.StartP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                              StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  ANode:= ANode.GetNextNode;
+  Ellipse.EndP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                            StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  Figures[High(Figures)]:= Ellipse;
+end;
+
+function TEllipse.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+begin
+  Result:= ADoc.CreateElement('TEllipse');
+  Self.SetValuesOfFigures(Result);
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(StartP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(StartP.Y));
+  Result.AppendChild(PNode);
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(EndP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(EndP.Y));
+  Result.AppendChild(PNode);
+end;
+
+initialization
+AddFigure(TPen.Create);
+AddFigure(TLine.Create);
+AddFigure(TPolyline.Create);
+AddFigure(TRectangle.Create);
+AddFigure(TRoundRectangle.Create);
+AddFigure(TEllipse.Create);
 
 end.
 

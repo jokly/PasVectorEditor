@@ -62,7 +62,7 @@ var
   i: Integer;
 begin
   with Sender as TWinControl do begin
-    if Caption = '' then Caption:= '1';
+    if Caption = '' then Caption:= '1'; // CHANGE!!!
     for i:= 0 to High(Figures) do
       SetPropValue(Figures[i], Name, Caption);
   end;
@@ -214,9 +214,11 @@ end;
 
 procedure TToolProps.Delete();
 var
-  i: Integer;
+  i,s: Integer;
 begin
-  if Self = Nil then Exit;
+  if Self = Nil then
+    Exit;
+  s:= High(FPropEditors);
   for i:= 0 to High(FPropEditors) do
     FPropEditors[i].FEditor.Free;
   SetLength(FPropEditors, 0);

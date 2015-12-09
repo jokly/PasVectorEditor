@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 321
+  Left = 355
   Height = 442
-  Top = 127
+  Top = 124
   Width = 666
   Caption = 'pasVectorEditor'
   ClientHeight = 422
@@ -169,6 +169,18 @@ object MainForm: TMainForm
         Caption = 'Выход'
         OnClick = MExitClick
       end
+      object MOpen: TMenuItem
+        Caption = 'Открыть файл... Ctrl+O '
+        OnClick = MOpenClick
+      end
+      object MSave: TMenuItem
+        Caption = 'Сохранить Ctrl+S'
+        OnClick = MSaveClick
+      end
+      object MSaveAs: TMenuItem
+        Caption = 'Сохранить как... Ctrl+Shift+S'
+        OnClick = MSaveAsClick
+      end
     end
     object MActions: TMenuItem
       Caption = 'Действия'
@@ -219,5 +231,14 @@ object MainForm: TMainForm
     )
     left = 32
     top = 120
+  end
+  object OpenDialog: TOpenDialog
+    left = 32
+    top = 232
+  end
+  object SaveDialog: TSaveDialog
+    Filter = 'XML|*.xml'
+    left = 32
+    top = 288
   end
 end
