@@ -101,6 +101,8 @@ type
       procedure DrawSelection(Canvas: TCanvas); override;
       procedure InitFigure(ANode: TDOMNode); override;
       procedure SetValuesOfFigures(ANode: TDOMNode); override;
+      class procedure LoadPoints(AFigure: TFillFigure; ANode: TDOMNode);
+      procedure SavePoints(ADoc: TXMLDocument; ANode: TDOMNode);
     published
       property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle;
   end;
@@ -281,6 +283,8 @@ var
   Region: HRGN;
   i: Integer;
 begin
+  if FPoints = Nil then
+    Exit(False);
   Result:= False;
   ARect:= Rect(ARect.Left - 5, ARect.Top - 5, ARect.Right + 5, ARect.Bottom + 5);
   SetLength(FigurePos, 2 * Length(FPoints) - 1);
@@ -309,7 +313,7 @@ end;
 procedure TPen.Draw(Canvas: TCanvas);
 var
   ScPoints: array of TPoint;
-  i: Integer;
+  i,s: Integer;
 begin
   if IsSelected then
     DrawSelection(Canvas);
@@ -318,6 +322,10 @@ begin
     SetLength(ScPoints, Length(FPoints));
     for i:= 0 to High(FPoints) do
       ScPoints[i]:= ToScreenPoint(FPoints[i]);
+    if Length(FPoints) = 1 then begin
+      s:= Length(FPoints);
+      s:= Pen.Width;
+    end;
     Polyline(ScPoints);
   end;
 end;
@@ -604,6 +612,30 @@ begin
   TDOMElement(ANode).SetAttribute('BrushStyle',  GetEnumName(TypeInfo(TBrushStyle), Integer(BrushStyle)));
 end;
 
+class procedure TFillFigure.LoadPoints(AFigure: TFillFigure; ANode: TDOMNode);
+begin
+  ANode:= ANode.GetNextNode;
+  AFigure.StartP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                           StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  ANode:= ANode.GetNextNode;
+  AFigure.EndP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
+                         StrToFloat(ANode.Attributes.Item[1].NodeValue));
+end;
+
+procedure TFillFigure.SavePoints(ADoc: TXMLDocument; ANode: TDOMNode);
+var
+  PNode: TDOMNode;
+begin
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(StartP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(StartP.Y));
+  ANode.AppendChild(PNode);
+  PNode:= ADoc.CreateElement('point');
+  TDOMElement(PNode).SetAttribute('x', FloatToStr(EndP.X));
+  TDOMElement(PNode).SetAttribute('y', FloatToStr(EndP.Y));
+  ANode.AppendChild(PNode);
+end;
+
 procedure TRectangle.Draw(Canvas: TCanvas);
 begin
   Inherited;
@@ -633,29 +665,15 @@ begin
   SetLength(Figures, Length(Figures) + 1);
   Rect:= TRectangle.Create;
   Rect.InitFigure(ANode);
-  ANode:= ANode.GetNextNode;
-  Rect.StartP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
-                           StrToFloat(ANode.Attributes.Item[1].NodeValue));
-  ANode:= ANode.GetNextNode;
-  Rect.EndP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
-                         StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  TFillFigure.LoadPoints(Rect, ANode);
   Figures[High(Figures)]:= Rect;
 end;
 
 function TRectangle.SaveFigure(ADoc: TXMLDocument): TDOMNode;
-var
-  PNode: TDOMNode;
 begin
   Result:= ADoc.CreateElement('TRectangle');
   Self.SetValuesOfFigures(Result);
-  PNode:= ADoc.CreateElement('point');
-  TDOMElement(PNode).SetAttribute('x', FloatToStr(StartP.X));
-  TDOMElement(PNode).SetAttribute('y', FloatToStr(StartP.Y));
-  Result.AppendChild(PNode);
-  PNode:= ADoc.CreateElement('point');
-  TDOMElement(PNode).SetAttribute('x', FloatToStr(EndP.X));
-  TDOMElement(PNode).SetAttribute('y', FloatToStr(EndP.Y));
-  Result.AppendChild(PNode);
+  SavePoints(ADoc, Result);
 end;
 
 procedure TRoundRectangle.Draw(Canvas: TCanvas);
@@ -692,31 +710,17 @@ begin
   RoundRect.InitFigure(ANode);
   SetPropValue(RoundRect, 'RoundingX', ANode.Attributes.Item[5].NodeValue);
   SetPropValue(RoundRect, 'RoundingY', ANode.Attributes.Item[6].NodeValue);
-  ANode:= ANode.GetNextNode;
-  RoundRect.StartP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
-                                StrToFloat(ANode.Attributes.Item[1].NodeValue));
-  ANode:= ANode.GetNextNode;
-  RoundRect.EndP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
-                              StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  TFillFigure.LoadPoints(RoundRect, ANode);
   Figures[High(Figures)]:= RoundRect;
 end;
 
 function TRoundRectangle.SaveFigure(ADoc: TXMLDocument): TDOMNode;
-var
-  PNode: TDOMNode;
 begin
   Result:= ADoc.CreateElement('TRoundRectangle');
   Self.SetValuesOfFigures(Result);
   TDOMElement(Result).SetAttribute('RoundingX', IntToStr(RoundingX));
   TDOMElement(Result).SetAttribute('RoundingY', IntToStr(RoundingY));
-  PNode:= ADoc.CreateElement('point');
-  TDOMElement(PNode).SetAttribute('x', FloatToStr(StartP.X));
-  TDOMElement(PNode).SetAttribute('y', FloatToStr(StartP.Y));
-  Result.AppendChild(PNode);
-  PNode:= ADoc.CreateElement('point');
-  TDOMElement(PNode).SetAttribute('x', FloatToStr(EndP.X));
-  TDOMElement(PNode).SetAttribute('y', FloatToStr(EndP.Y));
-  Result.AppendChild(PNode);
+  SavePoints(ADoc, Result);
 end;
 
 procedure TEllipse.Draw(Canvas: TCanvas);
@@ -749,29 +753,15 @@ begin
   SetLength(Figures, Length(Figures) + 1);
   Ellipse:= TEllipse.Create;
   Ellipse.InitFigure(ANode);
-  ANode:= ANode.GetNextNode;
-  Ellipse.StartP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
-                              StrToFloat(ANode.Attributes.Item[1].NodeValue));
-  ANode:= ANode.GetNextNode;
-  Ellipse.EndP:= WorldPoint(StrToFloat(ANode.Attributes.Item[0].NodeValue),
-                            StrToFloat(ANode.Attributes.Item[1].NodeValue));
+  TFillFigure.LoadPoints(Ellipse, ANode);
   Figures[High(Figures)]:= Ellipse;
 end;
 
 function TEllipse.SaveFigure(ADoc: TXMLDocument): TDOMNode;
-var
-  PNode: TDOMNode;
 begin
   Result:= ADoc.CreateElement('TEllipse');
   Self.SetValuesOfFigures(Result);
-  PNode:= ADoc.CreateElement('point');
-  TDOMElement(PNode).SetAttribute('x', FloatToStr(StartP.X));
-  TDOMElement(PNode).SetAttribute('y', FloatToStr(StartP.Y));
-  Result.AppendChild(PNode);
-  PNode:= ADoc.CreateElement('point');
-  TDOMElement(PNode).SetAttribute('x', FloatToStr(EndP.X));
-  TDOMElement(PNode).SetAttribute('y', FloatToStr(EndP.Y));
-  Result.AppendChild(PNode);
+  SavePoints(ADoc, Result);
 end;
 
 initialization

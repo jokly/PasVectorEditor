@@ -11,14 +11,18 @@ type
 
 TToolProp = Class(TObject)
   protected
-    procedure OnChangeEditor(Sender: TObject);
+    procedure OnChangeEditor(Sender: TObject); virtual;
   public
     TypeName: String;
     FEditor: TWinControl;
     function CreateProp(AName: String; Panel: TWinControl): TToolProp; virtual; abstract;
 end;
 
+{ TIntegerProp }
+
 TIntegerProp = Class(TToolProp)
+  protected
+    procedure OnChangeEditor(Sender: TObject); override;
   public
     function CreateProp(AName: String; Panel: TWinControl): TToolProp; override;
 end;
@@ -62,7 +66,6 @@ var
   i: Integer;
 begin
   with Sender as TWinControl do begin
-    if Caption = '' then Caption:= '1'; // CHANGE!!!
     for i:= 0 to High(Figures) do
       SetPropValue(Figures[i], Name, Caption);
   end;
@@ -88,6 +91,13 @@ begin
     OnChange:= @Param.OnChangeEditor;
     Visible:= True;
   end;
+end;
+
+procedure TIntegerProp.OnChangeEditor(Sender: TObject);
+begin
+  if (Sender as TWinControl).Caption = '' then
+    (Sender as TWinControl).Caption:= '1';
+  inherited OnChangeEditor(Sender);
 end;
 
 function TIntegerProp.CreateProp(AName: String; Panel: TWinControl): TToolProp;

@@ -236,6 +236,7 @@ end;
 
 procedure TTPen.OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint);
 begin
+  (Figure as TPen).AddPoint(WPoint);
   TTool.FindMinMaxCoordinate(WPoint);
 end;
 
@@ -247,6 +248,7 @@ end;
 
 procedure TTPen.OnMouseUp(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint);
 begin
+  (Figure as TPen).AddPoint(WPoint);
   TFigure.AddFigure(Figure);
   CreateFigure();
   TTool.FindMinMaxCoordinate(WPoint);
@@ -520,17 +522,12 @@ begin
   StartP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).StartP);
   EndP:= ToScreenPoint((TFigure.GetLastFigure() as TRectangle).EndP);
 
-  if not(Shift = [ssCtrl]) then begin
-    for i:=0 to High(Figures) do
-      Figures[i].IsSelected:= False;
-  end;
-
   SelectRect:= Rect(StartP.x, StartP.y, EndP.x, EndP.y);
   for i:=High(Figures) - 1 downto 0  do begin
-    if Figures[i].IsInside(SelectRect) then begin
-      Figures[i].IsSelected:= not Figures[i].IsSelected;
-      if (StartPos.X = WPoint.X) and (StartPos.Y = WPoint.Y) then Break;
-    end;
+      Figures[i].IsSelected:= Figures[i].IsInside(SelectRect);
+      if (Figures[i].IsInside(SelectRect)) and (StartPos.X = WPoint.X)
+        and (StartPos.Y = StartPos.Y) then
+          Break;
   end;
 end;
 

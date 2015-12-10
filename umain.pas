@@ -310,7 +310,17 @@ begin
 end;
 
 procedure TMainForm.MNewClick(Sender: TObject);
+var
+  Ans: Integer;
 begin
+  if not IsSaved then begin
+    Ans:= MessageDlg('Save changes?', 'File has been modified, save changes?', mtConfirmation,
+                   [mbYes, mbNo, mbIgnore], 0);
+    if Ans = mrYes then
+       MSave.Click
+    else if Ans = mrIgnore then
+       Exit;
+  end;
   FileName:= Untitled;
   MainForm.Caption:= FileName + ' - ' + AppName;
   IsSaved:= True;
@@ -319,14 +329,22 @@ begin
 end;
 
 procedure TMainForm.MOpenClick(Sender: TObject);
+var
+  Ans: Integer;
 begin
+  if not IsSaved then begin
+    Ans:= MessageDlg('Save changes?', 'File has been modified, save changes?', mtConfirmation,
+                   [mbYes, mbNo, mbIgnore], 0);
+    if Ans = mrYes then
+       MSave.Click
+    else if Ans = mrIgnore then
+      Exit;
+  end;
   if (OpenDialog.Execute) and (TFigure.LoadFile(OpenDialog.FileName)) then begin
      MainForm.Caption:= OpenDialog.FileName + ' - ' + AppName;
      FileName:= OpenDialog.FileName;
      IsSaved:= True;
-  end
-  else
-    Application.MessageBox('Something wrong with opening file...', 'Warning', MB_ICONINFORMATION);
+  end;
   Invalidate;
 end;
 
@@ -337,7 +355,6 @@ begin
   else begin
     TFigure.SaveFile(FileName);
     MainForm.Caption:= FileName + ' - ' + AppName;
-    FileName:= FileName;
     IsSaved:= True;
   end;
 end;
