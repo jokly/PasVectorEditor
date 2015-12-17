@@ -5,11 +5,15 @@ unit UToolProperties;
 interface
 
 uses
-  StdCtrls, ExtCtrls, Controls, FPCanvas, Graphics, TypInfo;
+  StdCtrls, ExtCtrls, Controls, FPCanvas, Graphics, TypInfo, UFigures;
 
 type
 
+{ TToolProp }
+
 TToolProp = Class(TObject)
+  private
+    procedure InitProp(Sender: TObject);
   protected
     procedure OnChangeEditor(Sender: TObject); virtual;
   public
@@ -58,17 +62,23 @@ const
   MaxValueLength = 2;
 
 var
-  Figures: array of TObject;
+  PropFigures: array of TObject;
   YPosEditor: Integer = InitYPosEditor;
 
-procedure TToolProp.OnChangeEditor(Sender: TObject);
+procedure TToolProp.InitProp(Sender: TObject);
 var
   i: Integer;
 begin
   with Sender as TWinControl do begin
-    for i:= 0 to High(Figures) do
-      SetPropValue(Figures[i], Name, Caption);
+    for i:= 0 to High(PropFigures) do
+      SetPropValue(PropFigures[i], Name, Caption);
   end;
+end;
+
+procedure TToolProp.OnChangeEditor(Sender: TObject);
+begin
+  InitProp(Sender);
+  TFigure.SaveToHistory();
 end;
 
 function CreateComboBox(AName: String; Panel: TWinControl; Values: array of String; Param: TToolProp): TComboBox;
@@ -156,8 +166,8 @@ var
   PropInfo: TPropInfo;
 begin
   if AFigure = Nil then Exit;
-  SetLength(Figures, 1);
-  Figures[0]:= AFigure;
+  SetLength(PropFigures, 1);
+  PropFigures[0]:= AFigure;
   Num:= GetPropList(AFigure.ClassInfo, PropList);
   SetLength(FPropEditors, Num);
   for i:= 0 to Num - 1 do begin
@@ -178,12 +188,12 @@ var
   IsConsider: Integer;
 begin
   if Length(AFigures) = 0 then Exit;
-  SetLength(Figures, Length(AFigures));
-  for i:= 0 to High(Figures) do
-    Figures[i]:= AFigures[i];
+  SetLength(PropFigures, Length(AFigures));
+  for i:= 0 to High(PropFigures) do
+    PropFigures[i]:= AFigures[i];
   Num1:= GetPropList(AFigures[0].ClassInfo, PropList1);
   for i:= 1 to High(AFigures) do begin
-    Num2:= GetPropList(Figures[i].ClassInfo, PropList2);
+    Num2:= GetPropList(PropFigures[i].ClassInfo, PropList2);
     for j:= 0 to Num1 - 1 do begin
       PropInfo1:= PropList1^[j]^;
       IsConsider:= j;
@@ -216,10 +226,10 @@ class procedure TToolProps.ApplyProps(AFigure: TObject);
 var
   i: Integer;
 begin
-  SetLength(Figures, 1);
-  Figures[0]:= AFigure;
+  SetLength(PropFigures, 1);
+  PropFigures[0]:= AFigure;
   for i:= 0 to High(FPropEditors) do
-    FPropEditors[i].OnChangeEditor(FPropEditors[i].FEditor);
+    FPropEditors[i].InitProp(FPropEditors[i].FEditor);
 end;
 
 procedure TToolProps.Delete();

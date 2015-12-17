@@ -78,6 +78,9 @@ type
     procedure ToolClick(Sender: TObject);
     procedure UpdateScrollBarsAndZoom();
     procedure SetColors(Button: TMouseButton);
+    procedure OnChange();
+    function IsSaveDialog(): Integer;
+    procedure ToSavedState(AIsSaved: Boolean);
   end;
 
 var
@@ -101,6 +104,12 @@ var
 {$R *.lfm}
 
 { TMainForm }
+
+procedure TMainForm.OnChange();
+begin
+  IsSaved:= False;
+  MainForm.Caption:= FileName + '* - ' + AppName;
+end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 var
@@ -129,6 +138,10 @@ begin
   end;
   TTool.Tools[0].ButtonOnForm.Click;
   PropPanel:= PropertiesPanel;
+
+  TTPaint.OnChange:= @OnChange;
+  TFigure.ToSavedState:= @ToSavedState;
+  TFigure.InitHistory();
 end;
 
 procedure TMainForm.UpdateScrollBarsAndZoom();
@@ -182,20 +195,27 @@ procedure TMainForm.DrawGridColorMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   aCol, aRow, i: Integer;
+  WasChanged: Boolean = False;
 begin
   DrawGridColor.MouseToCell(X, Y, aCol, aRow);
   if Button = mbLeft then begin
     LeftColor.Brush.Color:= ArrayOfColor[aRow * 7 + aCol + 1];
     for i:= 0 to High(Figures) do
-    if Figures[i].IsSelected then
+    if Figures[i].IsSelected then begin
       Figures[i].SetPenColor(LeftColor.Brush.Color);
+      WasChanged:= True;
+    end;
   end
   else if Button = mbRight then begin
     RightColor.Brush.Color:= ArrayOfColor[aRow * 7 + aCol + 1];
     for i:= 0 to High(Figures) do
-    if (Figures[i].ClassParent = TFillFigure) and (Figures[i].IsSelected) then
+    if (Figures[i].ClassParent = TFillFigure) and (Figures[i].IsSelected) then begin
        (Figures[i] as TFillFigure).SetBrushColor(RightColor.Brush.Color);
+       WasChanged:= True;
+    end;
   end;
+  if WasChanged then
+    TFigure.SaveToHistory();
   Invalidate;
 end;
 
@@ -211,18 +231,35 @@ begin
   Invalidate;
 end;
 
+function TMainForm.IsSaveDialog(): Integer;
+begin
+  Result:= MessageDlg('Save changes?', 'File has been modified, save changes?', mtConfirmation,
+                   [mbYes, mbNo, mbCancel], 0);
+end;
+
+procedure TMainForm.ToSavedState(AIsSaved: Boolean);
+begin
+  if AIsSaved then begin
+    MainForm.Caption:= FileName + ' - ' + AppName;
+    IsSaved:= True;
+  end
+  else begin
+    MainForm.Caption:= FileName + '* - ' + AppName;
+    IsSaved:= False;
+  end;
+end;
+
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 var
-  Ans: TModalResult;
+  Ans: Integer;
 begin
   if IsSaved then
-     Exit;
-  Ans:= MessageDlg('Save changes?', 'File has been modified, save changes?', mtConfirmation,
-                   [mbYes, mbNo, mbIgnore], 0);
+    Exit;
+  Ans:= IsSaveDialog;
   if Ans = mrYes then
-     MSave.Click
+    MSave.Click
   else if Ans = mrNo then
-     CanClose:= True
+    CanClose:= True
   else
     CanClose:= False;
 end;
@@ -242,7 +279,9 @@ begin
   else if (Key = VK_O) and (Shift = [ssCtrl]) then
      MOpen.Click
   else if (Key = VK_Z) and (Shift = [ssCtrl]) then
-     TFigure.DeleteLastFigure()
+     TFigure.LoadPrev()
+  else if (Key = VK_Z) and (Shift = [ssCtrl, ssShift]) then
+     TFigure.LoadNext()
   else if (Key = VK_D) and (Shift = [ssCtrl]) then
      TSelectedFiguresMethods.Delete()
   else if (Key = VK_UP) and (Shift = [ssCtrl]) then
@@ -282,12 +321,17 @@ procedure TMainForm.LeftColorMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
   i: Integer;
+  WasChanged: Boolean = False;
 begin
   if ColorDialog.Execute then
      LeftColor.Brush.Color:= ColorDialog.Color;
   for i:= 0 to High(Figures) do
-    if Figures[i].IsSelected then
+    if Figures[i].IsSelected then begin
       Figures[i].SetPenColor(ColorDialog.Color);
+      WasChanged:= True;
+    end;
+  if WasChanged then
+    TFigure.SaveToHistory();
   Invalidate;
 end;
 
@@ -295,12 +339,17 @@ procedure TMainForm.RightColorMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
   i: Integer;
+  WasChanged: Boolean = False;
 begin
   if ColorDialog.Execute then
      RightColor.Brush.Color:= ColorDialog.Color;
   for i:= 0 to High(Figures) do
-    if (Figures[i].ClassParent = TFillFigure) and (Figures[i].IsSelected) then
+    if (Figures[i].ClassParent = TFillFigure) and (Figures[i].IsSelected) then begin
        (Figures[i] as TFillFigure).SetBrushColor(ColorDialog.Color);
+       WasChanged:= True;
+    end;
+  if WasChanged then
+    TFigure.SaveToHistory();
   Invalidate;
 end;
 
@@ -314,8 +363,7 @@ var
   Ans: Integer;
 begin
   if not IsSaved then begin
-    Ans:= MessageDlg('Save changes?', 'File has been modified, save changes?', mtConfirmation,
-                   [mbYes, mbNo, mbIgnore], 0);
+    Ans:= IsSaveDialog();
     if Ans = mrYes then
        MSave.Click
     else if Ans = mrIgnore then
@@ -333,8 +381,7 @@ var
   Ans: Integer;
 begin
   if not IsSaved then begin
-    Ans:= MessageDlg('Save changes?', 'File has been modified, save changes?', mtConfirmation,
-                   [mbYes, mbNo, mbIgnore], 0);
+    Ans:= IsSaveDialog();
     if Ans = mrYes then
        MSave.Click
     else if Ans = mrIgnore then
@@ -356,6 +403,7 @@ begin
     TFigure.SaveFile(FileName);
     MainForm.Caption:= FileName + ' - ' + AppName;
     IsSaved:= True;
+    SavedToCurrent();
   end;
 end;
 
@@ -366,6 +414,7 @@ begin
     MainForm.Caption:= SaveDialog.FileName + ' - ' + AppName;
     FileName:= SaveDialog.FileName;
     IsSaved:= True;
+    SavedToCurrent();
   end;
 end;
 
@@ -380,8 +429,6 @@ begin
   IsMouseDown:= True;
   TTool.Tools[IndexOfBtn].OnMouseDown(Button, ShiftState, ToWorldPoint(X, Y));
   SetColors(Button);
-  IsSaved:= False;
-  MainForm.Caption:= FileName + '* - ' + AppName;
   Invalidate;
 end;
 

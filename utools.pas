@@ -10,9 +10,7 @@ uses
 
 type
 
-  { TTool }
-
-  { TSelectedFiguresMethods }
+  TChangeEvent = procedure of Object;
 
   TSelectedFiguresMethods = class(TObject)
     public
@@ -37,7 +35,14 @@ type
       procedure OnMouseUp(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); virtual; abstract;
   end;
 
-  TTPen = Class(TTool)
+  { TTPaint }
+
+  TTPaint = Class(TTool)
+    public
+      OnChange: TChangeEvent; static;
+  end;
+
+  TTPen = Class(TTPaint)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -45,7 +50,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTLine = Class(TTool)
+  TTLine = Class(TTPaint)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -53,7 +58,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTPolyline = Class(TTool)
+  TTPolyline = Class(TTPaint)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -61,7 +66,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTRectangle = Class(TTool)
+  TTRectangle = Class(TTPaint)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -69,7 +74,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTRoundRectangle = Class(TTool)
+  TTRoundRectangle = Class(TTPaint)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -77,7 +82,7 @@ type
       procedure OnMouseUp(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  TTEllipse = Class(TTool)
+  TTEllipse = Class(TTPaint)
     public
       procedure CreateFigure(); override;
       procedure OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -108,12 +113,9 @@ type
       procedure OnMouseUp(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
   end;
 
-  { TTSelect }
-
   TTSelect = Class(TTool)
     private
-      StartPos: TWorldPoint;
-      FigureOffset: TWorldPoint;
+      OnDownPos, StartPos, FigureOffset: TWorldPoint;
       IsShiftWasDown: Boolean;
     public
       procedure OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint); override;
@@ -139,8 +141,6 @@ const
 
 var
   ToolParams: TToolProps;
-
-{ TSelectedFiguresMethods }
 
 class procedure TTool.FindMinMaxCoordinate(WPoint: TWorldPoint);
 begin
@@ -238,6 +238,7 @@ procedure TTPen.OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TW
 begin
   (Figure as TPen).AddPoint(WPoint);
   TTool.FindMinMaxCoordinate(WPoint);
+  OnChange;
 end;
 
 procedure TTPen.OnMouseMove(Shift: TShiftState; WPoint: TWorldPoint);
@@ -252,6 +253,7 @@ begin
   TFigure.AddFigure(Figure);
   CreateFigure();
   TTool.FindMinMaxCoordinate(WPoint);
+  TFigure.SaveToHistory();
 end;
 
 procedure TTLine.CreateFigure();
@@ -265,6 +267,7 @@ begin
   (Figure as TLine).StartP:= WPoint;
   (Figure as TLine).EndP:= WPoint;
   TTool.FindMinMaxCoordinate(WPoint);
+  OnChange;
 end;
 
 procedure TTLine.OnMouseMove(Shift: TShiftState; WPoint: TWorldPoint);
@@ -285,6 +288,7 @@ begin
   TFigure.AddFigure(Figure);
   CreateFigure();
   TTool.FindMinMaxCoordinate(WPoint);
+  TFigure.SaveToHistory();
 end;
 
 procedure TTPolyline.CreateFigure();
@@ -297,6 +301,7 @@ procedure TTPolyline.OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoin
 var
   ALine: TLine;
 begin
+  OnChange;
   ALine:= TLine.Create;
   ALine.StartP:= WPoint;
   ALine.EndP:= WPoint;
@@ -306,6 +311,7 @@ begin
     TFigure.AddFigure(Figure);
     CreateFigure();
     IsMouseDown:= False;
+    TFigure.SaveToHistory();
     Exit;
   end
   else if Button = mbRight then Exit;
@@ -338,6 +344,7 @@ begin
   (Figure as TRectangle).StartP:= WPoint;
   (Figure as TRectangle).EndP:= WPoint;
   TTool.FindMinMaxCoordinate(WPoint);
+  OnChange;
 end;
 
 procedure TTRectangle.OnMouseMove(Shift: TShiftState; WPoint: TWorldPoint);
@@ -352,6 +359,7 @@ begin
   TFigure.AddFigure(Figure);
   CreateFigure();
   TTool.FindMinMaxCoordinate(WPoint);
+  TFigure.SaveToHistory();
 end;
 
 procedure TTRoundRectangle.CreateFigure();
@@ -365,6 +373,7 @@ begin
   (Figure as TRoundRectangle).StartP:= WPoint;
   (Figure as TRoundRectangle).EndP:= WPoint;
   TTool.FindMinMaxCoordinate(WPoint);
+  OnChange;
 end;
 
 procedure TTRoundRectangle.OnMouseMove(Shift: TShiftState; WPoint: TWorldPoint);
@@ -379,6 +388,7 @@ begin
   TFigure.AddFigure(Figure);
   CreateFigure();
   TTool.FindMinMaxCoordinate(WPoint);
+  TFigure.SaveToHistory();
 end;
 
 procedure TTEllipse.CreateFigure();
@@ -392,6 +402,7 @@ begin
   (Figure as TEllipse).StartP:= WPoint;
   (Figure as TEllipse).EndP:= WPoint;
   TTool.FindMinMaxCoordinate(WPoint);
+  OnChange;
 end;
 
 procedure TTEllipse.OnMouseMove(Shift: TShiftState;WPoint: TWorldPoint);
@@ -406,6 +417,7 @@ begin
   TFigure.AddFigure(Figure);
   CreateFigure();
   TTool.FindMinMaxCoordinate(WPoint);
+  TFigure.SaveToHistory();
 end;
 
 procedure TTLoupe.OnMouseDown(Button: TMouseButton; Shift: TShiftState; WPoint: TWorldPoint);
@@ -479,6 +491,7 @@ var
   i: Integer;
 begin
   StartPos:= WPoint;
+  OnDownPos:= WPoint;
   if Shift = [ssShift] then begin
     FigureOffset:= WorldPoint(0, 0);
     Exit;
@@ -536,6 +549,8 @@ var
   SelectedFigures: array of TObject;
   i: Integer;
 begin
+  if IsShiftWasDown and (OnDownPos.X <> WPoint.X) and (OnDownPos.Y <> WPoint.Y) then
+    TFigure.SaveToHistory();
   if (Shift = [ssShift, ssCtrl]) or (Shift = [ssShift]) then
     Exit;
   if not(ssShift in Shift) and (IsShiftWasDown) then begin

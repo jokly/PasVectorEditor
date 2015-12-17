@@ -10,6 +10,8 @@ uses
 
 type
 
+  TSavedState = procedure(IsSaved: Boolean) of Object;
+
   { TFigure }
 
   TFigure = Class(TObject)
@@ -19,6 +21,7 @@ type
       FPenStyle: TPenStyle;
     public
       IsSelected: Boolean;
+      ToSavedState: TSavedState; static;
       class procedure AddFigure(Figure: TFigure);
       class function GetLastFigure(): TFigure;
       class procedure DeleteLastFigure();
@@ -33,6 +36,10 @@ type
       class procedure SaveFile(FileName: String);
       procedure SetValuesOfFigures(ANode: TDOMNode); virtual; // Устанавливает значения при сохранении
       function SaveFigure(ADoc: TXMLDocument): TDOMNode; virtual; abstract;
+      class procedure InitHistory();
+      class procedure SaveToHistory();
+      class procedure LoadPrev();
+      class procedure LoadNext();
     published
       property PenWidth: Integer read FPenWidth write FPenWidth;
       property PenStyle: TPenStyle read FPenStyle write FPenStyle;
@@ -146,15 +153,24 @@ type
   var
     Figures: array of TFigure;
 
+procedure SavedToCurrent();
+
 implementation
 
 var
   ClassesFigures: array of TFigure;
+  Current, Saved: Integer;
+  History: array of TStringStream;
 
 procedure AddFigure(AFigure: TFigure);
 begin
   SetLength(ClassesFigures, Length(ClassesFigures) + 1);
   ClassesFigures[High(ClassesFigures)]:= AFigure;
+end;
+
+procedure SavedToCurrent;
+begin
+  Saved:= Current;
 end;
 
 class procedure TFigure.AddFigure(Figure: TFigure);
@@ -202,18 +218,13 @@ begin
   end;
 end;
 
-class function TFigure.LoadFile(FileName: String): Boolean;
+function LoadFigures(Doc: TXMLDocument): Boolean;
 var
-  Doc: TXMLDocument;
   FigNode: TDOMNode;
   i: Integer;
 begin
   Result:= True;
-  if (Copy(FileName, Length(FileName) - 3, 4) <> '.xml') then
-    Exit(False);
-  try
-    ReadXMLFile(Doc, FileName);
-    if Doc.DocumentElement.NodeName <> 'Figures' then
+  if Doc.DocumentElement.NodeName <> 'Figures' then
       Exit(False);
     SetLength(Figures, 0);
     FigNode:= Doc.DocumentElement.FirstChild;
@@ -223,27 +234,47 @@ begin
           ClassesFigures[i].LoadFigure(FigNode);
       FigNode:= FigNode.GetNextNodeSkipChildren;
     end;
+end;
+
+class function TFigure.LoadFile(FileName: String): Boolean;
+var
+  Doc: TXMLDocument;
+begin
+  if (Copy(FileName, Length(FileName) - 3, 4) <> '.xml') then
+    Exit(False);
+  try
+    ReadXMLFile(Doc, FileName);
+    Result:= LoadFigures(Doc);
   finally
     Doc.Free;
   end;
 end;
 
-class procedure TFigure.SaveFile(FileName: String);
+function FiguresToXML(): TXMLDocument;
 var
   Doc: TXMLDocument;
   FiguresNode: TDOMNode;
   i: Integer;
 begin
+  Doc:= TXMLDocument.Create;
+  FiguresNode:= Doc.CreateElement('Figures');
+  Doc.AppendChild(FiguresNode);
+  FiguresNode:= Doc.DocumentElement;
+  for i:= 0 to High(Figures) do
+    FiguresNode.AppendChild(Figures[i].SaveFigure(Doc));
+  Result:= Doc;
+end;
+
+class procedure TFigure.SaveFile(FileName: String);
+var
+  Doc: TXMLDocument;
+begin
   if (Copy(FileName, Length(FileName) - 3, 4) <> '.xml') then
     Exit;
   try
-    Doc:= TXMLDocument.Create;
-    FiguresNode:= Doc.CreateElement('Figures');
-    Doc.AppendChild(FiguresNode);
-    FiguresNode:= Doc.DocumentElement;
-    for i:= 0 to High(Figures) do
-      FiguresNode.AppendChild(Figures[i].SaveFigure(Doc));
+    Doc:= FiguresToXML();
     WriteXML(Doc, FileName);
+    Saved:= Current;
   finally
     Doc.Free;
   end;
@@ -253,7 +284,68 @@ procedure TFigure.SetValuesOfFigures(ANode: TDOMNode);
 begin
   TDOMElement(ANode).SetAttribute('PenWidth', IntToStr(PenWidth));
   TDOMElement(ANode).SetAttribute('PenColor', IntToStr(FPenColor));
-  TDOMElement(ANode).SetAttribute('PenStyle',  GetEnumName(TypeInfo(TPenStyle), Integer(PenStyle)));
+  TDOMElement(ANode).SetAttribute('PenStyle', GetEnumName(TypeInfo(TPenStyle), Integer(PenStyle)));
+end;
+
+class procedure TFigure.InitHistory;
+var
+  Doc: TXMLDocument;
+begin
+  SetLength(History, 1);
+  History[0]:= TStringStream.Create('');
+  Doc:= FiguresToXML();
+  WriteXMLFile(Doc, History[0]);
+  Current:= 0;
+  Saved:= 0;
+end;
+
+class procedure TFigure.SaveToHistory;
+var
+  Doc: TXMLDocument;
+begin
+  try
+    Doc:= FiguresToXML();
+    SetLength(History, Current + 2);
+    History[High(History)]:= TStringStream.Create('');
+    WriteXMLFile(Doc, History[High(History)]);
+    Current:= High(History);
+    if Current < Saved then
+      Saved:= -1;
+  finally
+    Doc.Free;
+  end;
+end;
+
+class procedure TFigure.LoadPrev;
+var
+  Doc: TXMLDocument;
+begin
+  if Current = 0 then
+    Exit;
+  Dec(Current);
+  if Current = Saved then
+    TFigure.ToSavedState(True)
+  else
+    TFigure.ToSavedState(False);
+  History[Current].Position:= 0;
+  ReadXMLFile(Doc, History[Current]);
+  LoadFigures(Doc);
+end;
+
+class procedure TFigure.LoadNext;
+var
+  Doc: TXMLDocument;
+begin
+  if Current = High(History) then
+    Exit;
+  Inc(Current);
+  if Current = Saved then
+    TFigure.ToSavedState(True)
+  else
+    TFigure.ToSavedState(False);
+  History[Current].Position:= 0;
+  ReadXMLFile(Doc, History[Current]);
+  LoadFigures(Doc);
 end;
 
 procedure TFigure.InitFigure(ANode: TDOMNode);
@@ -313,7 +405,7 @@ end;
 procedure TPen.Draw(Canvas: TCanvas);
 var
   ScPoints: array of TPoint;
-  i,s: Integer;
+  i: Integer;
 begin
   if IsSelected then
     DrawSelection(Canvas);
@@ -322,10 +414,6 @@ begin
     SetLength(ScPoints, Length(FPoints));
     for i:= 0 to High(FPoints) do
       ScPoints[i]:= ToScreenPoint(FPoints[i]);
-    if Length(FPoints) = 1 then begin
-      s:= Length(FPoints);
-      s:= Pen.Width;
-    end;
     Polyline(ScPoints);
   end;
 end;
