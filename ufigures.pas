@@ -309,20 +309,17 @@ begin
     History[High(History)]:= TStringStream.Create('');
     WriteXMLFile(Doc, History[High(History)]);
     Current:= High(History);
-    if Current < Saved then
+    if Current <= Saved then
       Saved:= -1;
   finally
     Doc.Free;
   end;
 end;
 
-class procedure TFigure.LoadPrev;
+procedure Load();
 var
   Doc: TXMLDocument;
 begin
-  if Current = 0 then
-    Exit;
-  Dec(Current);
   if Current = Saved then
     TFigure.ToSavedState(True)
   else
@@ -332,20 +329,20 @@ begin
   LoadFigures(Doc);
 end;
 
+class procedure TFigure.LoadPrev;
+begin
+  if Current = 0 then
+    Exit;
+  Dec(Current);
+  Load();
+end;
+
 class procedure TFigure.LoadNext;
-var
-  Doc: TXMLDocument;
 begin
   if Current = High(History) then
     Exit;
   Inc(Current);
-  if Current = Saved then
-    TFigure.ToSavedState(True)
-  else
-    TFigure.ToSavedState(False);
-  History[Current].Position:= 0;
-  ReadXMLFile(Doc, History[Current]);
-  LoadFigures(Doc);
+  Load();
 end;
 
 procedure TFigure.InitFigure(ANode: TDOMNode);
@@ -383,8 +380,8 @@ begin
   for i:= 0 to High(FPoints) do
     FigurePos[i]:= ToScreenPoint(FPoints[i]);
   for i:=High(FPoints) downto 0 do
-    FigurePos[2 * Length(FPoints) - 1 - i]:= Point(ToScreenPoint(FPoints[i]).x + 1,
-                         ToScreenPoint(FPoints[i]).y - 1);
+    FigurePos[2 * Length(FPoints) - 1 - i]:=
+      Point(ToScreenPoint(FPoints[i]).x + 1, ToScreenPoint(FPoints[i]).y - 1);
   Region:= CreatePolygonRgn(@FigurePos[0], Length(FigurePos), ALTERNATE);
   if RectInRegion(Region, ARect) then Result:= True;
   DeleteObject(Region);

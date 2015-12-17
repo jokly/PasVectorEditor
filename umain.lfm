@@ -195,6 +195,9 @@ object MainForm: TMainForm
       object MUndo: TMenuItem
         Caption = 'Назад Ctrl+Z'
       end
+      object MRedo: TMenuItem
+        Caption = 'Вперед Ctrl+Shift+Z'
+      end
       object MDelete: TMenuItem
         Caption = 'Удалить Ctrl+D'
       end

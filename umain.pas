@@ -23,6 +23,7 @@ type
     MActions: TMenuItem;
     MClear: TMenuItem;
     MDelete: TMenuItem;
+    MRedo: TMenuItem;
     MNew: TMenuItem;
     MExit: TMenuItem;
     MOpen: TMenuItem;
@@ -239,14 +240,11 @@ end;
 
 procedure TMainForm.ToSavedState(AIsSaved: Boolean);
 begin
-  if AIsSaved then begin
-    MainForm.Caption:= FileName + ' - ' + AppName;
-    IsSaved:= True;
-  end
-  else begin
+  IsSaved:= AIsSaved;
+  if AIsSaved then
+    MainForm.Caption:= FileName + ' - ' + AppName
+  else
     MainForm.Caption:= FileName + '* - ' + AppName;
-    IsSaved:= False;
-  end;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -373,6 +371,7 @@ begin
   MainForm.Caption:= FileName + ' - ' + AppName;
   IsSaved:= True;
   SetLength(Figures, 0);
+  TFigure.InitHistory();
   Invalidate;
 end;
 
